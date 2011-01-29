@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C# Express 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperImageEvolver", "SuperEvolve\SuperImageEvolver.csproj", "{F0E25CA0-3887-4BE7-BB3D-EF40DEA7F1B8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperImageEvolver", "SuperImageEvolver\SuperImageEvolver.csproj", "{F0E25CA0-3887-4BE7-BB3D-EF40DEA7F1B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

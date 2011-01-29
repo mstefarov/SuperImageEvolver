@@ -10,16 +10,25 @@ namespace SuperImageEvolver {
         public DiffCanvas() {
             InitializeComponent();
             DoubleBuffered = true;
+            Inverse = true;
+
+            Click += delegate( object sender, EventArgs e ) {
+                Inverse = !Inverse;
+                Invalidate();
+            };
         }
+
 
         public void Init( TaskState _state ) {
             state = _state;
             canvasImage = new Bitmap( state.ImageWidth, state.ImageHeight );
         }
 
+
+        public bool Inverse { get; set; }
         TaskState state;
         Bitmap canvasImage;
-        public bool lumaMode = true;
+
 
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g2 = e.Graphics;
@@ -42,10 +51,15 @@ namespace SuperImageEvolver {
                     originalPointer = (byte*)state.ImageData.Scan0 + state.ImageData.Stride * i;
                     testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                     for( int j = 0; j < state.ImageWidth; j++ ) {
-
-                        testPointer[2] = (byte)(255 - (int)(255 * Math.Sqrt( Math.Abs( originalPointer[2] - testPointer[2] ) / 255d )));
-                        testPointer[1] = (byte)(255 - (int)(255 * Math.Sqrt( Math.Abs( originalPointer[1] - testPointer[1] ) / 255d )));
-                        *testPointer = (byte)(255 - (int)(255 * Math.Sqrt( Math.Abs( *originalPointer - *testPointer ) / 255d )));
+                        if( Inverse ) {
+                            testPointer[2] = (byte)(255 - (int)(255 * Math.Sqrt( Math.Abs( originalPointer[2] - testPointer[2] ) / 255d )));
+                            testPointer[1] = (byte)(255 - (int)(255 * Math.Sqrt( Math.Abs( originalPointer[1] - testPointer[1] ) / 255d )));
+                            *testPointer = (byte)(255 - (int)(255 * Math.Sqrt( Math.Abs( *originalPointer - *testPointer ) / 255d )));
+                        } else {
+                            testPointer[2] = (byte)(255 * Math.Sqrt( Math.Abs( originalPointer[2] - testPointer[2] ) / 255d ));
+                            testPointer[1] = (byte)(255 * Math.Sqrt( Math.Abs( originalPointer[1] - testPointer[1] ) / 255d ));
+                            *testPointer = (byte)(255 * Math.Sqrt( Math.Abs( *originalPointer - *testPointer ) / 255d ));
+                        }
                         originalPointer += 4;
                         testPointer += 4;
                     }

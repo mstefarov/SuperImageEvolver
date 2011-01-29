@@ -51,40 +51,40 @@ namespace SuperImageEvolver {
 
 
         void MutateShape( Random rand, DNA dna, DNA.Shape shape, TaskState task ) {
-            byte delta = (byte)rand.Next( -maxDelta, maxDelta + 1 );
+            int delta = (byte)rand.Next( -maxDelta, maxDelta + 1 );
             switch( rand.Next( 9 ) ) {
                 case 0:
-                    shape.Color = Color.FromArgb( Math.Max( 0, Math.Min( 255, shape.Color.A + delta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( Math.Max( 0, Math.Min( 255, (int)shape.Color.A + delta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
                     dna.LastMutation = MutationType.AdjustColor;
                     break;
                 case 1:
-                    shape.Color = Color.FromArgb( shape.Color.A, Math.Max( 0, Math.Min( 255, shape.Color.R + delta ) ), shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( shape.Color.A, Math.Max( 0, Math.Min( 255, (int)shape.Color.R + delta ) ), shape.Color.G, shape.Color.B );
                     dna.LastMutation = MutationType.AdjustColor;
                     break;
                 case 2:
-                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, Math.Max( 0, Math.Min( 255, shape.Color.G + delta ) ), shape.Color.B );
+                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, Math.Max( 0, Math.Min( 255, (int)shape.Color.G + delta ) ), shape.Color.B );
                     dna.LastMutation = MutationType.AdjustColor;
                     break;
                 case 3:
-                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, shape.Color.G, Math.Max( 0, Math.Min( 255, shape.Color.B + delta ) ) );
+                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, shape.Color.G, Math.Max( 0, Math.Min( 255, (int)shape.Color.B + delta ) ) );
                     dna.LastMutation = MutationType.AdjustColor;
                     break;
                 case 4:
                 case 5:
                     int pt1 = rand.Next( shape.Points.Length );
-                    shape.Points[pt1].X = Math.Max( 0, Math.Min( task.ImageWidth, shape.Points[pt1].X + delta ) );
+                    shape.Points[pt1].X = Math.Max( 0, Math.Min( task.ImageWidth-1, shape.Points[pt1].X + delta ) );
                     dna.LastMutation = MutationType.AdjustPoint;
                     break;
                 case 6:
                 case 7:
                     int pt2 = rand.Next( shape.Points.Length );
-                    shape.Points[pt2].Y = Math.Max( 0, Math.Min( task.ImageHeight, shape.Points[pt2].Y + delta ) );
+                    shape.Points[pt2].Y = Math.Max( 0, Math.Min( task.ImageHeight - 1, shape.Points[pt2].Y + delta ) );
                     dna.LastMutation = MutationType.AdjustPoint;
                     break;
                 case 8:
                     int pt3 = rand.Next( shape.Points.Length );
-                    shape.Points[pt3].X = Math.Max( 0, Math.Min( task.ImageWidth, shape.Points[pt3].X + delta ) );
-                    shape.Points[pt3].Y = Math.Max( 0, Math.Min( task.ImageHeight, shape.Points[pt3].Y + delta ) );
+                    shape.Points[pt3].X = Math.Max( 0, Math.Min( task.ImageWidth - 1, shape.Points[pt3].X + delta ) );
+                    shape.Points[pt3].Y = Math.Max( 0, Math.Min( task.ImageHeight - 1, shape.Points[pt3].Y + delta ) );
                     dna.LastMutation = MutationType.AdjustPoints;
                     break;
             }

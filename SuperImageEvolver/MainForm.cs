@@ -18,6 +18,7 @@ namespace SuperImageEvolver {
 
         Bitmap clonedOriginal;
 
+
         public MainForm( string[] args ) {
             InitializeComponent();
 
@@ -39,25 +40,25 @@ namespace SuperImageEvolver {
 
                 clonedOriginal = (Bitmap)state.Image.Clone();
                 state.ImageData = clonedOriginal.LockBits( new Rectangle( Point.Empty, state.Image.Size ),
-                                                                ImageLockMode.ReadOnly,
-                                                                PixelFormat.Format32bppArgb );
+                                                           ImageLockMode.ReadOnly,
+                                                           PixelFormat.Format32bppArgb );
                 state.ImageWidth = state.Image.Width;
                 state.ImageHeight = state.Image.Height;
 
-                pictureBox1.Width = state.ImageWidth;
-                pictureBox1.Height = state.ImageHeight;
+                picOriginal.Width = state.ImageWidth;
+                picOriginal.Height = state.ImageHeight;
+                picOriginal.Image = state.Image;
 
-                canvas1.Width = state.ImageWidth;
-                canvas1.Height = state.ImageHeight;
-                pictureBox1.Image = state.Image;
+                picBestMatch.Width = state.ImageWidth;
+                picBestMatch.Height = state.ImageHeight;
 
-                diffCanvas1.Width = state.ImageWidth;
-                diffCanvas1.Height = state.ImageHeight;
-                diffCanvas1.Init( state );
+                picDiff.Width = state.ImageWidth;
+                picDiff.Height = state.ImageHeight;
+                picDiff.Init( state );
 
-                comboBox1.SelectedIndex = 1;
-                comboBox2.SelectedIndex = 1;
-                comboBox3.SelectedIndex = 0;
+                cInitializer.SelectedIndex = 1;
+                cMutator.SelectedIndex = 1;
+                cEvaluator.SelectedIndex = 0;
             };
 
             FormClosing += delegate( object sender, FormClosingEventArgs e ) {
@@ -88,9 +89,9 @@ namespace SuperImageEvolver {
                             mutationCounts[mutation.LastMutation]++;
                             mutationImprovements[mutation.LastMutation] += improvement;
                             state.BestMatch = mutation;
-                            canvas1.DNA = state.BestMatch;
-                            canvas1.Invalidate();
-                            diffCanvas1.Invalidate();
+                            picBestMatch.DNA = state.BestMatch;
+                            picBestMatch.Invalidate();
+                            picDiff.Invalidate();
                         }
                     }
                 }
@@ -117,7 +118,7 @@ namespace SuperImageEvolver {
                 double timeDelta = (DateTime.UtcNow - lastUpdate).TotalSeconds;
                 lastUpdate = DateTime.UtcNow;
 
-                textBox1.Text = String.Format(
+                tTaskStats.Text = String.Format(
 @"Fitness: {0:0.0000}%
 Improvements: {1} ({2:0.00}/s)
 Mutations: {3} ({4:0}/s)
@@ -137,7 +138,7 @@ Elapsed: {5}",
                     sb.AppendFormat( "{0} - {1} * {2:0.0000} ({3:0.0000})", type, mutationCounts[type], rate * 100, mutationImprovements[type] * 100 );
                     sb.Append( Environment.NewLine );
                 }
-                mutationStats.Text = sb.ToString();
+                tMutationStats.Text = sb.ToString();
 
             } catch( ObjectDisposedException ) { }
         }
@@ -145,22 +146,23 @@ Elapsed: {5}",
 
         Thread updateThread;
         private void button1_Click( object sender, EventArgs e ) {
-            button1.Enabled = false;
+            bStartStop.Enabled = false;
             if( stopped ) {
                 Start();
             } else {
                 Stop();
             }
-            button1.Enabled = true;
+            bStartStop.Enabled = true;
         }
 
+
         void Start() {
-            comboBox1.Enabled = false;
-            numericUpDown1.Enabled = false;
-            numericUpDown2.Enabled = false;
+            cInitializer.Enabled = false;
+            nPolygons.Enabled = false;
+            nVertices.Enabled = false;
             state.TaskStart = DateTime.UtcNow;
-            state.Shapes = (int)numericUpDown1.Value;
-            state.Vertices = (int)numericUpDown2.Value;
+            state.Shapes = (int)nPolygons.Value;
+            state.Vertices = (int)nVertices.Value;
             state.ImprovementCounter = 0;
             LastMutationtCounter = 0;
             state.MutationCounter = 0;
@@ -180,8 +182,9 @@ Elapsed: {5}",
             }
             updateThread = new Thread( UpdateStatus );
             updateThread.Start();
-            button1.Text = "Stop";
+            bStartStop.Text = "Stop";
         }
+
 
         void Stop() {
             stopped = true;
@@ -190,15 +193,15 @@ Elapsed: {5}",
             }
             Application.DoEvents();
             if( updateThread != null ) updateThread.Join();
-            button1.Text = "Start";
-            comboBox1.Enabled = true;
-            numericUpDown1.Enabled = true;
-            numericUpDown2.Enabled = true;
+            bStartStop.Text = "Start";
+            cInitializer.Enabled = true;
+            nPolygons.Enabled = true;
+            nVertices.Enabled = true;
         }
 
 
-        private void comboBox1_SelectedIndexChanged( object sender, EventArgs e ) {
-            switch( comboBox1.SelectedIndex ) {
+        private void cInitializer_SelectedIndexChanged( object sender, EventArgs e ) {
+            switch( cInitializer.SelectedIndex ) {
                 case 0:
                     state.Initializer = new SolidColorInitializer( Color.Black ); break;
                 case 1:
@@ -206,8 +209,9 @@ Elapsed: {5}",
             }
         }
 
-        private void comboBox2_SelectedIndexChanged( object sender, EventArgs e ) {
-            switch( comboBox2.SelectedIndex ) {
+
+        private void cMutator_SelectedIndexChanged( object sender, EventArgs e ) {
+            switch( cMutator.SelectedIndex ) {
                 case 0:
                     state.Mutator = new HarderMutator(); break;
                 case 1:
@@ -221,8 +225,8 @@ Elapsed: {5}",
             }
         }
 
-        private void comboBox3_SelectedIndexChanged( object sender, EventArgs e ) {
-            switch( comboBox3.SelectedIndex ) {
+        private void cEvaluator_SelectedIndexChanged( object sender, EventArgs e ) {
+            switch( cEvaluator.SelectedIndex ) {
                 case 0:
                     state.SetEvaluator( new RGBEvaluator( false ) ); break;
                 case 1:

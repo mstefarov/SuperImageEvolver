@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
@@ -8,10 +9,14 @@ namespace SuperImageEvolver {
         public Canvas() {
             InitializeComponent();
             DoubleBuffered = true;
+            Click += delegate( object sender, EventArgs e ) {
+                Wireframe = !Wireframe;
+                Invalidate();
+            };
         }
 
         public DNA DNA;
-        public bool lumaMode = true;
+        public bool Wireframe { get; set; }
 
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g = e.Graphics;
@@ -20,7 +25,11 @@ namespace SuperImageEvolver {
             if( tempDNA != null ) {
                 g.SmoothingMode = SmoothingMode.HighQuality;
                 for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
-                    g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ), tempDNA.Shapes[i].Points, FillMode.Winding );
+                    if( Wireframe ) {
+                        g.DrawPolygon( new Pen( tempDNA.Shapes[i].Color ), tempDNA.Shapes[i].Points );
+                    } else {
+                        g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ), tempDNA.Shapes[i].Points, FillMode.Winding );
+                    }
                 }
             }
             base.OnPaint( e );
