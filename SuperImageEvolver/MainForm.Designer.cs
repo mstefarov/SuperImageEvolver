@@ -23,7 +23,6 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.tTaskStats = new System.Windows.Forms.TextBox();
             this.picOriginal = new System.Windows.Forms.PictureBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.picBestMatch = new SuperImageEvolver.Canvas();
@@ -35,27 +34,36 @@
             this.lInitializer = new System.Windows.Forms.Label();
             this.cMutator = new System.Windows.Forms.ComboBox();
             this.cInitializer = new System.Windows.Forms.ComboBox();
+            this.graphWindow1 = new SuperImageEvolver.GraphWindow();
             this.lVertices = new System.Windows.Forms.Label();
             this.lPolygons = new System.Windows.Forms.Label();
             this.nPolygons = new System.Windows.Forms.NumericUpDown();
             this.nVertices = new System.Windows.Forms.NumericUpDown();
             this.bStartStop = new System.Windows.Forms.Button();
             this.tMutationStats = new System.Windows.Forms.TextBox();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.menuTask = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuNewTask = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuOpenTask = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuSaveTask = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuExportBestMatch = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuExit = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuView = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuOriginalImage = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuBestMatchImage = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuDifferenceImage = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStatistics = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.listModulesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nPolygons)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nVertices)).BeginInit();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // tTaskStats
-            // 
-            this.tTaskStats.Location = new System.Drawing.Point( 3, 3 );
-            this.tTaskStats.Multiline = true;
-            this.tTaskStats.Name = "tTaskStats";
-            this.tTaskStats.ReadOnly = true;
-            this.tTaskStats.Size = new System.Drawing.Size( 165, 71 );
-            this.tTaskStats.TabIndex = 1;
             // 
             // picOriginal
             // 
@@ -73,21 +81,25 @@
             this.flowLayoutPanel1.Controls.Add( this.panel1 );
             this.flowLayoutPanel1.Controls.Add( this.tMutationStats );
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point( 0, 0 );
+            this.flowLayoutPanel1.Location = new System.Drawing.Point( 0, 24 );
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size( 595, 336 );
+            this.flowLayoutPanel1.Size = new System.Drawing.Size( 882, 461 );
             this.flowLayoutPanel1.TabIndex = 3;
             // 
             // picBestMatch
             // 
             this.picBestMatch.Location = new System.Drawing.Point( 44, 3 );
             this.picBestMatch.Name = "picBestMatch";
+            this.picBestMatch.ShowLastChange = false;
             this.picBestMatch.Size = new System.Drawing.Size( 39, 38 );
             this.picBestMatch.TabIndex = 0;
+            this.picBestMatch.Wireframe = false;
             // 
             // picDiff
             // 
+            this.picDiff.Inverse = true;
             this.picDiff.Location = new System.Drawing.Point( 89, 3 );
+            this.picDiff.Monochrome = false;
             this.picDiff.Name = "picDiff";
             this.picDiff.Size = new System.Drawing.Size( 38, 38 );
             this.picDiff.TabIndex = 8;
@@ -100,9 +112,9 @@
             this.panel1.Controls.Add( this.lInitializer );
             this.panel1.Controls.Add( this.cMutator );
             this.panel1.Controls.Add( this.cInitializer );
+            this.panel1.Controls.Add( this.graphWindow1 );
             this.panel1.Controls.Add( this.lVertices );
             this.panel1.Controls.Add( this.lPolygons );
-            this.panel1.Controls.Add( this.tTaskStats );
             this.panel1.Controls.Add( this.nPolygons );
             this.panel1.Controls.Add( this.nVertices );
             this.panel1.Controls.Add( this.bStartStop );
@@ -182,6 +194,13 @@
             this.cInitializer.TabIndex = 8;
             this.cInitializer.SelectedIndexChanged += new System.EventHandler( this.cInitializer_SelectedIndexChanged );
             // 
+            // graphWindow1
+            // 
+            this.graphWindow1.Location = new System.Drawing.Point( 3, 3 );
+            this.graphWindow1.Name = "graphWindow1";
+            this.graphWindow1.Size = new System.Drawing.Size( 165, 71 );
+            this.graphWindow1.TabIndex = 9;
+            // 
             // lVertices
             // 
             this.lVertices.AutoSize = true;
@@ -252,7 +271,7 @@
             this.bStartStop.TabIndex = 3;
             this.bStartStop.Text = "Start";
             this.bStartStop.UseVisualStyleBackColor = true;
-            this.bStartStop.Click += new System.EventHandler( this.button1_Click );
+            this.bStartStop.Click += new System.EventHandler( this.bStartStop_Click );
             // 
             // tMutationStats
             // 
@@ -260,15 +279,156 @@
             this.tMutationStats.Multiline = true;
             this.tMutationStats.Name = "tMutationStats";
             this.tMutationStats.ReadOnly = true;
-            this.tMutationStats.Size = new System.Drawing.Size( 194, 215 );
+            this.tMutationStats.Size = new System.Drawing.Size( 199, 215 );
             this.tMutationStats.TabIndex = 7;
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange( new System.Windows.Forms.ToolStripItem[] {
+            this.menuTask,
+            this.menuView,
+            this.helpToolStripMenuItem} );
+            this.menuStrip1.Location = new System.Drawing.Point( 0, 0 );
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size( 882, 24 );
+            this.menuStrip1.TabIndex = 4;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // menuTask
+            // 
+            this.menuTask.DropDownItems.AddRange( new System.Windows.Forms.ToolStripItem[] {
+            this.menuNewTask,
+            this.menuOpenTask,
+            this.menuSaveTask,
+            this.toolStripSeparator1,
+            this.menuExportBestMatch,
+            this.toolStripSeparator2,
+            this.menuExit} );
+            this.menuTask.Name = "menuTask";
+            this.menuTask.Size = new System.Drawing.Size( 43, 20 );
+            this.menuTask.Text = "Task";
+            // 
+            // menuNewTask
+            // 
+            this.menuNewTask.Enabled = false;
+            this.menuNewTask.Name = "menuNewTask";
+            this.menuNewTask.Size = new System.Drawing.Size( 214, 22 );
+            this.menuNewTask.Text = "New Task";
+            // 
+            // menuOpenTask
+            // 
+            this.menuOpenTask.Enabled = false;
+            this.menuOpenTask.Name = "menuOpenTask";
+            this.menuOpenTask.Size = new System.Drawing.Size( 214, 22 );
+            this.menuOpenTask.Text = "Open Task...";
+            // 
+            // menuSaveTask
+            // 
+            this.menuSaveTask.Enabled = false;
+            this.menuSaveTask.Name = "menuSaveTask";
+            this.menuSaveTask.Size = new System.Drawing.Size( 214, 22 );
+            this.menuSaveTask.Text = "Save Task...";
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size( 211, 6 );
+            // 
+            // menuExportBestMatch
+            // 
+            this.menuExportBestMatch.Name = "menuExportBestMatch";
+            this.menuExportBestMatch.Size = new System.Drawing.Size( 214, 22 );
+            this.menuExportBestMatch.Text = "Export Best Match Image...";
+            this.menuExportBestMatch.Click += new System.EventHandler( this.exportImageToolStripMenuItem_Click );
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size( 211, 6 );
+            // 
+            // menuExit
+            // 
+            this.menuExit.Name = "menuExit";
+            this.menuExit.Size = new System.Drawing.Size( 214, 22 );
+            this.menuExit.Text = "Exit";
+            this.menuExit.Click += new System.EventHandler( this.menuExit_Click );
+            // 
+            // menuView
+            // 
+            this.menuView.DropDownItems.AddRange( new System.Windows.Forms.ToolStripItem[] {
+            this.menuOriginalImage,
+            this.menuBestMatchImage,
+            this.menuDifferenceImage,
+            this.menuStatistics} );
+            this.menuView.Name = "menuView";
+            this.menuView.Size = new System.Drawing.Size( 44, 20 );
+            this.menuView.Text = "View";
+            // 
+            // menuOriginalImage
+            // 
+            this.menuOriginalImage.Checked = true;
+            this.menuOriginalImage.CheckOnClick = true;
+            this.menuOriginalImage.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.menuOriginalImage.Name = "menuOriginalImage";
+            this.menuOriginalImage.Size = new System.Drawing.Size( 169, 22 );
+            this.menuOriginalImage.Text = "Original Image";
+            this.menuOriginalImage.Click += new System.EventHandler( this.menuOriginalImage_Click );
+            // 
+            // menuBestMatchImage
+            // 
+            this.menuBestMatchImage.Checked = true;
+            this.menuBestMatchImage.CheckOnClick = true;
+            this.menuBestMatchImage.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.menuBestMatchImage.Name = "menuBestMatchImage";
+            this.menuBestMatchImage.Size = new System.Drawing.Size( 169, 22 );
+            this.menuBestMatchImage.Text = "Best Match Image";
+            this.menuBestMatchImage.Click += new System.EventHandler( this.menuBestMatchImage_Click );
+            // 
+            // menuDifferenceImage
+            // 
+            this.menuDifferenceImage.Checked = true;
+            this.menuDifferenceImage.CheckOnClick = true;
+            this.menuDifferenceImage.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.menuDifferenceImage.Name = "menuDifferenceImage";
+            this.menuDifferenceImage.Size = new System.Drawing.Size( 169, 22 );
+            this.menuDifferenceImage.Text = "Difference Image";
+            this.menuDifferenceImage.Click += new System.EventHandler( this.menuDifferenceImage_Click );
+            // 
+            // menuStatistics
+            // 
+            this.menuStatistics.Checked = true;
+            this.menuStatistics.CheckOnClick = true;
+            this.menuStatistics.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.menuStatistics.Name = "menuStatistics";
+            this.menuStatistics.Size = new System.Drawing.Size( 169, 22 );
+            this.menuStatistics.Text = "Statistics";
+            this.menuStatistics.Click += new System.EventHandler( this.menuStatistics_Click );
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange( new System.Windows.Forms.ToolStripItem[] {
+            this.listModulesToolStripMenuItem} );
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size( 44, 20 );
+            this.helpToolStripMenuItem.Text = "Help";
+            // 
+            // listModulesToolStripMenuItem
+            // 
+            this.listModulesToolStripMenuItem.Name = "listModulesToolStripMenuItem";
+            this.listModulesToolStripMenuItem.Size = new System.Drawing.Size( 141, 22 );
+            this.listModulesToolStripMenuItem.Text = "List Modules";
+            this.listModulesToolStripMenuItem.Click += new System.EventHandler( this.menuListModules_Click );
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 595, 336 );
+            this.BackColor = System.Drawing.Color.Black;
+            this.ClientSize = new System.Drawing.Size( 882, 485 );
             this.Controls.Add( this.flowLayoutPanel1 );
+            this.Controls.Add( this.menuStrip1 );
+            this.ForeColor = System.Drawing.Color.Gray;
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "Super Image Evolver";
             ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).EndInit();
@@ -278,14 +438,16 @@
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nPolygons)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nVertices)).EndInit();
+            this.menuStrip1.ResumeLayout( false );
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout( false );
+            this.PerformLayout();
 
         }
 
         #endregion
 
         private Canvas picBestMatch;
-        private System.Windows.Forms.TextBox tTaskStats;
         private System.Windows.Forms.PictureBox picOriginal;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.NumericUpDown nPolygons;
@@ -302,6 +464,23 @@
         private System.Windows.Forms.ComboBox cEvaluator;
         private System.Windows.Forms.TextBox tMutationStats;
         private DiffCanvas picDiff;
+        private GraphWindow graphWindow1;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem menuTask;
+        private System.Windows.Forms.ToolStripMenuItem menuNewTask;
+        private System.Windows.Forms.ToolStripMenuItem menuOpenTask;
+        private System.Windows.Forms.ToolStripMenuItem menuSaveTask;
+        private System.Windows.Forms.ToolStripMenuItem menuExit;
+        private System.Windows.Forms.ToolStripMenuItem menuView;
+        private System.Windows.Forms.ToolStripMenuItem menuOriginalImage;
+        private System.Windows.Forms.ToolStripMenuItem menuBestMatchImage;
+        private System.Windows.Forms.ToolStripMenuItem menuDifferenceImage;
+        private System.Windows.Forms.ToolStripMenuItem menuStatistics;
+        private System.Windows.Forms.ToolStripMenuItem menuExportBestMatch;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem listModulesToolStripMenuItem;
     }
 }
 

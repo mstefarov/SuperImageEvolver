@@ -24,10 +24,12 @@ namespace SuperImageEvolver {
         public DNA Mutate( Random rand, DNA oldDNA, TaskState task ) {
             DNA newDNA = new DNA( oldDNA );
             DNA.Shape shape = newDNA.Shapes[rand.Next( newDNA.Shapes.Length )];
+            shape.PreviousState = shape.Clone() as DNA.Shape;
             shape.Color = Color.FromArgb( rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ) );
             for( int i = 0; i < shape.Points.Length; i++ ) {
                 shape.Points[i] = new Point( rand.Next( task.ImageWidth ), rand.Next( task.ImageHeight ) );
             }
+            shape.Changed = true;
             newDNA.LastMutation = MutationType.ReplaceShape;
             return newDNA;
         }

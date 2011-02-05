@@ -32,6 +32,8 @@ namespace SuperImageEvolver {
 
             public Color Color;
             public Point[] Points;
+            public Shape PreviousState;
+            public bool Changed;
 
             public object Clone() {
                 return new Shape( this );

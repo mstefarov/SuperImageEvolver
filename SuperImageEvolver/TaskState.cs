@@ -18,13 +18,15 @@ namespace SuperImageEvolver {
         public BitmapData ImageData;
         public Bitmap BestMatchRender;
 
-        public List<Mutation> MutationLog;
+        public List<Mutation> MutationLog = new List<Mutation>();
 
         public IInitializer Initializer;
         public IMutator Mutator;
         public IEvaluator Evaluator;
 
         public DateTime TaskStart;
+        public DateTime LastImprovementTime;
+        public long LastImprovementMutationCount;
 
         public object ImprovementLock = new object();
 

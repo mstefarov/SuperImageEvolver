@@ -22,14 +22,41 @@ namespace SuperImageEvolver {
     class HardMutator : IMutator {
         public DNA Mutate( Random rand, DNA oldDNA, TaskState task ) {
             DNA newDNA = new DNA( oldDNA );
-            for( int i = rand.Next( newDNA.Shapes.Length ); i >= 0; i-- ) {
-                MutateShape( rand, newDNA, newDNA.Shapes[rand.Next( newDNA.Shapes.Length )], task );
+            int s1 = rand.Next( newDNA.Shapes.Length );
+            DNA.Shape shape = newDNA.Shapes[s1];
+            switch( rand.Next( 20 ) ) {
+                case 0:
+                    int s2;
+                    do {
+                        s2 = rand.Next( newDNA.Shapes.Length );
+                    } while( s1 == s2 );
+                    if( s2 > s1 ) {
+                        for( int i = s1; i < s2; i++ ) {
+                            newDNA.Shapes[i] = newDNA.Shapes[i+1];
+                        }
+                    } else {
+                        for( int i = s1; i > s2; i-- ) {
+                            newDNA.Shapes[i] = newDNA.Shapes[i - 1];
+                        }
+                    }
+                    newDNA.Shapes[s2] = shape;
+                    newDNA.LastMutation = MutationType.SwapShapes;
+                    break;
+                case 1:
+                    RandomizeShape( rand, shape, task );
+                    newDNA.LastMutation = MutationType.ReplaceShape;
+                    break;
+                default:
+                    MutateShape( rand, newDNA, shape, task );
+                    break;
             }
             return newDNA;
         }
 
         void MutateShape( Random rand, DNA dna, DNA.Shape shape, TaskState task ) {
-            switch( rand.Next( 9 ) ) {
+            shape.PreviousState = shape.Clone() as DNA.Shape;
+            shape.Changed = true;
+            switch( rand.Next( 10 ) ) {
                 case 0:
                     shape.Color = Color.FromArgb( (byte)rand.Next( 256 ), shape.Color.R, shape.Color.G, shape.Color.B );
                     dna.LastMutation = MutationType.ReplaceColor;
@@ -47,22 +74,52 @@ namespace SuperImageEvolver {
                     dna.LastMutation = MutationType.ReplaceColor;
                     break;
                 case 4:
-                case 5:
-                    shape.Points[rand.Next( shape.Points.Length )].X = rand.Next( task.ImageWidth );
-                    dna.LastMutation = MutationType.ReplacePoint;
-                    break;
-                case 6:
-                case 7:
-                    shape.Points[rand.Next( shape.Points.Length )].Y = rand.Next( task.ImageHeight );
-                    dna.LastMutation = MutationType.ReplacePoint;
-                    break;
-                case 8:
-                    shape.Points[rand.Next( shape.Points.Length )].X = rand.Next( task.ImageWidth );
-                    shape.Points[rand.Next( shape.Points.Length )].Y = rand.Next( task.ImageHeight );
-                    dna.LastMutation = MutationType.ReplacePoints;
+
+                default:
+                    int index = rand.Next( shape.Points.Length );
+                    shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
+                    if( rand.Next( 2 ) == 0 ) {
+                        index = (index + 1) % shape.Points.Length;
+                        shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
+                        if( rand.Next( 2 ) == 0 ) {
+                            index = (index + 1) % shape.Points.Length;
+                            shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
+                        }
+                    }
                     break;
             }
         }
+
+        Point MutatePoint( Random rand, DNA dna, Point point, TaskState task ) {
+            switch( rand.Next( 5 ) ) {
+                case 0:
+                case 1:
+                    point.X = rand.Next( task.ImageWidth );
+                    dna.LastMutation = MutationType.ReplacePoint;
+                    break;
+                case 2:
+                case 3:
+                    point.Y = rand.Next( task.ImageHeight );
+                    dna.LastMutation = MutationType.ReplacePoint;
+                    break;
+                case 4:
+                    point.X = rand.Next( task.ImageWidth );
+                    point.Y = rand.Next( task.ImageHeight );
+                    dna.LastMutation = MutationType.ReplacePoints;
+                    break;
+            }
+            return point;
+        }
+
+        void RandomizeShape( Random rand, DNA.Shape shape, TaskState task ) {
+            shape.PreviousState = shape.Clone() as DNA.Shape;
+            shape.Color = Color.FromArgb( rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ) );
+            for( int i = 0; i < shape.Points.Length; i++ ) {
+                shape.Points[i] = new Point( rand.Next( task.ImageWidth ), rand.Next( task.ImageHeight ) );
+            }
+            shape.Changed = true;
+        }
+
 
         object ICloneable.Clone() {
             return new HardMutator();

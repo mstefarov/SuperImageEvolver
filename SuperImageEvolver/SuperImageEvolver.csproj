@@ -38,8 +38,10 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Canvas.cs">
@@ -58,6 +60,12 @@
     <Compile Include="Evaluators\IEvaluator.cs" />
     <Compile Include="Evaluators\LumaEvaluator.cs" />
     <Compile Include="Evaluators\RGBEvaluator.cs" />
+    <Compile Include="GraphWindow.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GraphWindow.Designer.cs">
+      <DependentUpon>GraphWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="IModule.cs" />
     <Compile Include="Initializers\IInitializer.cs" />
     <Compile Include="MainForm.cs">
@@ -99,6 +107,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="TaskState.cs" />
+    <Compile Include="Utilities.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

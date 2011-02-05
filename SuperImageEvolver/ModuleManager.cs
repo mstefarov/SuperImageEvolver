@@ -75,5 +75,9 @@ namespace SuperImageEvolver {
             writer.Write( factory.ID );
             module.WriteSettings( writer );
         }
+
+        public static IModuleFactory[] ListAllModules() {
+            return factoriesByID.Values.ToArray();
+        }
     }
 }

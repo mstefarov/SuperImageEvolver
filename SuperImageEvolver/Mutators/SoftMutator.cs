@@ -51,7 +51,9 @@ namespace SuperImageEvolver {
 
 
         void MutateShape( Random rand, DNA dna, DNA.Shape shape, TaskState task ) {
-            int delta = (byte)rand.Next( -maxDelta, maxDelta + 1 );
+            shape.PreviousState = shape.Clone() as DNA.Shape;
+            shape.Changed = true;
+            int delta = (byte)rand.Next( 1, maxDelta + 1 ) * (rand.Next( 2 ) == 0 ? 1 : -1);
             switch( rand.Next( 9 ) ) {
                 case 0:
                     shape.Color = Color.FromArgb( Math.Max( 0, Math.Min( 255, (int)shape.Color.A + delta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
