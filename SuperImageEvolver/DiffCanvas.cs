@@ -39,6 +39,8 @@ namespace SuperImageEvolver {
         Bitmap canvasImage;
 
 
+        const string PlaceholderText = "differences";
+
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g2 = e.Graphics;
             if( state != null && state.BestMatch != null ) {
@@ -88,10 +90,10 @@ namespace SuperImageEvolver {
                                               Math.Min( Math.Min( testPointer[2], testPointer[1] ), *testPointer ));
 
                             if( val != 0 ) {
-                                val = (byte)(255 * Math.Sqrt( (val / 2 + Math.Abs( oringinalChroma - testChroma ) * val / (255*2)) / 255d ));
+                                val = (byte)(255 * Math.Sqrt( (val / 2 + Math.Abs( oringinalChroma - testChroma ) * val / (255 * 2)) / 255d ));
                             }
 
-                            val = (byte)Math.Max( 0, Math.Min( 255, 127 + (originalLumi - testLumi)*2 ) );
+                            val = (byte)Math.Max( 0, Math.Min( 255, 127 + (originalLumi - testLumi) * 2 ) );
 
                             /*
                             byte val = (byte)(255 * Math.Sqrt( Math.Abs( (originalPointer[2] + originalPointer[1] + *originalPointer) -
@@ -116,6 +118,9 @@ namespace SuperImageEvolver {
                 }
                 canvasImage.UnlockBits( testData );
                 g2.DrawImageUnscaled( canvasImage, 0, 0 );
+            } else {
+                SizeF align = g2.MeasureString( PlaceholderText, Font );
+                g2.DrawString( PlaceholderText, Font, Brushes.White, Width / 2 - align.Width / 2, Height / 2 - align.Height / 2 );
             }
             base.OnPaint( e );
         }

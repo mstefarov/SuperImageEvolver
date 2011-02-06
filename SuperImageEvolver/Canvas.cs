@@ -26,12 +26,16 @@ namespace SuperImageEvolver {
         public DNA DNA;
         public bool Wireframe { get; set; }
         public bool ShowLastChange { get; set; }
+        const string PlaceholderText = "best match";
 
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g = e.Graphics;
             g.Clear( Color.White );
             DNA tempDNA = DNA;
-            if( tempDNA != null ) {
+            if( tempDNA == null ) {
+                SizeF align = g.MeasureString( PlaceholderText, Font );
+                g.DrawString( PlaceholderText, Font, Brushes.Black, Width / 2 - align.Width / 2, Height / 2 - align.Height / 2 );
+            }else{
                 g.SmoothingMode = SmoothingMode.HighQuality;
                 for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                     g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ), tempDNA.Shapes[i].Points, FillMode.Winding );

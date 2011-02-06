@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using System.Linq;
+using System.Xml;
+using System.Xml.Linq;
 
 
 namespace SuperImageEvolver {
@@ -26,38 +28,23 @@ namespace SuperImageEvolver {
             ModuleManager.LoadFactories( System.Reflection.Assembly.GetExecutingAssembly() );
 
             Shown += delegate( object sender, EventArgs eventArgs ) {
+                Bitmap image;
                 if( args.Length == 1 ) {
-                    state.Image = (Bitmap)Bitmap.FromFile( args[0] );
+                    image = (Bitmap)Bitmap.FromFile( args[0] );
                 } else if( File.Exists( "original.png" ) ) {
-                    state.Image = (Bitmap)Bitmap.FromFile( "original.png" );
+                    image = (Bitmap)Bitmap.FromFile( "original.png" );
                 } else {
                     OpenFileDialog fd = new OpenFileDialog();
                     fd.Filter = "Images|*.jpg;*.png;*.bmp;*.gif;*.tiff;*.tga";
                     if( fd.ShowDialog() == DialogResult.OK ) {
-                        state.Image = (Bitmap)Bitmap.FromFile( fd.FileName );
+                        image = (Bitmap)Bitmap.FromFile( fd.FileName );
                     } else {
                         Application.Exit();
                         return;
                     }
                 }
 
-                clonedOriginal = (Bitmap)state.Image.Clone();
-                state.ImageData = clonedOriginal.LockBits( new Rectangle( Point.Empty, state.Image.Size ),
-                                                           ImageLockMode.ReadOnly,
-                                                           PixelFormat.Format32bppArgb );
-                state.ImageWidth = state.Image.Width;
-                state.ImageHeight = state.Image.Height;
-
-                picOriginal.Width = state.ImageWidth;
-                picOriginal.Height = state.ImageHeight;
-                picOriginal.Image = state.Image;
-
-                picBestMatch.Width = state.ImageWidth;
-                picBestMatch.Height = state.ImageHeight;
-
-                picDiff.Width = state.ImageWidth;
-                picDiff.Height = state.ImageHeight;
-                picDiff.Init( state );
+                SetImage( image );
 
                 cInitializer.SelectedIndex = 1;
                 cMutator.SelectedIndex = 1;
@@ -68,6 +55,34 @@ namespace SuperImageEvolver {
                 stopped = true;
             };
         }
+
+
+        void SetImage( Bitmap image ) {
+            state = new TaskState();
+            state.Image = image;
+
+            clonedOriginal = (Bitmap)state.Image.Clone();
+            state.ImageData = clonedOriginal.LockBits( new Rectangle( Point.Empty, state.Image.Size ),
+                                                       ImageLockMode.ReadOnly,
+                                                       PixelFormat.Format32bppArgb );
+            state.ImageWidth = state.Image.Width;
+            state.ImageHeight = state.Image.Height;
+
+            picOriginal.Width = state.ImageWidth;
+            picOriginal.Height = state.ImageHeight;
+            picOriginal.Image = state.Image;
+
+            picBestMatch.Width = state.ImageWidth;
+            picBestMatch.Height = state.ImageHeight;
+            picBestMatch.DNA = null;
+            picBestMatch.Invalidate();
+
+            picDiff.Width = state.ImageWidth;
+            picDiff.Height = state.ImageHeight;
+            picDiff.Init( state );
+            picDiff.Invalidate();
+        }
+
 
         Dictionary<MutationType, int> mutationCounts = new Dictionary<MutationType, int>();
         Dictionary<MutationType, double> mutationImprovements = new Dictionary<MutationType, double>();
@@ -291,16 +306,40 @@ SinceImproved: {7} / {6}",
             tMutationStats.Visible = menuStatistics.Checked;
         }
 
-        SaveFileDialog saveBestMatchDialog = new SaveFileDialog {
+        SaveFileDialog exportImageDialog = new SaveFileDialog {
             Filter = "PNG Image|*.png|TIFF Image|*.tif;*.tiff|Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg",
-            Title = "Saving best match image..."
+            Title = "Saving best match image (raster)..."
         };
 
-        private void exportImageToolStripMenuItem_Click( object sender, EventArgs e ) {
-            if( saveBestMatchDialog.ShowDialog() == DialogResult.OK ) {
+        private void menuExportImage_Click( object sender, EventArgs e ) {
+            if( exportImageDialog.ShowDialog() == DialogResult.OK ) {
                 Bitmap exportBitmap = new Bitmap( picBestMatch.Width, picBestMatch.Height );
                 picBestMatch.DrawToBitmap( exportBitmap, new Rectangle( Point.Empty, picBestMatch.Size ) );
-                exportBitmap.Save( saveBestMatchDialog.FileName );
+                exportBitmap.Save( exportImageDialog.FileName );
+            }
+        }
+
+        SaveFileDialog exportSVGDialog = new SaveFileDialog {
+            Filter = "SVG Image|*.svg",
+            Title = "Saving best match image (SVG)..."
+        };
+        private void menuExportSVG_Click( object sender, EventArgs e ) {
+            if( exportSVGDialog.ShowDialog() == DialogResult.OK ) {
+                XDocument doc =  state.SerializeSVG();
+                MessageBox.Show( doc.ToString() );
+                doc.Save( exportSVGDialog.FileName );
+            }
+        }
+
+        private void menuNewTask_Click( object sender, EventArgs e ) {
+            if( !stopped ) Stop();
+            OpenFileDialog fd = new OpenFileDialog();
+            fd.Filter = "Images|*.jpg;*.png;*.bmp;*.gif;*.tiff;*.tga";
+            if( fd.ShowDialog() == DialogResult.OK ) {
+                Bitmap image = (Bitmap)Bitmap.FromFile( fd.FileName );
+                SetImage( image );
+            } else {
+                return;
             }
         }
 

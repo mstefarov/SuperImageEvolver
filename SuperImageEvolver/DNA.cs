@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Xml;
+using System.Xml.Linq;
+using System.Text;
 
 
 namespace SuperImageEvolver {
@@ -46,6 +49,18 @@ namespace SuperImageEvolver {
                     writer.Write( (short)Points[p].X );
                     writer.Write( (short)Points[p].Y );
                 }
+            }
+
+            public XElement SerializeSVG( XNamespace xmlns ) {
+                XElement el = new XElement( xmlns + "polygon" );
+                StringBuilder sb = new StringBuilder();
+                foreach( Point point in Points ) {
+                    sb.AppendFormat( "{0} {1} ", point.X, point.Y );
+                }
+                el.Add( new XAttribute( "points", sb.ToString() ) );
+                el.Add( new XAttribute( "fill", String.Format( "rgb({0},{1},{2})", Color.R, Color.G, Color.B ) ) );
+                el.Add( new XAttribute( "opacity", Color.A/255f ) );
+                return el;
             }
         }
 
