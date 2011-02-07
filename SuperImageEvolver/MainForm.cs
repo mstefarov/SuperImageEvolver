@@ -9,6 +9,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
+using System.IO.Compression;
 
 
 namespace SuperImageEvolver {
@@ -44,6 +45,7 @@ namespace SuperImageEvolver {
                     }
                 }
 
+                state = new TaskState();
                 SetImage( image );
 
                 cInitializer.SelectedIndex = 1;
@@ -58,7 +60,6 @@ namespace SuperImageEvolver {
 
 
         void SetImage( Bitmap image ) {
-            state = new TaskState();
             state.Image = image;
 
             clonedOriginal = (Bitmap)state.Image.Clone();
@@ -74,7 +75,7 @@ namespace SuperImageEvolver {
 
             picBestMatch.Width = state.ImageWidth;
             picBestMatch.Height = state.ImageHeight;
-            picBestMatch.DNA = null;
+            picBestMatch.Init( state );
             picBestMatch.Invalidate();
 
             picDiff.Width = state.ImageWidth;
@@ -111,7 +112,6 @@ namespace SuperImageEvolver {
                             state.BestMatch = mutation;
                             state.LastImprovementTime = DateTime.UtcNow;
                             state.LastImprovementMutationCount = state.MutationCounter;
-                            picBestMatch.DNA = state.BestMatch;
                             picBestMatch.Invalidate();
                             picDiff.Invalidate();
                             PointF[] points = new PointF[state.MutationLog.Count];
@@ -180,7 +180,7 @@ SinceImproved: {7} / {6}",
         private void bStartStop_Click( object sender, EventArgs e ) {
             bStartStop.Enabled = false;
             if( stopped ) {
-                Start();
+                Start(true);
             } else {
                 Stop();
             }
@@ -188,24 +188,28 @@ SinceImproved: {7} / {6}",
         }
 
 
-        void Start() {
+        void Start(bool reset) {
             cInitializer.Enabled = false;
             nPolygons.Enabled = false;
             nVertices.Enabled = false;
-            state.TaskStart = DateTime.UtcNow;
-            state.Shapes = (int)nPolygons.Value;
-            state.Vertices = (int)nVertices.Value;
-            state.ImprovementCounter = 0;
-            state.MutationLog.Clear();
-            LastMutationtCounter = 0;
-            state.MutationCounter = 0;
+            if( reset ) {
+                state.TaskStart = DateTime.UtcNow;
+                state.Shapes = (int)nPolygons.Value;
+                state.Vertices = (int)nVertices.Value;
+                state.ImprovementCounter = 0;
+                state.MutationLog.Clear();
+                LastMutationtCounter = 0;
+                state.MutationCounter = 0;
+                state.BestMatch = state.Initializer.Initialize( new Random(), state );
+            } else {
+                LastMutationtCounter = state.MutationCounter;
+            }
 
             foreach( MutationType type in Enum.GetValues( typeof( MutationType ) ) ) {
                 mutationCounts[type] = 0;
                 mutationImprovements[type] = 0;
             }
 
-            state.BestMatch = state.Initializer.Initialize( new Random(), state );
             state.SetEvaluator( state.Evaluator );
 
             stopped = false;
@@ -307,7 +311,7 @@ SinceImproved: {7} / {6}",
         }
 
         SaveFileDialog exportImageDialog = new SaveFileDialog {
-            Filter = "PNG Image|*.png|TIFF Image|*.tif;*.tiff|Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg",
+            Filter = "PNG Image|*.png|TIFF Image|*.tif;*.tiff|BMP Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg",
             Title = "Saving best match image (raster)..."
         };
 
@@ -325,9 +329,7 @@ SinceImproved: {7} / {6}",
         };
         private void menuExportSVG_Click( object sender, EventArgs e ) {
             if( exportSVGDialog.ShowDialog() == DialogResult.OK ) {
-                XDocument doc =  state.SerializeSVG();
-                MessageBox.Show( doc.ToString() );
-                doc.Save( exportSVGDialog.FileName );
+                state.SerializeSVG().Save( exportSVGDialog.FileName );
             }
         }
 
@@ -337,6 +339,7 @@ SinceImproved: {7} / {6}",
             fd.Filter = "Images|*.jpg;*.png;*.bmp;*.gif;*.tiff;*.tga";
             if( fd.ShowDialog() == DialogResult.OK ) {
                 Bitmap image = (Bitmap)Bitmap.FromFile( fd.FileName );
+                state = new TaskState();
                 SetImage( image );
             } else {
                 return;
@@ -344,6 +347,33 @@ SinceImproved: {7} / {6}",
         }
 
         #endregion
+
+        SaveFileDialog saveTaskDialog = new SaveFileDialog {
+            Filter = "SIE - SuperImageEvolver task|*.sie",
+            Title = "Saving task..."
+        };
+        private void menuSaveTask_Click( object sender, EventArgs e ) {
+            if( saveTaskDialog.ShowDialog() == DialogResult.OK ) {
+                using( FileStream fs = File.Create( saveTaskDialog.FileName ) ) {
+                    state.Serialize( fs );
+                }
+            }
+        }
+
+        private void menuOpenTask_Click( object sender, EventArgs e ) {
+            if( !stopped ) Stop();
+            OpenFileDialog fd = new OpenFileDialog {
+                Filter = "SIE - SuperImageEvolver task|*.sie",
+                Title = "Opening task..."
+            };
+            if( fd.ShowDialog() == DialogResult.OK ) {
+                using( FileStream fs = File.OpenRead( fd.FileName ) ) {
+                    state = new TaskState( fs );
+                }
+                SetImage( state.Image );
+                Start( false );
+            }
+        }
     }
 
     public enum MutationType {

@@ -53,16 +53,40 @@ namespace SuperImageEvolver {
             BestMatch.Serialize( stream );
             writer.Write( ImprovementCounter );
             writer.Write( MutationCounter );
-            writer.Write( ImprovementCounter );
             writer.Write( DateTime.UtcNow.Subtract( TaskStart ).Ticks );
 
             ModuleManager.WriteModule( Initializer, stream );
             ModuleManager.WriteModule( Mutator, stream );
             ModuleManager.WriteModule( Evaluator, stream );
 
-            Image.Save( stream, ImageFormat.Bmp );
+            using( MemoryStream ms = new MemoryStream() ) {
+                Image.Save( ms, ImageFormat.Png );
+                ms.Flush();
+                writer.Write( (int)ms.Length );
+                writer.Write( ms.GetBuffer() );
+            }
         }
 
+        public TaskState() { }
+        public TaskState( Stream stream ) {
+            BinaryReader reader = new BinaryReader( stream );
+            if( reader.ReadInt32() != FormatVersion ) throw new FormatException();
+            Shapes = reader.ReadInt32();
+            Vertices = reader.ReadInt32();
+            BestMatch = new DNA( stream, Shapes, Vertices );
+            ImprovementCounter = reader.ReadInt32();
+            MutationCounter = reader.ReadInt32();
+            TaskStart = DateTime.UtcNow.Subtract( TimeSpan.FromTicks( reader.ReadInt64() ) );
+
+            Initializer = (IInitializer)ModuleManager.ReadModule( stream );
+            Mutator = (IMutator)ModuleManager.ReadModule( stream );
+            Evaluator = (IEvaluator)ModuleManager.ReadModule( stream );
+
+            int imageLength = reader.ReadInt32();
+            using( MemoryStream ms = new MemoryStream( reader.ReadBytes( imageLength ) ) ) {
+                Image = new Bitmap( Bitmap.FromStream( ms ) );
+            }
+        }
 
         
         public XDocument SerializeSVG() {

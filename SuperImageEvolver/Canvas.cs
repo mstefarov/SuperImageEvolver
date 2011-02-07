@@ -23,7 +23,11 @@ namespace SuperImageEvolver {
             };
         }
 
-        public DNA DNA;
+        public void Init( TaskState _state ) {
+            state = _state;
+        }
+        TaskState state;
+
         public bool Wireframe { get; set; }
         public bool ShowLastChange { get; set; }
         const string PlaceholderText = "best match";
@@ -31,7 +35,7 @@ namespace SuperImageEvolver {
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g = e.Graphics;
             g.Clear( Color.White );
-            DNA tempDNA = DNA;
+            DNA tempDNA = state.BestMatch;
             if( tempDNA == null ) {
                 SizeF align = g.MeasureString( PlaceholderText, Font );
                 g.DrawString( PlaceholderText, Font, Brushes.Black, Width / 2 - align.Width / 2, Height / 2 - align.Height / 2 );

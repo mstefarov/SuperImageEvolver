@@ -51,6 +51,16 @@ namespace SuperImageEvolver {
                 }
             }
 
+            public Shape( Stream stream, int vertices ) {
+                BinaryReader reader = new BinaryReader( stream );
+                Color = Color.FromArgb( reader.ReadInt32() );
+                Points = new Point[vertices];
+                for( int p = 0; p < Points.Length; p++ ) {
+                    Points[p].X = reader.ReadInt16();
+                    Points[p].Y = reader.ReadInt16();
+                }
+            }
+
             public XElement SerializeSVG( XNamespace xmlns ) {
                 XElement el = new XElement( xmlns + "polygon" );
                 StringBuilder sb = new StringBuilder();
@@ -67,6 +77,13 @@ namespace SuperImageEvolver {
         public void Serialize( Stream stream ) {
             for( int i = 0; i < Shapes.Length; i++ ) {
                 Shapes[i].Serialize( stream );
+            }
+        }
+
+        public DNA( Stream stream, int shapes, int vertices ) {
+            Shapes = new Shape[shapes];
+            for( int i = 0; i < Shapes.Length; i++ ) {
+                Shapes[i] = new Shape( stream, vertices );
             }
         }
     }
