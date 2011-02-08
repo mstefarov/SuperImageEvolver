@@ -70,6 +70,7 @@
       <DependentUpon>GraphWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="IModule.cs" />
+    <Compile Include="Initializers\RadialInitializer.cs" />
     <Compile Include="Initializers\IInitializer.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -80,6 +81,7 @@
     <Compile Include="Initializers\SegmentedInitializer.cs" />
     <Compile Include="Initializers\SolidColorInitializer.cs" />
     <Compile Include="ModuleManager.cs" />
+    <Compile Include="Mutators\TranslateMutator.cs" />
     <Compile Include="Mutators\HardMutator.cs" />
     <Compile Include="Mutators\IMutator.cs" />
     <Compile Include="Mutators\SoftMutator.cs" />

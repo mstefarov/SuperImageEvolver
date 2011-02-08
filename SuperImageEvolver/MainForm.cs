@@ -243,6 +243,8 @@ SinceImproved: {7} / {6}",
                     state.Initializer = new SolidColorInitializer( Color.Black ); break;
                 case 1:
                     state.Initializer = new SegmentedInitializer( Color.Black ); break;
+                case 2:
+                    state.Initializer = new RadialInitializer( Color.Black ); break;
             }
         }
 
@@ -259,6 +261,10 @@ SinceImproved: {7} / {6}",
                     state.Mutator = new SoftMutator( 10 ); break;
                 case 4:
                     state.Mutator = new SoftMutator( 2 ); break;
+                case 5:
+                    state.Mutator = new TranslateMutator() { PreserveAspectRatio = true }; break;
+                case 6:
+                    state.Mutator = new TranslateMutator() { PreserveAspectRatio = false }; break;
             }
         }
 

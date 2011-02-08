@@ -32,10 +32,10 @@ namespace SuperImageEvolver {
             maxDivergence = state.ImageWidth * state.ImageHeight * 2 * 255;
         }
 
-        bool smooth;
+        public bool Smooth { get; set; }
         public LumaEvaluator() { }
         public LumaEvaluator( bool _smooth ) {
-            smooth = _smooth;
+            Smooth = _smooth;
         }
 
         public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState task, double max ) {
@@ -43,7 +43,7 @@ namespace SuperImageEvolver {
             long roundedMax = (long)(max * maxDivergence + 1);
             using( Graphics g = Graphics.FromImage( testImage ) ) {
                 g.Clear( Color.Red );
-                if( smooth ) g.SmoothingMode = SmoothingMode.HighQuality;
+                if( Smooth ) g.SmoothingMode = SmoothingMode.HighQuality;
                 for( int i = 0; i < dna.Shapes.Length; i++ ) {
                     g.FillPolygon( new SolidBrush( dna.Shapes[i].Color ), dna.Shapes[i].Points, FillMode.Alternate );
                 }
@@ -100,16 +100,16 @@ namespace SuperImageEvolver {
 
 
         object ICloneable.Clone() {
-            return new LumaEvaluator( smooth );
+            return new LumaEvaluator( Smooth );
         }
 
         void IModule.ReadSettings( BinaryReader reader, int length ) {
-            smooth = reader.ReadBoolean();
+            Smooth = reader.ReadBoolean();
         }
 
         void IModule.WriteSettings( BinaryWriter writer ) {
             writer.Write( 1 );
-            writer.Write( smooth );
+            writer.Write( Smooth );
         }
         public IModuleFactory Factory { get; set; }
     }

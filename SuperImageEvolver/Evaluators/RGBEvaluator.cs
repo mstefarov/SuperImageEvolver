@@ -29,14 +29,14 @@ namespace SuperImageEvolver {
 
     unsafe class RGBEvaluator : IEvaluator {
 
-        bool smooth;
+        public bool Smooth { get; set; }
         double maxDivergence;
 
 
         public RGBEvaluator() { }
 
         public RGBEvaluator( bool _smooth ) {
-            smooth = _smooth;
+            Smooth = _smooth;
         }
 
 
@@ -50,7 +50,7 @@ namespace SuperImageEvolver {
             long roundedMax = (long)(max * maxDivergence + 1);
             using( Graphics g = Graphics.FromImage( testImage ) ) {
                 g.Clear( Color.White );
-                if( smooth ) g.SmoothingMode = SmoothingMode.HighQuality;
+                if( Smooth ) g.SmoothingMode = SmoothingMode.HighQuality;
                 for( int i = 0; i < dna.Shapes.Length; i++ ) {
                     g.FillPolygon( new SolidBrush( dna.Shapes[i].Color ), dna.Shapes[i].Points, FillMode.Alternate );
                 }
@@ -78,16 +78,16 @@ namespace SuperImageEvolver {
 
 
         object ICloneable.Clone() {
-            return new RGBEvaluator( smooth );
+            return new RGBEvaluator( Smooth );
         }
 
         void IModule.ReadSettings( BinaryReader reader, int settingsLength ) {
-            smooth = reader.ReadBoolean();
+            Smooth = reader.ReadBoolean();
         }
 
         void IModule.WriteSettings( BinaryWriter writer ) {
             writer.Write( 1 );
-            writer.Write( smooth );
+            writer.Write( Smooth );
         }
         public IModuleFactory Factory { get; set; }
     }

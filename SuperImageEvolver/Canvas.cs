@@ -35,12 +35,15 @@ namespace SuperImageEvolver {
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g = e.Graphics;
             g.Clear( Color.White );
-            DNA tempDNA = state.BestMatch;
-            if( tempDNA == null ) {
-                SizeF align = g.MeasureString( PlaceholderText, Font );
-                g.DrawString( PlaceholderText, Font, Brushes.Black, Width / 2 - align.Width / 2, Height / 2 - align.Height / 2 );
-            }else{
-                g.SmoothingMode = SmoothingMode.HighQuality;
+            if( state != null && state.BestMatch != null ) {
+                DNA tempDNA = state.BestMatch;
+
+                if( state.Evaluator is RGBEvaluator ) {
+                    g.SmoothingMode = (state.Evaluator as RGBEvaluator).Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed;
+                } else if( state.Evaluator is LumaEvaluator ) {
+                    g.SmoothingMode = (state.Evaluator as LumaEvaluator).Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed;
+                }
+
                 for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                     g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ), tempDNA.Shapes[i].Points, FillMode.Winding );
                     if( Wireframe ) {
@@ -55,6 +58,9 @@ namespace SuperImageEvolver {
                         }
                     }
                 }
+            } else {
+                SizeF align = g.MeasureString( PlaceholderText, Font );
+                g.DrawString( PlaceholderText, Font, Brushes.Black, Width / 2 - align.Width / 2, Height / 2 - align.Height / 2 );
             }
             base.OnPaint( e );
         }

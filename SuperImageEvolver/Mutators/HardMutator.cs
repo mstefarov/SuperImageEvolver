@@ -90,7 +90,7 @@ namespace SuperImageEvolver {
             }
         }
 
-        Point MutatePoint( Random rand, DNA dna, Point point, TaskState task ) {
+        PointF MutatePoint( Random rand, DNA dna, PointF point, TaskState task ) {
             switch( rand.Next( 5 ) ) {
                 case 0:
                 case 1:
