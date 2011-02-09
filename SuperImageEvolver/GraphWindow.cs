@@ -23,7 +23,7 @@ namespace SuperImageEvolver {
 
 
         protected override void OnPaint( PaintEventArgs e ) {
-            if( Points != null && Points.Length > 1 ) {
+            if( MainForm.state != null && MainForm.state.BestMatch != null && Points != null && Points.Length > 1 ) {
                 Graphics g = e.Graphics;
                 g.Clear( Color.White );
                 for( int i = 1; i < 10; i++ ) {

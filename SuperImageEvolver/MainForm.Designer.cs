@@ -76,6 +76,7 @@
             // 
             // flowLayoutPanel1
             // 
+            this.flowLayoutPanel1.AutoScroll = true;
             this.flowLayoutPanel1.Controls.Add( this.picOriginal );
             this.flowLayoutPanel1.Controls.Add( this.picBestMatch );
             this.flowLayoutPanel1.Controls.Add( this.picDiff );
