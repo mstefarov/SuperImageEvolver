@@ -37,8 +37,8 @@ namespace SuperImageEvolver {
                 Point center = new Point( rand.Next( radius, task.ImageWidth - radius ), rand.Next( radius, task.ImageHeight - radius ) );
                 for( int j = 0; j < shape.Points.Length; j++ ) {
                     double t = j * Math.PI * 2 / shape.Points.Length + Math.PI / task.Vertices;
-                    shape.Points[j].X = center.X + (int)(Math.Cos( t ) * radius);
-                    shape.Points[j].Y = center.Y + (int)(Math.Sin( t ) * radius);
+                    shape.Points[j].X = (float)(center.X + Math.Cos( t ) * radius);
+                    shape.Points[j].Y = (float)(center.Y + Math.Sin( t ) * radius);
                 }
                 dna.Shapes[i] = shape;
                 if( shape.GetBoundaries().Width == 0 || shape.GetBoundaries().Height == 0 ) {

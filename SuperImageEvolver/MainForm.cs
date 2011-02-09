@@ -161,12 +161,13 @@ SinceImproved: {7} / {6}",
                    DateTime.UtcNow.Subtract( state.LastImprovementTime ).ToCompactString(),
                    state.MutationCounter - state.LastImprovementMutationCount);
                 StringBuilder sb = new StringBuilder( Environment.NewLine );
+                sb.Append( Environment.NewLine );
                 foreach( MutationType type in Enum.GetValues( typeof( MutationType ) ) ) {
                     double rate = 0;
                     if( mutationCounts[type] != 0 ) {
                         rate = mutationImprovements[type] / (double)mutationCounts[type];
                     }
-                    sb.AppendFormat( "{0} - {1} * {2:0.0000} ({3:0.0000})", type, mutationCounts[type], rate * 100, mutationImprovements[type] * 100 );
+                    sb.AppendFormat( "{0} - {1}*{2:0.0000} ({3:0.0000})", type, mutationCounts[type], rate * 100, mutationImprovements[type] * 100 );
                     sb.Append( Environment.NewLine );
                 }
                 tMutationStats.Text += sb.ToString();
@@ -193,6 +194,9 @@ SinceImproved: {7} / {6}",
             nPolygons.Enabled = false;
             nVertices.Enabled = false;
             if( reset ) {
+                cInitializer_SelectedIndexChanged( cInitializer, EventArgs.Empty );
+                cMutator_SelectedIndexChanged( cMutator, EventArgs.Empty );
+                cEvaluator_SelectedIndexChanged( cEvaluator, EventArgs.Empty );
                 state.TaskStart = DateTime.UtcNow;
                 state.Shapes = (int)nPolygons.Value;
                 state.Vertices = (int)nVertices.Value;
@@ -265,6 +269,8 @@ SinceImproved: {7} / {6}",
                     state.Mutator = new TranslateMutator() { PreserveAspectRatio = true }; break;
                 case 6:
                     state.Mutator = new TranslateMutator() { PreserveAspectRatio = false }; break;
+                case 7:
+                    state.Mutator = new SubPixelMutator(); break;
             }
         }
 
@@ -280,6 +286,7 @@ SinceImproved: {7} / {6}",
                 case 3:
                     state.SetEvaluator( new LumaEvaluator( true ) ); break;
             }
+            picBestMatch.Invalidate();
         }
 
 
@@ -333,6 +340,7 @@ SinceImproved: {7} / {6}",
             Filter = "SVG Image|*.svg",
             Title = "Saving best match image (SVG)..."
         };
+
         private void menuExportSVG_Click( object sender, EventArgs e ) {
             if( exportSVGDialog.ShowDialog() == DialogResult.OK ) {
                 state.SerializeSVG().Save( exportSVGDialog.FileName );
@@ -352,12 +360,11 @@ SinceImproved: {7} / {6}",
             }
         }
 
-        #endregion
-
         SaveFileDialog saveTaskDialog = new SaveFileDialog {
             Filter = "SIE - SuperImageEvolver task|*.sie",
             Title = "Saving task..."
         };
+
         private void menuSaveTask_Click( object sender, EventArgs e ) {
             if( saveTaskDialog.ShowDialog() == DialogResult.OK ) {
                 using( FileStream fs = File.Create( saveTaskDialog.FileName ) ) {
@@ -380,6 +387,8 @@ SinceImproved: {7} / {6}",
                 Start( false );
             }
         }
+        #endregion
+
     }
 
     public enum MutationType {
@@ -390,6 +399,9 @@ SinceImproved: {7} / {6}",
         AdjustColor,
         AdjustPoint,
         AdjustPoints,
-        SwapShapes
+        SwapShapes,
+        Move,
+        Scale,
+        Transform
     }
 }
