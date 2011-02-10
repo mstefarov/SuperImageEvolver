@@ -45,8 +45,8 @@ namespace SuperImageEvolver {
                 BinaryWriter writer = new BinaryWriter( stream );
                 writer.Write( Color.ToArgb() );
                 for( int p = 0; p < Points.Length; p++ ) {
-                    writer.Write( (short)Points[p].X );
-                    writer.Write( (short)Points[p].Y );
+                    writer.Write( Points[p].X );
+                    writer.Write( Points[p].Y );
                 }
             }
 
@@ -55,8 +55,8 @@ namespace SuperImageEvolver {
                 Color = Color.FromArgb( reader.ReadInt32() );
                 Points = new PointF[vertices];
                 for( int p = 0; p < Points.Length; p++ ) {
-                    Points[p].X = reader.ReadInt16();
-                    Points[p].Y = reader.ReadInt16();
+                    Points[p].X = reader.ReadSingle();
+                    Points[p].Y = reader.ReadSingle();
                 }
             }
 

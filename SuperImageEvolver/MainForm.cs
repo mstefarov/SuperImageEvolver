@@ -85,8 +85,6 @@ namespace SuperImageEvolver {
         }
 
 
-        Dictionary<MutationType, int> mutationCounts = new Dictionary<MutationType, int>();
-        Dictionary<MutationType, double> mutationImprovements = new Dictionary<MutationType, double>();
 
 
         void Run() {
@@ -105,8 +103,8 @@ namespace SuperImageEvolver {
                         improvement = state.BestMatch.Divergence - mutation.Divergence;
                         if( improvement > 0 ) {
                             state.ImprovementCounter++;
-                            mutationCounts[mutation.LastMutation]++;
-                            mutationImprovements[mutation.LastMutation] += improvement;
+                            state.MutationCounts[mutation.LastMutation]++;
+                            state.MutationImprovements[mutation.LastMutation] += improvement;
 
                             state.MutationLog.Add( new Mutation( state.BestMatch, mutation ) );
                             state.BestMatch = mutation;
@@ -164,10 +162,14 @@ SinceImproved: {7} / {6}",
                 sb.Append( Environment.NewLine );
                 foreach( MutationType type in Enum.GetValues( typeof( MutationType ) ) ) {
                     double rate = 0;
-                    if( mutationCounts[type] != 0 ) {
-                        rate = mutationImprovements[type] / (double)mutationCounts[type];
+                    if( state.MutationCounts[type] != 0 ) {
+                        rate = state.MutationImprovements[type] / (double)state.MutationCounts[type];
                     }
-                    sb.AppendFormat( "{0} - {1}*{2:0.0000} ({3:0.0000})", type, mutationCounts[type], rate * 100, mutationImprovements[type] * 100 );
+                    sb.AppendFormat( "{0} - {1}*{2:0.0000} ({3:0.0000})",
+                                     type,
+                                     state.MutationCounts[type],
+                                     rate * 100,
+                                     state.MutationImprovements[type] * 100 );
                     sb.Append( Environment.NewLine );
                 }
                 tMutationStats.Text += sb.ToString();
@@ -194,6 +196,10 @@ SinceImproved: {7} / {6}",
             nPolygons.Enabled = false;
             nVertices.Enabled = false;
             if( reset ) {
+                foreach( MutationType type in Enum.GetValues( typeof( MutationType ) ) ) {
+                    state.MutationCounts[type] = 0;
+                    state.MutationImprovements[type] = 0;
+                }
                 cInitializer_SelectedIndexChanged( cInitializer, EventArgs.Empty );
                 cMutator_SelectedIndexChanged( cMutator, EventArgs.Empty );
                 cEvaluator_SelectedIndexChanged( cEvaluator, EventArgs.Empty );
@@ -207,11 +213,6 @@ SinceImproved: {7} / {6}",
                 state.BestMatch = state.Initializer.Initialize( new Random(), state );
             } else {
                 LastMutationtCounter = state.MutationCounter;
-            }
-
-            foreach( MutationType type in Enum.GetValues( typeof( MutationType ) ) ) {
-                mutationCounts[type] = 0;
-                mutationImprovements[type] = 0;
             }
 
             state.SetEvaluator( state.Evaluator );
@@ -266,19 +267,17 @@ SinceImproved: {7} / {6}",
                 case 4:
                     state.Mutator = new SoftMutator( 2 ); break;
                 case 5:
-                    state.Mutator = new SubPixelMutator(); break;
-                case 6:
                     state.Mutator = new TranslateMutator() {
                         PreserveAspectRatio = true
                     }; break;
-                case 7:
+                case 6:
                     state.Mutator = new TranslateMutator(); break;
-                case 8:
+                case 7:
                     state.Mutator = new TranslateMutator() {
                         PreserveAspectRatio = true,
                         EnableRotation = true
                     }; break;
-                case 9:
+                case 8:
                     state.Mutator = new TranslateMutator() {
                         EnableRotation = true
                     }; break;
@@ -400,20 +399,9 @@ SinceImproved: {7} / {6}",
         }
         #endregion
 
-    }
+        private void bCopyStats_Click( object sender, EventArgs e ) {
+            Clipboard.SetText( tMutationStats.Text );
+        }
 
-    public enum MutationType {
-        ReplaceShape,
-        ReplaceColor,
-        ReplacePoint,
-        ReplacePoints,
-        AdjustColor,
-        AdjustPoint,
-        AdjustPoints,
-        SwapShapes,
-        Move,
-        Scale,
-        Transform,
-        Rotate
     }
 }

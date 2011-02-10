@@ -5,7 +5,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
-
+using System.Linq;
 
 namespace SuperImageEvolver {
     public class TaskState {
@@ -30,7 +30,13 @@ namespace SuperImageEvolver {
         public DateTime LastImprovementTime;
         public long LastImprovementMutationCount;
 
+        public const int FormatVersion = 1;
+
         public object ImprovementLock = new object();
+
+        public Dictionary<MutationType, int> MutationCounts = new Dictionary<MutationType, int>();
+        public Dictionary<MutationType, double> MutationImprovements = new Dictionary<MutationType, double>();
+        
 
         public void SetEvaluator( IEvaluator newEvaluator ) {
             lock( ImprovementLock ) {
@@ -44,7 +50,6 @@ namespace SuperImageEvolver {
             }
         }
 
-        public const int FormatVersion = 1;
         public void Serialize( Stream stream ) {
             BinaryWriter writer = new BinaryWriter( stream );
             writer.Write( FormatVersion );
@@ -65,10 +70,23 @@ namespace SuperImageEvolver {
                 writer.Write( (int)ms.Length );
                 writer.Write( ms.GetBuffer() );
             }
+
+            writer.Write( MutationCounts.Count );
+            foreach( MutationType mtype in Enum.GetValues(typeof(MutationType)) ) {
+                writer.Write( mtype.ToString() );
+                writer.Write( (int)MutationCounts[mtype] );
+                writer.Write( (int)MutationImprovements[mtype] );
+            }
         }
 
-        public TaskState() { }
-        public TaskState( Stream stream ) {
+        public TaskState() {
+            foreach( MutationType mutype in Enum.GetValues( typeof( MutationType ) ) ) {
+                MutationCounts[mutype] = 0;
+                MutationImprovements[mutype] = 0;
+            }
+        }
+
+        public TaskState( Stream stream ) : this() {
             BinaryReader reader = new BinaryReader( stream );
             if( reader.ReadInt32() != FormatVersion ) throw new FormatException();
             Shapes = reader.ReadInt32();
@@ -86,9 +104,18 @@ namespace SuperImageEvolver {
             using( MemoryStream ms = new MemoryStream( reader.ReadBytes( imageLength ) ) ) {
                 Image = new Bitmap( Bitmap.FromStream( ms ) );
             }
+
+            int statCount = reader.ReadInt32();
+            for( int i = 0; i < statCount; i++ ) {
+                string statName = reader.ReadString();
+                try {
+                    MutationType mtype = (MutationType)Enum.Parse( typeof( MutationType ), statName );
+                    MutationCounts[mtype] = reader.ReadInt32();
+                    MutationImprovements[mtype] = reader.ReadDouble();
+                } catch( ArgumentException ) { }
+            }
         }
 
-        
         public XDocument SerializeSVG() {
             XDocument doc = new XDocument();
             XNamespace svg = "http://www.w3.org/2000/svg";

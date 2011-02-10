@@ -27,7 +27,8 @@ namespace SuperImageEvolver {
             shape.PreviousState = shape.Clone() as DNA.Shape;
             shape.Color = Color.FromArgb( rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ) );
             for( int i = 0; i < shape.Points.Length; i++ ) {
-                shape.Points[i] = new Point( rand.Next( task.ImageWidth ), rand.Next( task.ImageHeight ) );
+                shape.Points[i] = new PointF( (float)rand.NextDouble() * task.ImageWidth,
+                                              (float)rand.NextDouble() * task.ImageHeight );
             }
             newDNA.LastMutation = MutationType.ReplaceShape;
             return newDNA;

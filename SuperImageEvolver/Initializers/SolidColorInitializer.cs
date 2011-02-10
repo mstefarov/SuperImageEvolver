@@ -30,11 +30,11 @@ namespace SuperImageEvolver {
             dna.Shapes = new DNA.Shape[task.Shapes];
             for( int i = 0; i < dna.Shapes.Length; i++ ) {
                 DNA.Shape shape = new DNA.Shape();
-                shape.Color = Color.FromArgb(0,Color.R,Color.G,Color.B);
+                shape.Color = Color.FromArgb( 0, Color.R, Color.G, Color.B );
                 shape.Points = new PointF[task.Vertices];
                 for( int j = 0; j < shape.Points.Length; j++ ) {
-                    shape.Points[j].X = rand.Next( task.ImageWidth );
-                    shape.Points[j].Y = rand.Next( task.ImageHeight );
+                    shape.Points[j].X = (float)rand.NextDouble() * task.ImageWidth;
+                    shape.Points[j].Y = (float)rand.NextDouble() * task.ImageHeight;
                 }
                 dna.Shapes[i] = shape;
             }

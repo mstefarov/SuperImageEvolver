@@ -53,6 +53,7 @@ namespace SuperImageEvolver {
         void MutateShape( Random rand, DNA dna, DNA.Shape shape, TaskState task ) {
             shape.PreviousState = shape.Clone() as DNA.Shape;
             int delta = (byte)rand.Next( 1, maxDelta + 1 ) * (rand.Next( 2 ) == 0 ? 1 : -1);
+            float posDelta = (float)rand.NextDouble() * maxDelta * (rand.Next( 2 ) == 0 ? 1 : -1);
             switch( rand.Next( 9 ) ) {
                 case 0:
                     shape.Color = Color.FromArgb( Math.Max( 0, Math.Min( 255, (int)shape.Color.A + delta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
@@ -73,19 +74,19 @@ namespace SuperImageEvolver {
                 case 4:
                 case 5:
                     int pt1 = rand.Next( shape.Points.Length );
-                    shape.Points[pt1].X = Math.Max( 0, Math.Min( task.ImageWidth-1, shape.Points[pt1].X + delta ) );
+                    shape.Points[pt1].X = Math.Max( 0, Math.Min( task.ImageWidth - 1, shape.Points[pt1].X + posDelta ) );
                     dna.LastMutation = MutationType.AdjustPoint;
                     break;
                 case 6:
                 case 7:
                     int pt2 = rand.Next( shape.Points.Length );
-                    shape.Points[pt2].Y = Math.Max( 0, Math.Min( task.ImageHeight - 1, shape.Points[pt2].Y + delta ) );
+                    shape.Points[pt2].Y = Math.Max( 0, Math.Min( task.ImageHeight - 1, shape.Points[pt2].Y + posDelta ) );
                     dna.LastMutation = MutationType.AdjustPoint;
                     break;
                 case 8:
                     int pt3 = rand.Next( shape.Points.Length );
-                    shape.Points[pt3].X = Math.Max( 0, Math.Min( task.ImageWidth - 1, shape.Points[pt3].X + delta ) );
-                    shape.Points[pt3].Y = Math.Max( 0, Math.Min( task.ImageHeight - 1, shape.Points[pt3].Y + delta ) );
+                    shape.Points[pt3].X = Math.Max( 0, Math.Min( task.ImageWidth - 1, shape.Points[pt3].X + posDelta ) );
+                    shape.Points[pt3].Y = Math.Max( 0, Math.Min( task.ImageHeight - 1, shape.Points[pt3].Y + posDelta ) );
                     dna.LastMutation = MutationType.AdjustPoints;
                     break;
             }

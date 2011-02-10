@@ -32,7 +32,7 @@ namespace SuperImageEvolver {
                     } while( s1 == s2 );
                     if( s2 > s1 ) {
                         for( int i = s1; i < s2; i++ ) {
-                            newDNA.Shapes[i] = newDNA.Shapes[i+1];
+                            newDNA.Shapes[i] = newDNA.Shapes[i + 1];
                         }
                     } else {
                         for( int i = s1; i > s2; i-- ) {
@@ -93,17 +93,17 @@ namespace SuperImageEvolver {
             switch( rand.Next( 5 ) ) {
                 case 0:
                 case 1:
-                    point.X = rand.Next( task.ImageWidth );
+                    point.X = (float)rand.NextDouble() * task.ImageWidth;
                     dna.LastMutation = MutationType.ReplacePoint;
                     break;
                 case 2:
                 case 3:
-                    point.Y = rand.Next( task.ImageHeight );
+                    point.Y = (float)rand.NextDouble() * task.ImageHeight;
                     dna.LastMutation = MutationType.ReplacePoint;
                     break;
                 case 4:
-                    point.X = rand.Next( task.ImageWidth );
-                    point.Y = rand.Next( task.ImageHeight );
+                    point.X = (float)rand.NextDouble() * task.ImageWidth;
+                    point.Y = (float)rand.NextDouble() * task.ImageHeight;
                     dna.LastMutation = MutationType.ReplacePoints;
                     break;
             }
@@ -114,7 +114,8 @@ namespace SuperImageEvolver {
             shape.PreviousState = shape.Clone() as DNA.Shape;
             shape.Color = Color.FromArgb( rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ) );
             for( int i = 0; i < shape.Points.Length; i++ ) {
-                shape.Points[i] = new Point( rand.Next( task.ImageWidth ), rand.Next( task.ImageHeight ) );
+                shape.Points[i] = new PointF( (float)rand.NextDouble() * task.ImageWidth,
+                                              (float)rand.NextDouble() * task.ImageHeight );
             }
         }
 

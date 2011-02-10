@@ -58,12 +58,15 @@
             this.menuStatistics = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.listModulesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.bCopyStats = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nPolygons)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nVertices)).BeginInit();
             this.menuStrip1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // picOriginal
@@ -81,7 +84,7 @@
             this.flowLayoutPanel1.Controls.Add( this.picBestMatch );
             this.flowLayoutPanel1.Controls.Add( this.picDiff );
             this.flowLayoutPanel1.Controls.Add( this.panel1 );
-            this.flowLayoutPanel1.Controls.Add( this.tMutationStats );
+            this.flowLayoutPanel1.Controls.Add( this.panel2 );
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point( 0, 24 );
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
@@ -177,7 +180,6 @@
             "Medium",
             "Soft",
             "Softer",
-            "SubPixel",
             "Translate",
             "Translate/Stretch",
             "Translate/Rotate",
@@ -284,11 +286,11 @@
             // tMutationStats
             // 
             this.tMutationStats.Font = new System.Drawing.Font( "Consolas", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.tMutationStats.Location = new System.Drawing.Point( 310, 3 );
+            this.tMutationStats.Location = new System.Drawing.Point( 3, 3 );
             this.tMutationStats.Multiline = true;
             this.tMutationStats.Name = "tMutationStats";
             this.tMutationStats.ReadOnly = true;
-            this.tMutationStats.Size = new System.Drawing.Size( 199, 215 );
+            this.tMutationStats.Size = new System.Drawing.Size( 194, 178 );
             this.tMutationStats.TabIndex = 7;
             // 
             // menuStrip1
@@ -436,6 +438,25 @@
             this.listModulesToolStripMenuItem.Text = "List Modules";
             this.listModulesToolStripMenuItem.Click += new System.EventHandler( this.menuListModules_Click );
             // 
+            // panel2
+            // 
+            this.panel2.Controls.Add( this.bCopyStats );
+            this.panel2.Controls.Add( this.tMutationStats );
+            this.panel2.Location = new System.Drawing.Point( 310, 3 );
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size( 200, 215 );
+            this.panel2.TabIndex = 9;
+            // 
+            // bCopyStats
+            // 
+            this.bCopyStats.Location = new System.Drawing.Point( 122, 187 );
+            this.bCopyStats.Name = "bCopyStats";
+            this.bCopyStats.Size = new System.Drawing.Size( 75, 23 );
+            this.bCopyStats.TabIndex = 8;
+            this.bCopyStats.Text = "Copy Stats";
+            this.bCopyStats.UseVisualStyleBackColor = true;
+            this.bCopyStats.Click += new System.EventHandler( this.bCopyStats_Click );
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -450,13 +471,14 @@
             this.Text = "Super Image Evolver";
             ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).EndInit();
             this.flowLayoutPanel1.ResumeLayout( false );
-            this.flowLayoutPanel1.PerformLayout();
             this.panel1.ResumeLayout( false );
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nPolygons)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nVertices)).EndInit();
             this.menuStrip1.ResumeLayout( false );
             this.menuStrip1.PerformLayout();
+            this.panel2.ResumeLayout( false );
+            this.panel2.PerformLayout();
             this.ResumeLayout( false );
             this.PerformLayout();
 
@@ -499,6 +521,8 @@
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem listModulesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem menuExportSVG;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Button bCopyStats;
     }
 }
 
