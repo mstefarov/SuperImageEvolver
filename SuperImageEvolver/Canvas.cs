@@ -52,8 +52,8 @@ namespace SuperImageEvolver {
                 }
                 if( ShowLastChange ) {
                     for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
-                        if( tempDNA.Shapes[i].Changed ) {
-                            g.DrawPolygon( Pens.White, tempDNA.Shapes[i].Points );
+                        if( tempDNA.Shapes[i].PreviousState != null ) {
+                            g.DrawPolygon( new Pen( Color.White, 2 ), tempDNA.Shapes[i].Points );
                             g.DrawPolygon( Pens.Black, tempDNA.Shapes[i].PreviousState.Points );
                         }
                     }

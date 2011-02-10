@@ -29,7 +29,6 @@ namespace SuperImageEvolver {
             for( int i = 0; i < shape.Points.Length; i++ ) {
                 shape.Points[i] = new Point( rand.Next( task.ImageWidth ), rand.Next( task.ImageHeight ) );
             }
-            shape.Changed = true;
             newDNA.LastMutation = MutationType.ReplaceShape;
             return newDNA;
         }

@@ -266,11 +266,22 @@ SinceImproved: {7} / {6}",
                 case 4:
                     state.Mutator = new SoftMutator( 2 ); break;
                 case 5:
-                    state.Mutator = new TranslateMutator() { PreserveAspectRatio = true }; break;
-                case 6:
-                    state.Mutator = new TranslateMutator() { PreserveAspectRatio = false }; break;
-                case 7:
                     state.Mutator = new SubPixelMutator(); break;
+                case 6:
+                    state.Mutator = new TranslateMutator() {
+                        PreserveAspectRatio = true
+                    }; break;
+                case 7:
+                    state.Mutator = new TranslateMutator(); break;
+                case 8:
+                    state.Mutator = new TranslateMutator() {
+                        PreserveAspectRatio = true,
+                        EnableRotation = true
+                    }; break;
+                case 9:
+                    state.Mutator = new TranslateMutator() {
+                        EnableRotation = true
+                    }; break;
             }
         }
 
@@ -402,6 +413,7 @@ SinceImproved: {7} / {6}",
         SwapShapes,
         Move,
         Scale,
-        Transform
+        Transform,
+        Rotate
     }
 }
