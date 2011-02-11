@@ -281,6 +281,21 @@ SinceImproved: {7} / {6}",
                     state.Mutator = new TranslateMutator() {
                         EnableRotation = true
                     }; break;
+                case 9:
+                    state.Mutator = new SoftTranslateMutator() {
+                        PreserveAspectRatio = true
+                    }; break;
+                case 10:
+                    state.Mutator = new SoftTranslateMutator(); break;
+                case 11:
+                    state.Mutator = new SoftTranslateMutator() {
+                        PreserveAspectRatio = true,
+                        EnableRotation = true
+                    }; break;
+                case 12:
+                    state.Mutator = new SoftTranslateMutator() {
+                        EnableRotation = true
+                    }; break;
             }
         }
 

@@ -40,6 +40,8 @@
             this.nPolygons = new System.Windows.Forms.NumericUpDown();
             this.nVertices = new System.Windows.Forms.NumericUpDown();
             this.bStartStop = new System.Windows.Forms.Button();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.bCopyStats = new System.Windows.Forms.Button();
             this.tMutationStats = new System.Windows.Forms.TextBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.menuTask = new System.Windows.Forms.ToolStripMenuItem();
@@ -58,15 +60,13 @@
             this.menuStatistics = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.listModulesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.bCopyStats = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nPolygons)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nVertices)).BeginInit();
-            this.menuStrip1.SuspendLayout();
             this.panel2.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // picOriginal
@@ -183,7 +183,11 @@
             "Translate",
             "Translate/Stretch",
             "Translate/Rotate",
-            "Transform"} );
+            "Transform",
+            "Soft Translate",
+            "Soft Translate/Stretch",
+            "Soft Translate/Rotate",
+            "Soft Transform"} );
             this.cMutator.Location = new System.Drawing.Point( 61, 160 );
             this.cMutator.Name = "cMutator";
             this.cMutator.Size = new System.Drawing.Size( 107, 21 );
@@ -282,6 +286,25 @@
             this.bStartStop.Text = "Start";
             this.bStartStop.UseVisualStyleBackColor = true;
             this.bStartStop.Click += new System.EventHandler( this.bStartStop_Click );
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add( this.bCopyStats );
+            this.panel2.Controls.Add( this.tMutationStats );
+            this.panel2.Location = new System.Drawing.Point( 310, 3 );
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size( 200, 215 );
+            this.panel2.TabIndex = 9;
+            // 
+            // bCopyStats
+            // 
+            this.bCopyStats.Location = new System.Drawing.Point( 122, 187 );
+            this.bCopyStats.Name = "bCopyStats";
+            this.bCopyStats.Size = new System.Drawing.Size( 75, 23 );
+            this.bCopyStats.TabIndex = 8;
+            this.bCopyStats.Text = "Copy Stats";
+            this.bCopyStats.UseVisualStyleBackColor = true;
+            this.bCopyStats.Click += new System.EventHandler( this.bCopyStats_Click );
             // 
             // tMutationStats
             // 
@@ -438,25 +461,6 @@
             this.listModulesToolStripMenuItem.Text = "List Modules";
             this.listModulesToolStripMenuItem.Click += new System.EventHandler( this.menuListModules_Click );
             // 
-            // panel2
-            // 
-            this.panel2.Controls.Add( this.bCopyStats );
-            this.panel2.Controls.Add( this.tMutationStats );
-            this.panel2.Location = new System.Drawing.Point( 310, 3 );
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size( 200, 215 );
-            this.panel2.TabIndex = 9;
-            // 
-            // bCopyStats
-            // 
-            this.bCopyStats.Location = new System.Drawing.Point( 122, 187 );
-            this.bCopyStats.Name = "bCopyStats";
-            this.bCopyStats.Size = new System.Drawing.Size( 75, 23 );
-            this.bCopyStats.TabIndex = 8;
-            this.bCopyStats.Text = "Copy Stats";
-            this.bCopyStats.UseVisualStyleBackColor = true;
-            this.bCopyStats.Click += new System.EventHandler( this.bCopyStats_Click );
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -475,10 +479,10 @@
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nPolygons)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nVertices)).EndInit();
-            this.menuStrip1.ResumeLayout( false );
-            this.menuStrip1.PerformLayout();
             this.panel2.ResumeLayout( false );
             this.panel2.PerformLayout();
+            this.menuStrip1.ResumeLayout( false );
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout( false );
             this.PerformLayout();
 

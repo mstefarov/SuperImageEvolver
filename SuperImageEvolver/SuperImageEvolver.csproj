@@ -82,6 +82,7 @@
     <Compile Include="Initializers\SolidColorInitializer.cs" />
     <Compile Include="ModuleManager.cs" />
     <Compile Include="MutationType.cs" />
+    <Compile Include="Mutators\SoftTranslateMutator.cs" />
     <Compile Include="Mutators\TranslateMutator.cs" />
     <Compile Include="Mutators\HardMutator.cs" />
     <Compile Include="Mutators\IMutator.cs" />
