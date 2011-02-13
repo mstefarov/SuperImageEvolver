@@ -47,7 +47,7 @@ namespace SuperImageEvolver {
                 DNA tempDNA = state.BestMatch;
                 using( Graphics g = Graphics.FromImage( canvasImage ) ) {
                     g.Clear( Color.White );
-                    g.SmoothingMode = SmoothingMode.HighQuality;
+                    g.SmoothingMode = (state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
                     for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                         g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ), tempDNA.Shapes[i].Points, FillMode.Alternate );
                     }

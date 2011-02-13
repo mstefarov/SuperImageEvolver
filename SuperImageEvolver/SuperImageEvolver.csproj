@@ -60,6 +60,7 @@
       <DependentUpon>DiffCanvas.cs</DependentUpon>
     </Compile>
     <Compile Include="DNA.cs" />
+    <Compile Include="Evaluators\SloppyRGBEvaluator.cs" />
     <Compile Include="Evaluators\IEvaluator.cs" />
     <Compile Include="Evaluators\LumaEvaluator.cs" />
     <Compile Include="Evaluators\RGBEvaluator.cs" />

@@ -38,6 +38,7 @@ namespace SuperImageEvolver {
             Smooth = _smooth;
         }
 
+
         public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState task, double max ) {
             long sum = 0;
             long roundedMax = (long)(max * maxDivergence + 1);
@@ -86,7 +87,7 @@ namespace SuperImageEvolver {
                                       Math.Min( Math.Min( testPointer[2], testPointer[1] ), *testPointer ));
 
 
-                    sum += lumiDelta*2 + (byte)(Math.Abs( oringinalChroma - testChroma ) * lumiDelta / 255);
+                    sum += lumiDelta * 2 + (byte)(Math.Abs( oringinalChroma - testChroma ) * lumiDelta / 255);
 
                     originalPointer += 4;
                     testPointer += 4;

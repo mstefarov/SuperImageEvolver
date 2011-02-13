@@ -34,7 +34,7 @@ namespace SuperImageEvolver {
         public bool PreserveAspectRatio { get; set; }
         public bool EnableRotation { get; set; }
 
-        const int MaxOverlap = 5;
+        const int MaxOverlap = 6;
 
         public DNA Mutate( Random rand, DNA oldDNA, TaskState task ) {
             DNA newDNA = new DNA( oldDNA );
@@ -83,7 +83,7 @@ namespace SuperImageEvolver {
                     MoveShape( rand, shape, task );
                     ScaleShape( rand, shape, task );
                     ChangeColor( rand, shape, task );
-                    newDNA.LastMutation = MutationType.Transform;
+                    newDNA.LastMutation = MutationType.ReplaceShape;
                     break;
                 case 12:
                 case 13:
@@ -95,7 +95,7 @@ namespace SuperImageEvolver {
                     shape.PreviousState = shape.Clone() as DNA.Shape;
                     MoveShape( rand, shape, task );
                     RotateShape( rand, shape, task );
-                    newDNA.LastMutation = MutationType.Rotate;
+                    newDNA.LastMutation = MutationType.Transform;
                     break;
                 case 15:
                     shape.PreviousState = shape.Clone() as DNA.Shape;

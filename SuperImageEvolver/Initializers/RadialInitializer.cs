@@ -26,6 +26,8 @@ namespace SuperImageEvolver {
             Color = _color;
         }
 
+        const int MaxOverlap = 6;
+
         public DNA Initialize( Random rand, TaskState task ) {
             DNA dna = new DNA();
             dna.Shapes = new DNA.Shape[task.Shapes];
@@ -34,7 +36,8 @@ namespace SuperImageEvolver {
                 shape.Color = Color.FromArgb( 0, Color.R, Color.G, Color.B );
                 shape.Points = new PointF[task.Vertices];
                 int radius = rand.Next( 2, Math.Min( task.ImageWidth, task.ImageHeight ) / 2 );
-                Point center = new Point( rand.Next( radius, task.ImageWidth - radius ), rand.Next( radius, task.ImageHeight - radius ) );
+                Point center = new Point( rand.Next( radius - MaxOverlap, task.ImageWidth - radius + MaxOverlap ),
+                                          rand.Next( radius - MaxOverlap, task.ImageHeight - radius + MaxOverlap ) );
                 for( int j = 0; j < shape.Points.Length; j++ ) {
                     double t = j * Math.PI * 2 / shape.Points.Length + Math.PI / task.Vertices;
                     shape.Points[j].X = (float)(center.X + Math.Cos( t ) * radius);

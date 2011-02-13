@@ -85,11 +85,9 @@ namespace SuperImageEvolver {
         }
 
 
-
-
         void Run() {
             Random rand = new Random();
-            Bitmap testCanvas = new Bitmap( state.ImageWidth, state.ImageHeight );
+            Bitmap testCanvas = new Bitmap( state.ImageWidth,state.ImageHeight );
 
             while( !stopped ) {
                 Interlocked.Increment( ref state.MutationCounter );
@@ -157,7 +155,7 @@ SinceImproved: {7} / {6}",
                    mutationDelta / timeDelta,
                    DateTime.UtcNow.Subtract( state.TaskStart ).ToCompactString(),
                    DateTime.UtcNow.Subtract( state.LastImprovementTime ).ToCompactString(),
-                   state.MutationCounter - state.LastImprovementMutationCount);
+                   state.MutationCounter - state.LastImprovementMutationCount );
                 StringBuilder sb = new StringBuilder( Environment.NewLine );
                 sb.Append( Environment.NewLine );
                 foreach( MutationType type in Enum.GetValues( typeof( MutationType ) ) ) {
@@ -183,7 +181,7 @@ SinceImproved: {7} / {6}",
         private void bStartStop_Click( object sender, EventArgs e ) {
             bStartStop.Enabled = false;
             if( stopped ) {
-                Start(true);
+                Start( true );
             } else {
                 Stop();
             }
@@ -191,7 +189,7 @@ SinceImproved: {7} / {6}",
         }
 
 
-        void Start(bool reset) {
+        void Start( bool reset ) {
             cInitializer.Enabled = false;
             nPolygons.Enabled = false;
             nVertices.Enabled = false;
@@ -303,12 +301,14 @@ SinceImproved: {7} / {6}",
         private void cEvaluator_SelectedIndexChanged( object sender, EventArgs e ) {
             switch( cEvaluator.SelectedIndex ) {
                 case 0:
-                    state.SetEvaluator( new RGBEvaluator( false ) ); break;
+                    state.SetEvaluator( new SloppyRGBEvaluator() ); break;
                 case 1:
-                    state.SetEvaluator( new RGBEvaluator( true ) ); break;
+                    state.SetEvaluator( new RGBEvaluator( false ) ); break;
                 case 2:
-                    state.SetEvaluator( new LumaEvaluator( false ) ); break;
+                    state.SetEvaluator( new RGBEvaluator( true ) ); break;
                 case 3:
+                    state.SetEvaluator( new LumaEvaluator( false ) ); break;
+                case 4:
                     state.SetEvaluator( new LumaEvaluator( true ) ); break;
             }
             picBestMatch.Invalidate();
@@ -323,7 +323,7 @@ SinceImproved: {7} / {6}",
 
         private void menuListModules_Click( object sender, EventArgs e ) {
             StringBuilder sb = new StringBuilder();
-            IModuleFactory[] factories = ModuleManager.ListAllModules().OrderBy(fac=>fac.Function).ToArray();
+            IModuleFactory[] factories = ModuleManager.ListAllModules().OrderBy( fac => fac.Function ).ToArray();
             foreach( IModuleFactory factory in factories ) {
                 sb.AppendFormat( "{0} {1}", factory.Function, factory.ID );
                 sb.AppendLine();
