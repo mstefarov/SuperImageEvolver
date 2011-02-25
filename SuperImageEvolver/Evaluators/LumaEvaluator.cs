@@ -112,6 +112,5 @@ namespace SuperImageEvolver {
             writer.Write( 1 );
             writer.Write( Smooth );
         }
-        public IModuleFactory Factory { get; set; }
     }
 }

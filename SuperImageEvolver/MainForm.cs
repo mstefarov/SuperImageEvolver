@@ -14,6 +14,7 @@ using System.IO.Compression;
 
 namespace SuperImageEvolver {
     public partial class MainForm : Form {
+        static MainForm instance;
         public static TaskState state = new TaskState();
         bool stopped = true;
 
@@ -24,6 +25,7 @@ namespace SuperImageEvolver {
 
 
         public MainForm( string[] args ) {
+            instance = this;
             InitializeComponent();
 
             ModuleManager.LoadFactories( System.Reflection.Assembly.GetExecutingAssembly() );
@@ -240,6 +242,12 @@ SinceImproved: {7} / {6}",
         }
 
 
+        public static void UpdateBestMatch() {
+            if( instance.picBestMatch.ShowLastChange ) {
+                instance.picBestMatch.Invalidate();
+            }
+        }
+
         private void cInitializer_SelectedIndexChanged( object sender, EventArgs e ) {
             switch( cInitializer.SelectedIndex ) {
                 case 0:
@@ -265,33 +273,33 @@ SinceImproved: {7} / {6}",
                 case 4:
                     state.Mutator = new SoftMutator( 2 ); break;
                 case 5:
-                    state.Mutator = new TranslateMutator() {
+                    state.Mutator = new TranslateMutator {
                         PreserveAspectRatio = true
                     }; break;
                 case 6:
                     state.Mutator = new TranslateMutator(); break;
                 case 7:
-                    state.Mutator = new TranslateMutator() {
+                    state.Mutator = new TranslateMutator {
                         PreserveAspectRatio = true,
                         EnableRotation = true
                     }; break;
                 case 8:
-                    state.Mutator = new TranslateMutator() {
+                    state.Mutator = new TranslateMutator {
                         EnableRotation = true
                     }; break;
                 case 9:
-                    state.Mutator = new SoftTranslateMutator() {
+                    state.Mutator = new SoftTranslateMutator {
                         PreserveAspectRatio = true
                     }; break;
                 case 10:
                     state.Mutator = new SoftTranslateMutator(); break;
                 case 11:
-                    state.Mutator = new SoftTranslateMutator() {
+                    state.Mutator = new SoftTranslateMutator {
                         PreserveAspectRatio = true,
                         EnableRotation = true
                     }; break;
                 case 12:
-                    state.Mutator = new SoftTranslateMutator() {
+                    state.Mutator = new SoftTranslateMutator {
                         EnableRotation = true
                     }; break;
             }
@@ -416,6 +424,27 @@ SinceImproved: {7} / {6}",
 
         private void bCopyStats_Click( object sender, EventArgs e ) {
             Clipboard.SetText( tMutationStats.Text );
+        }
+
+        private void bEditInitializerSetting_Click( object sender, EventArgs e ) {
+            ModuleSettingsDisplay md = new ModuleSettingsDisplay( state.Initializer );
+            if( md.ShowDialog() == DialogResult.OK ) {
+                state.Initializer = (IInitializer)md.Module;
+            }
+        }
+
+        private void bEditMutatorSettings_Click( object sender, EventArgs e ) {
+            ModuleSettingsDisplay md = new ModuleSettingsDisplay( state.Mutator );
+            if( md.ShowDialog() == DialogResult.OK ) {
+                state.Mutator = (IMutator)md.Module;
+            }
+        }
+
+        private void bEditEvaluatorSettings_Click( object sender, EventArgs e ) {
+            ModuleSettingsDisplay md = new ModuleSettingsDisplay( state.Evaluator );
+            if( md.ShowDialog() == DialogResult.OK ) {
+                state.SetEvaluator( (IEvaluator)md.Module );
+            }
         }
 
     }

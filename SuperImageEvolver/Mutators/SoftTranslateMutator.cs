@@ -34,8 +34,13 @@ namespace SuperImageEvolver {
         public bool PreserveAspectRatio { get; set; }
         public bool EnableRotation { get; set; }
 
-        const int MaxOverlap = 5;
-        public float MaxDelta = 10;
+        public int MaxOverlap { get; set; }
+        public float MaxDelta { get; set; }
+
+        public SoftTranslateMutator() {
+            MaxOverlap = 6;
+            MaxDelta = 12;
+        }
 
         public DNA Mutate( Random rand, DNA oldDNA, TaskState task ) {
             DNA newDNA = new DNA( oldDNA );

@@ -23,10 +23,10 @@ namespace SuperImageEvolver {
 
     class SoftMutator : IMutator {
 
-        int maxDelta = 2;
+        public int MaxDelta { get; set; }
 
         public SoftMutator( int _maxDelta ) {
-            maxDelta = _maxDelta;
+            MaxDelta = _maxDelta;
         }
 
 
@@ -52,8 +52,8 @@ namespace SuperImageEvolver {
 
         void MutateShape( Random rand, DNA dna, DNA.Shape shape, TaskState task ) {
             shape.PreviousState = shape.Clone() as DNA.Shape;
-            int delta = (byte)rand.Next( 1, maxDelta + 1 ) * (rand.Next( 2 ) == 0 ? 1 : -1);
-            float posDelta = (float)rand.NextDouble() * maxDelta * (rand.Next( 2 ) == 0 ? 1 : -1);
+            int delta = (byte)rand.Next( 1, MaxDelta + 1 ) * (rand.Next( 2 ) == 0 ? 1 : -1);
+            float posDelta = (float)rand.NextDouble() * MaxDelta * (rand.Next( 2 ) == 0 ? 1 : -1);
             switch( rand.Next( 9 ) ) {
                 case 0:
                     shape.Color = Color.FromArgb( Math.Max( 0, Math.Min( 255, (int)shape.Color.A + delta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
@@ -94,16 +94,16 @@ namespace SuperImageEvolver {
 
 
         object ICloneable.Clone() {
-            return new SoftMutator( maxDelta );
+            return new SoftMutator( MaxDelta );
         }
 
         void IModule.ReadSettings( BinaryReader reader, int settingsLength ) {
-            maxDelta = reader.ReadInt32();
+            MaxDelta = reader.ReadInt32();
         }
 
         void IModule.WriteSettings( BinaryWriter writer ) {
             writer.Write( 4 );
-            writer.Write( maxDelta );
+            writer.Write( MaxDelta );
         }
     }
 }

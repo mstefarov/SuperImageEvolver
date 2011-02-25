@@ -29,6 +29,7 @@ namespace SuperImageEvolver {
         public DateTime TaskStart;
         public DateTime LastImprovementTime;
         public long LastImprovementMutationCount;
+        public Point ClickLocation;
 
         public const int FormatVersion = 1;
 
@@ -40,13 +41,13 @@ namespace SuperImageEvolver {
 
         public void SetEvaluator( IEvaluator newEvaluator ) {
             lock( ImprovementLock ) {
-                Evaluator = newEvaluator;
                 if( Image != null && BestMatch != null ) {
                     using( Bitmap testCanvas = new Bitmap( ImageWidth, ImageHeight ) ) {
                         newEvaluator.Initialize( this );
                         BestMatch.Divergence = newEvaluator.CalculateDivergence( testCanvas, BestMatch, this, 1 );
                     }
                 }
+                Evaluator = newEvaluator;
             }
         }
 

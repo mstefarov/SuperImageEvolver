@@ -43,7 +43,7 @@ namespace SuperImageEvolver {
             shape.PreviousState = shape.Clone() as DNA.Shape;
             switch( rand.Next( 9 ) ) {
                 case 0:
-                    shape.Color = Color.FromArgb( (byte)rand.Next( 256 ), shape.Color.R, shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( (byte)rand.Next( 1,256 ), shape.Color.R, shape.Color.G, shape.Color.B );
                     dna.LastMutation = MutationType.ReplaceColor;
                     break;
                 case 1:

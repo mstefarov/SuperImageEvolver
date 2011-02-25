@@ -57,7 +57,7 @@ namespace SuperImageEvolver {
             shape.PreviousState = shape.Clone() as DNA.Shape;
             switch( rand.Next( 10 ) ) {
                 case 0:
-                    shape.Color = Color.FromArgb( (byte)rand.Next( 256 ), shape.Color.R, shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( (byte)rand.Next( 1, 256 ), shape.Color.R, shape.Color.G, shape.Color.B );
                     dna.LastMutation = MutationType.ReplaceColor;
                     break;
                 case 1:
@@ -112,7 +112,7 @@ namespace SuperImageEvolver {
 
         void RandomizeShape( Random rand, DNA.Shape shape, TaskState task ) {
             shape.PreviousState = shape.Clone() as DNA.Shape;
-            shape.Color = Color.FromArgb( rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ) );
+            shape.Color = Color.FromArgb( rand.Next( 1, 256 ), rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ) );
             for( int i = 0; i < shape.Points.Length; i++ ) {
                 shape.Points[i] = new PointF( (float)rand.NextDouble() * task.ImageWidth,
                                               (float)rand.NextDouble() * task.ImageHeight );

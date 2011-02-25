@@ -30,10 +30,17 @@ namespace SuperImageEvolver {
     unsafe class RGBEvaluator : IEvaluator {
 
         public bool Smooth { get; set; }
+        public bool Emphasized { get; set; }
+
+        public double EmphasisAmount { get; set; }
         double maxDivergence;
 
 
-        public RGBEvaluator() { }
+        public RGBEvaluator() {
+            Smooth = true;
+            Emphasized = false;
+            EmphasisAmount = 2;
+        }
 
         public RGBEvaluator( bool _smooth ) {
             Smooth = _smooth;
@@ -41,11 +48,21 @@ namespace SuperImageEvolver {
 
 
         public void Initialize( TaskState state ) {
-            maxDivergence = state.ImageWidth * state.ImageHeight * 3 * 255;
         }
 
 
         public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState task, double max ) {
+
+            if( Emphasized ) {
+                if( EmphasisAmount == 2 ) {
+                    maxDivergence = 3L * task.ImageWidth * task.ImageHeight * 255L * 255L;
+                } else {
+                    maxDivergence = (long)(3L * task.ImageWidth * task.ImageHeight * Math.Pow( 255, EmphasisAmount ));
+                }
+            } else {
+                maxDivergence = (long)task.ImageWidth * task.ImageHeight * 3L * 255L;
+            }
+
             long sum = 0;
             long roundedMax = (long)(max * maxDivergence + 1);
             using( Graphics g = Graphics.FromImage( testImage ) ) {
@@ -64,9 +81,18 @@ namespace SuperImageEvolver {
                 originalPointer = (byte*)task.ImageData.Scan0 + task.ImageData.Stride * i;
                 testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                 for( int j = 0; j < task.ImageWidth; j++ ) {
-                    sum += Math.Abs( *originalPointer - *testPointer ) +
-                           Math.Abs( originalPointer[1] - testPointer[1] ) +
-                           Math.Abs( originalPointer[2] - testPointer[2] );
+                    int B = Math.Abs(*originalPointer - *testPointer);
+                    int G = Math.Abs(originalPointer[1] - testPointer[1]);
+                    int R = Math.Abs(originalPointer[2] - testPointer[2]);
+                    if( Emphasized ) {
+                        if( EmphasisAmount == 2 ) {
+                            sum += R * R + B * B + G * G;
+                        } else {
+                            sum += (long)(Math.Pow( R, EmphasisAmount ) + Math.Pow( G, EmphasisAmount ) + Math.Pow( B, EmphasisAmount ));
+                        }
+                    } else {
+                        sum += R + B + G;
+                    }
                     originalPointer += 4;
                     testPointer += 4;
                 }
@@ -78,7 +104,11 @@ namespace SuperImageEvolver {
 
 
         object ICloneable.Clone() {
-            return new RGBEvaluator( Smooth );
+            return new RGBEvaluator {
+                Smooth = Smooth,
+                Emphasized = Emphasized,
+                EmphasisAmount = EmphasisAmount
+            };
         }
 
         void IModule.ReadSettings( BinaryReader reader, int settingsLength ) {
@@ -89,6 +119,6 @@ namespace SuperImageEvolver {
             writer.Write( 1 );
             writer.Write( Smooth );
         }
-        public IModuleFactory Factory { get; set; }
+
     }
 }

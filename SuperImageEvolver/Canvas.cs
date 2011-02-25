@@ -9,17 +9,30 @@ namespace SuperImageEvolver {
         public Canvas() {
             InitializeComponent();
             DoubleBuffered = true;
-            Click += delegate( object sender, EventArgs e ) {
-                if( !Wireframe && !ShowLastChange ) {
-                    Wireframe = true;
-                } else if( Wireframe && !ShowLastChange ) {
-                    ShowLastChange = true;
-                } else if( Wireframe && ShowLastChange ) {
-                    Wireframe = false;
-                } else {
-                    ShowLastChange = false;
+
+            MouseClick += delegate( object sender, MouseEventArgs e ) {
+                switch( e.Button ) {
+                    case MouseButtons.Right:
+                        if( !Wireframe && !ShowLastChange ) {
+                            Wireframe = true;
+                        } else if( Wireframe && !ShowLastChange ) {
+                            ShowLastChange = true;
+                        } else if( Wireframe && ShowLastChange ) {
+                            Wireframe = false;
+                        } else {
+                            ShowLastChange = false;
+                        }
+                        Invalidate();
+                        break;
+
+                    case MouseButtons.Left:
+                        state.ClickLocation = this.PointToClient( MousePosition );
+                        break;
+
+                    case MouseButtons.Middle:
+                        state.ClickLocation = default( Point );
+                        break;
                 }
-                Invalidate();
             };
         }
 
@@ -31,6 +44,14 @@ namespace SuperImageEvolver {
         public bool Wireframe { get; set; }
         public bool ShowLastChange { get; set; }
         const string PlaceholderText = "best match";
+
+        static readonly Pen LastChangePen = new Pen( Color.White, 2 ) {
+            EndCap = LineCap.Round
+        };
+        static readonly Pen HighlightPen = new Pen( Color.Red, 2 ) {
+            EndCap = LineCap.Round
+        };
+
 
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g = e.Graphics;
@@ -49,8 +70,13 @@ namespace SuperImageEvolver {
                 if( ShowLastChange ) {
                     for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                         if( tempDNA.Shapes[i].PreviousState != null ) {
-                            g.DrawPolygon( new Pen( Color.White, 2 ), tempDNA.Shapes[i].Points );
+                            g.DrawPolygon( LastChangePen, tempDNA.Shapes[i].Points );
                             g.DrawPolygon( Pens.Black, tempDNA.Shapes[i].PreviousState.Points );
+                        }
+
+                        if( tempDNA.Shapes[i].Highlight ) {
+                            g.DrawPolygon( HighlightPen, tempDNA.Shapes[i].Points );
+                            g.DrawPolygon( Pens.White, tempDNA.Shapes[i].Points );
                         }
                     }
                 }

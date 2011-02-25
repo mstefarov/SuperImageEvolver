@@ -77,9 +77,9 @@ namespace SuperImageEvolver {
 
 
                             int originalLumi = (Math.Min( Math.Min( originalPointer[2], originalPointer[1] ), *originalPointer ) +
-                                          Math.Max( Math.Max( originalPointer[2], originalPointer[1] ), *originalPointer )) / 2;
+                                                Math.Max( Math.Max( originalPointer[2], originalPointer[1] ), *originalPointer )) / 2;
                             int testLumi = (Math.Min( Math.Min( testPointer[2], testPointer[1] ), *testPointer ) +
-                                          Math.Max( Math.Max( testPointer[2], testPointer[1] ), *testPointer )) / 2;
+                                            Math.Max( Math.Max( testPointer[2], testPointer[1] ), *testPointer )) / 2;
 
                             byte val = (byte)Math.Abs( originalLumi - testLumi );
 

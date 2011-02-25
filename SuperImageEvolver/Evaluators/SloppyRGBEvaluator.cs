@@ -32,6 +32,7 @@ namespace SuperImageEvolver {
         Bitmap halfResImage;
         BitmapData halfResData;
 
+        public bool Smooth { get; set; }
 
         public SloppyRGBEvaluator() { }
 
@@ -57,7 +58,7 @@ namespace SuperImageEvolver {
             using( Graphics g = Graphics.FromImage( testImage ) ) {
                 g.Clear( Color.White );
                 g.Transform = new Matrix( .5f, 0, 0, .5f, 0, 0 );
-                g.SmoothingMode = SmoothingMode.HighQuality;
+                g.SmoothingMode = (Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
                 for( int i = 0; i < dna.Shapes.Length; i++ ) {
                     g.FillPolygon( new SolidBrush( dna.Shapes[i].Color ), dna.Shapes[i].Points, FillMode.Alternate );
                 }
@@ -88,7 +89,6 @@ namespace SuperImageEvolver {
             return new SloppyRGBEvaluator();
         }
 
-        bool IEvaluator.Smooth { get { return true; } }
 
         void IModule.ReadSettings( BinaryReader reader, int settingsLength ) { }
 
@@ -96,6 +96,5 @@ namespace SuperImageEvolver {
             writer.Write( 0 );
         }
 
-        public IModuleFactory Factory { get; set; }
     }
 }

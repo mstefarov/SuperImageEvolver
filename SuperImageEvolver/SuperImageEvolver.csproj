@@ -82,6 +82,12 @@
     <Compile Include="Initializers\SegmentedInitializer.cs" />
     <Compile Include="Initializers\SolidColorInitializer.cs" />
     <Compile Include="ModuleManager.cs" />
+    <Compile Include="ModuleSettingsDisplay.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModuleSettingsDisplay.Designer.cs">
+      <DependentUpon>ModuleSettingsDisplay.cs</DependentUpon>
+    </Compile>
     <Compile Include="MutationType.cs" />
     <Compile Include="Mutators\SoftTranslateMutator.cs" />
     <Compile Include="Mutators\TranslateMutator.cs" />
@@ -94,6 +100,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModuleSettingsDisplay.resx">
+      <DependentUpon>ModuleSettingsDisplay.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

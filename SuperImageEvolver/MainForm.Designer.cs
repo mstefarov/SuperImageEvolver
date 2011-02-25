@@ -25,13 +25,19 @@
         private void InitializeComponent() {
             this.picOriginal = new System.Windows.Forms.PictureBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.picBestMatch = new SuperImageEvolver.Canvas();
+            this.picDiff = new SuperImageEvolver.DiffCanvas();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.bEditEvaluatorSettings = new System.Windows.Forms.Button();
+            this.bEditMutatorSettings = new System.Windows.Forms.Button();
+            this.bEditInitializerSetting = new System.Windows.Forms.Button();
             this.lEvaluator = new System.Windows.Forms.Label();
             this.cEvaluator = new System.Windows.Forms.ComboBox();
             this.lMutator = new System.Windows.Forms.Label();
             this.lInitializer = new System.Windows.Forms.Label();
             this.cMutator = new System.Windows.Forms.ComboBox();
             this.cInitializer = new System.Windows.Forms.ComboBox();
+            this.graphWindow1 = new SuperImageEvolver.GraphWindow();
             this.lVertices = new System.Windows.Forms.Label();
             this.lPolygons = new System.Windows.Forms.Label();
             this.nPolygons = new System.Windows.Forms.NumericUpDown();
@@ -57,9 +63,6 @@
             this.menuStatistics = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.listModulesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.picBestMatch = new SuperImageEvolver.Canvas();
-            this.picDiff = new SuperImageEvolver.DiffCanvas();
-            this.graphWindow1 = new SuperImageEvolver.GraphWindow();
             ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -91,8 +94,29 @@
             this.flowLayoutPanel1.Size = new System.Drawing.Size( 882, 461 );
             this.flowLayoutPanel1.TabIndex = 3;
             // 
+            // picBestMatch
+            // 
+            this.picBestMatch.Location = new System.Drawing.Point( 44, 3 );
+            this.picBestMatch.Name = "picBestMatch";
+            this.picBestMatch.ShowLastChange = false;
+            this.picBestMatch.Size = new System.Drawing.Size( 39, 38 );
+            this.picBestMatch.TabIndex = 0;
+            this.picBestMatch.Wireframe = false;
+            // 
+            // picDiff
+            // 
+            this.picDiff.Inverse = true;
+            this.picDiff.Location = new System.Drawing.Point( 89, 3 );
+            this.picDiff.Monochrome = false;
+            this.picDiff.Name = "picDiff";
+            this.picDiff.Size = new System.Drawing.Size( 38, 38 );
+            this.picDiff.TabIndex = 8;
+            // 
             // panel1
             // 
+            this.panel1.Controls.Add( this.bEditEvaluatorSettings );
+            this.panel1.Controls.Add( this.bEditMutatorSettings );
+            this.panel1.Controls.Add( this.bEditInitializerSetting );
             this.panel1.Controls.Add( this.lEvaluator );
             this.panel1.Controls.Add( this.cEvaluator );
             this.panel1.Controls.Add( this.lMutator );
@@ -109,6 +133,33 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size( 171, 215 );
             this.panel1.TabIndex = 6;
+            // 
+            // bEditEvaluatorSettings
+            // 
+            this.bEditEvaluatorSettings.Location = new System.Drawing.Point( 156, 186 );
+            this.bEditEvaluatorSettings.Name = "bEditEvaluatorSettings";
+            this.bEditEvaluatorSettings.Size = new System.Drawing.Size( 12, 21 );
+            this.bEditEvaluatorSettings.TabIndex = 16;
+            this.bEditEvaluatorSettings.UseVisualStyleBackColor = true;
+            this.bEditEvaluatorSettings.Click += new System.EventHandler( this.bEditEvaluatorSettings_Click );
+            // 
+            // bEditMutatorSettings
+            // 
+            this.bEditMutatorSettings.Location = new System.Drawing.Point( 156, 159 );
+            this.bEditMutatorSettings.Name = "bEditMutatorSettings";
+            this.bEditMutatorSettings.Size = new System.Drawing.Size( 12, 21 );
+            this.bEditMutatorSettings.TabIndex = 15;
+            this.bEditMutatorSettings.UseVisualStyleBackColor = true;
+            this.bEditMutatorSettings.Click += new System.EventHandler( this.bEditMutatorSettings_Click );
+            // 
+            // bEditInitializerSetting
+            // 
+            this.bEditInitializerSetting.Location = new System.Drawing.Point( 156, 133 );
+            this.bEditInitializerSetting.Name = "bEditInitializerSetting";
+            this.bEditInitializerSetting.Size = new System.Drawing.Size( 12, 21 );
+            this.bEditInitializerSetting.TabIndex = 14;
+            this.bEditInitializerSetting.UseVisualStyleBackColor = true;
+            this.bEditInitializerSetting.Click += new System.EventHandler( this.bEditInitializerSetting_Click );
             // 
             // lEvaluator
             // 
@@ -131,7 +182,7 @@
             "RGB+Luma (Smooth)"} );
             this.cEvaluator.Location = new System.Drawing.Point( 61, 187 );
             this.cEvaluator.Name = "cEvaluator";
-            this.cEvaluator.Size = new System.Drawing.Size( 107, 21 );
+            this.cEvaluator.Size = new System.Drawing.Size( 89, 21 );
             this.cEvaluator.TabIndex = 12;
             this.cEvaluator.SelectedIndexChanged += new System.EventHandler( this.cEvaluator_SelectedIndexChanged );
             // 
@@ -173,7 +224,7 @@
             "Soft Transform"} );
             this.cMutator.Location = new System.Drawing.Point( 61, 160 );
             this.cMutator.Name = "cMutator";
-            this.cMutator.Size = new System.Drawing.Size( 107, 21 );
+            this.cMutator.Size = new System.Drawing.Size( 89, 21 );
             this.cMutator.TabIndex = 9;
             this.cMutator.SelectedIndexChanged += new System.EventHandler( this.cMutator_SelectedIndexChanged );
             // 
@@ -187,9 +238,16 @@
             "Radial"} );
             this.cInitializer.Location = new System.Drawing.Point( 61, 133 );
             this.cInitializer.Name = "cInitializer";
-            this.cInitializer.Size = new System.Drawing.Size( 107, 21 );
+            this.cInitializer.Size = new System.Drawing.Size( 89, 21 );
             this.cInitializer.TabIndex = 8;
             this.cInitializer.SelectedIndexChanged += new System.EventHandler( this.cInitializer_SelectedIndexChanged );
+            // 
+            // graphWindow1
+            // 
+            this.graphWindow1.Location = new System.Drawing.Point( 3, 3 );
+            this.graphWindow1.Name = "graphWindow1";
+            this.graphWindow1.Size = new System.Drawing.Size( 165, 71 );
+            this.graphWindow1.TabIndex = 9;
             // 
             // lVertices
             // 
@@ -437,31 +495,6 @@
             this.listModulesToolStripMenuItem.Text = "List Modules";
             this.listModulesToolStripMenuItem.Click += new System.EventHandler( this.menuListModules_Click );
             // 
-            // picBestMatch
-            // 
-            this.picBestMatch.Location = new System.Drawing.Point( 44, 3 );
-            this.picBestMatch.Name = "picBestMatch";
-            this.picBestMatch.ShowLastChange = false;
-            this.picBestMatch.Size = new System.Drawing.Size( 39, 38 );
-            this.picBestMatch.TabIndex = 0;
-            this.picBestMatch.Wireframe = false;
-            // 
-            // picDiff
-            // 
-            this.picDiff.Inverse = true;
-            this.picDiff.Location = new System.Drawing.Point( 89, 3 );
-            this.picDiff.Monochrome = false;
-            this.picDiff.Name = "picDiff";
-            this.picDiff.Size = new System.Drawing.Size( 38, 38 );
-            this.picDiff.TabIndex = 8;
-            // 
-            // graphWindow1
-            // 
-            this.graphWindow1.Location = new System.Drawing.Point( 3, 3 );
-            this.graphWindow1.Name = "graphWindow1";
-            this.graphWindow1.Size = new System.Drawing.Size( 165, 71 );
-            this.graphWindow1.TabIndex = 9;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -528,6 +561,9 @@
         private System.Windows.Forms.ToolStripMenuItem menuExportSVG;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Button bCopyStats;
+        private System.Windows.Forms.Button bEditMutatorSettings;
+        private System.Windows.Forms.Button bEditInitializerSetting;
+        private System.Windows.Forms.Button bEditEvaluatorSettings;
     }
 }
 
