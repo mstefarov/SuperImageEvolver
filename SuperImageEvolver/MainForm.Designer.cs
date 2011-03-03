@@ -31,6 +31,7 @@
             System.Windows.Forms.ToolStripSeparator separator5;
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.picOriginal = new System.Windows.Forms.PictureBox();
+            this.picBestMatch = new SuperImageEvolver.Canvas();
             this.cmBestMatch = new System.Windows.Forms.ContextMenuStrip( this.components );
             this.cmBestMatchZoom = new System.Windows.Forms.ToolStripMenuItem();
             this.cmBestMatchZoom50 = new System.Windows.Forms.ToolStripMenuItem();
@@ -41,6 +42,7 @@
             this.cmBestMatchZoom200 = new System.Windows.Forms.ToolStripMenuItem();
             this.cmBestMatchWireframe = new System.Windows.Forms.ToolStripMenuItem();
             this.cmBestMatchShowLastChange = new System.Windows.Forms.ToolStripMenuItem();
+            this.picDiff = new SuperImageEvolver.DiffCanvas();
             this.cmDiff = new System.Windows.Forms.ContextMenuStrip( this.components );
             this.cmDiffZoom = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDiffZoom50 = new System.Windows.Forms.ToolStripMenuItem();
@@ -62,6 +64,7 @@
             this.lInitializer = new System.Windows.Forms.Label();
             this.cMutator = new System.Windows.Forms.ComboBox();
             this.cInitializer = new System.Windows.Forms.ComboBox();
+            this.graphWindow1 = new SuperImageEvolver.GraphWindow();
             this.lPoints = new System.Windows.Forms.Label();
             this.lShapes = new System.Windows.Forms.Label();
             this.nPolygons = new System.Windows.Forms.NumericUpDown();
@@ -91,9 +94,6 @@
             this.bExportVectors = new System.Windows.Forms.ToolStripMenuItem();
             this.menuHelp = new System.Windows.Forms.ToolStripDropDownButton();
             this.bHelpListModules = new System.Windows.Forms.ToolStripMenuItem();
-            this.picBestMatch = new SuperImageEvolver.Canvas();
-            this.picDiff = new SuperImageEvolver.DiffCanvas();
-            this.graphWindow1 = new SuperImageEvolver.GraphWindow();
             separator1 = new System.Windows.Forms.ToolStripSeparator();
             separator4 = new System.Windows.Forms.ToolStripSeparator();
             separator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -162,6 +162,16 @@
             this.picOriginal.Size = new System.Drawing.Size( 35, 38 );
             this.picOriginal.TabIndex = 2;
             this.picOriginal.TabStop = false;
+            // 
+            // picBestMatch
+            // 
+            this.picBestMatch.ContextMenuStrip = this.cmBestMatch;
+            this.picBestMatch.Location = new System.Drawing.Point( 44, 5 );
+            this.picBestMatch.Name = "picBestMatch";
+            this.picBestMatch.Size = new System.Drawing.Size( 39, 38 );
+            this.picBestMatch.State = null;
+            this.picBestMatch.TabIndex = 0;
+            this.picBestMatch.Zoom = 1F;
             // 
             // cmBestMatch
             // 
@@ -251,6 +261,16 @@
             this.cmBestMatchShowLastChange.Size = new System.Drawing.Size( 171, 22 );
             this.cmBestMatchShowLastChange.Text = "Show Last Change";
             this.cmBestMatchShowLastChange.CheckedChanged += new System.EventHandler( this.showLastChangeToolStripMenuItem_CheckedChanged );
+            // 
+            // picDiff
+            // 
+            this.picDiff.ContextMenuStrip = this.cmDiff;
+            this.picDiff.Location = new System.Drawing.Point( 89, 5 );
+            this.picDiff.Name = "picDiff";
+            this.picDiff.Size = new System.Drawing.Size( 38, 38 );
+            this.picDiff.State = null;
+            this.picDiff.TabIndex = 8;
+            this.picDiff.Zoom = 1F;
             // 
             // cmDiff
             // 
@@ -484,6 +504,14 @@
             this.cInitializer.Size = new System.Drawing.Size( 114, 21 );
             this.cInitializer.TabIndex = 8;
             this.cInitializer.SelectedIndexChanged += new System.EventHandler( this.cInitializer_SelectedIndexChanged );
+            // 
+            // graphWindow1
+            // 
+            this.graphWindow1.BackColor = System.Drawing.Color.White;
+            this.graphWindow1.Location = new System.Drawing.Point( 3, 3 );
+            this.graphWindow1.Name = "graphWindow1";
+            this.graphWindow1.Size = new System.Drawing.Size( 197, 98 );
+            this.graphWindow1.TabIndex = 9;
             // 
             // lPoints
             // 
@@ -737,10 +765,10 @@
             // 
             // bImportDNA
             // 
-            this.bImportDNA.Enabled = false;
             this.bImportDNA.Name = "bImportDNA";
             this.bImportDNA.Size = new System.Drawing.Size( 214, 22 );
             this.bImportDNA.Text = "DNA from ImageEvolution";
+            this.bImportDNA.Click += new System.EventHandler( this.bImportDNA_Click );
             // 
             // bImportSVG
             // 
@@ -764,10 +792,10 @@
             // 
             // bExportDNA
             // 
-            this.bExportDNA.Enabled = false;
             this.bExportDNA.Name = "bExportDNA";
             this.bExportDNA.Size = new System.Drawing.Size( 175, 22 );
             this.bExportDNA.Text = "DNA";
+            this.bExportDNA.Click += new System.EventHandler( this.bExportDNA_Click );
             // 
             // bExportImage
             // 
@@ -787,48 +815,20 @@
             // 
             // menuHelp
             // 
+            this.menuHelp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.menuHelp.DropDownItems.AddRange( new System.Windows.Forms.ToolStripItem[] {
             this.bHelpListModules} );
             this.menuHelp.Image = global::SuperImageEvolver.Properties.Resources.information;
             this.menuHelp.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.menuHelp.Name = "menuHelp";
-            this.menuHelp.Size = new System.Drawing.Size( 61, 22 );
-            this.menuHelp.Text = "Help";
+            this.menuHelp.Size = new System.Drawing.Size( 29, 22 );
             // 
             // bHelpListModules
             // 
             this.bHelpListModules.Name = "bHelpListModules";
-            this.bHelpListModules.Size = new System.Drawing.Size( 141, 22 );
+            this.bHelpListModules.Size = new System.Drawing.Size( 152, 22 );
             this.bHelpListModules.Text = "List Modules";
             this.bHelpListModules.Click += new System.EventHandler( this.bHelpListModules_Click );
-            // 
-            // picBestMatch
-            // 
-            this.picBestMatch.ContextMenuStrip = this.cmBestMatch;
-            this.picBestMatch.Location = new System.Drawing.Point( 44, 5 );
-            this.picBestMatch.Name = "picBestMatch";
-            this.picBestMatch.Size = new System.Drawing.Size( 39, 38 );
-            this.picBestMatch.State = null;
-            this.picBestMatch.TabIndex = 0;
-            this.picBestMatch.Zoom = 1F;
-            // 
-            // picDiff
-            // 
-            this.picDiff.ContextMenuStrip = this.cmDiff;
-            this.picDiff.Location = new System.Drawing.Point( 89, 5 );
-            this.picDiff.Name = "picDiff";
-            this.picDiff.Size = new System.Drawing.Size( 38, 38 );
-            this.picDiff.State = null;
-            this.picDiff.TabIndex = 8;
-            this.picDiff.Zoom = 1F;
-            // 
-            // graphWindow1
-            // 
-            this.graphWindow1.BackColor = System.Drawing.Color.White;
-            this.graphWindow1.Location = new System.Drawing.Point( 3, 3 );
-            this.graphWindow1.Name = "graphWindow1";
-            this.graphWindow1.Size = new System.Drawing.Size( 197, 98 );
-            this.graphWindow1.TabIndex = 9;
             // 
             // MainForm
             // 

@@ -62,6 +62,12 @@
       <DependentUpon>DiffCanvas.cs</DependentUpon>
     </Compile>
     <Compile Include="Core\DNA.cs" />
+    <Compile Include="DNAImportWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DNAImportWindow.Designer.cs">
+      <DependentUpon>DNAImportWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="Evaluators\SloppyRGBEvaluator.cs" />
     <Compile Include="Evaluators\IEvaluator.cs" />
     <Compile Include="Evaluators\LumaEvaluator.cs" />
@@ -101,6 +107,9 @@
     <Compile Include="Core\NBTag.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="DNAImportWindow.resx">
+      <DependentUpon>DNAImportWindow.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

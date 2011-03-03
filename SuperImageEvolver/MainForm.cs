@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 
 namespace SuperImageEvolver {
@@ -516,6 +517,64 @@ SinceImproved: {7} / {6}",
 
         private void cmDiffShowColor_CheckedChanged( object sender, EventArgs e ) {
             picDiff.ShowColor = cmDiffShowColor.Checked;
+        }
+
+        private void bExportDNA_Click( object sender, EventArgs e ) {
+            if( state == null || state.BestMatch == null ) return;
+            List<string> parts = new List<string>();
+            parts.Add( state.Vertices.ToString() );
+            parts.Add( state.Shapes.ToString() );
+            foreach( Shape shape in state.BestMatch.Shapes ) {
+                parts.Add( shape.Color.R.ToString() );
+                parts.Add( shape.Color.G.ToString() );
+                parts.Add( shape.Color.B.ToString() );
+                parts.Add( (shape.Color.A / 255f).ToString() );
+                foreach( PointF point in shape.Points ) {
+                    parts.Add( ((int)Math.Round( point.X )).ToString() );
+                    parts.Add( ((int)Math.Round( point.Y )).ToString() );
+                }
+            }
+            Clipboard.SetText( String.Join( " ", parts.ToArray() ) );
+            MessageBox.Show( "DNA Copied to clipboard." );
+        }
+
+        private void bImportDNA_Click( object sender, EventArgs e ) {
+            DNAImportWindow win = new DNAImportWindow();
+            if( win.ShowDialog() == DialogResult.OK ) {
+                try {
+                    string[] parts = win.DNA.Split( ' ' );
+                    Stop();
+                    state.Vertices = Int32.Parse( parts[0] );
+                    state.Shapes = Int32.Parse( parts[1] );
+                    DNA importedDNA = new DNA();
+                    importedDNA.Shapes = new Shape[state.Shapes];
+                    int offset = 2;
+                    for( int s = 0; s < state.Shapes; s++ ) {
+                        Shape shape = new Shape();
+                        shape.Points = new PointF[state.Vertices];
+                        int R = Int32.Parse(parts[offset]);
+                        int G = Int32.Parse(parts[offset+1]);
+                        int B = Int32.Parse(parts[offset+2]);
+                        int A = (int)(float.Parse(parts[offset+3])*255);
+                        shape.Color = Color.FromArgb( A, R, G, B );
+                        offset += 4;
+                        for( int v = 0; v < state.Vertices; v++ ) {
+                            float X = float.Parse( parts[offset] );
+                            float Y = float.Parse( parts[offset+1] );
+                            shape.Points[v] = new PointF( X, Y );
+                            offset += 2;
+                        }
+                        importedDNA.Shapes[s] = shape;
+                    }
+                    state.BestMatch = importedDNA;
+                    state.SetEvaluator( state.Evaluator );
+                    picBestMatch.Invalidate();
+                    picDiff.Invalidate();
+
+                } catch( FormatException ex ) {
+                    MessageBox.Show( "Could not import DNA!" + Environment.NewLine + ex );
+                }
+            }
         }
     }
 }
