@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
-using System.IO;
+using System.Drawing.Imaging;
 
 
 namespace SuperImageEvolver {
@@ -17,13 +14,12 @@ namespace SuperImageEvolver {
         public ModulePreset[] Presets {
             get {
                 return new ModulePreset[]{
-                    new ModulePreset("RGB (Sloppy)", ()=>(new SloppyRGBEvaluator()) )
+                    new ModulePreset("RGB (Sloppy)", ()=>(new SloppyRGBEvaluator()), this )
                 };
             }
         }
         public IModule GetInstance() { return new SloppyRGBEvaluator(); }
     }
-
 
 
     unsafe class SloppyRGBEvaluator : IEvaluator {
@@ -33,8 +29,14 @@ namespace SuperImageEvolver {
         BitmapData halfResData;
 
         public bool Smooth { get; set; }
+        public bool Emphasized { get; set; }
+        public double EmphasisAmount { get; set; }
 
-        public SloppyRGBEvaluator() { }
+        public SloppyRGBEvaluator() {
+            Smooth = true;
+            Emphasized = false;
+            EmphasisAmount = 2;
+        }
 
 
         public void Initialize( TaskState state ) {
@@ -45,7 +47,6 @@ namespace SuperImageEvolver {
                 g.SmoothingMode = SmoothingMode.HighQuality;
                 g.DrawImage( state.Image, 0, 0, halfResImage.Width, halfResImage.Height );
             }
-            maxDivergence = halfResImage.Width * halfResImage.Height * 3 * 255;
             halfResData = halfResImage.LockBits( new Rectangle( Point.Empty, halfResImage.Size ),
                                                  ImageLockMode.ReadOnly,
                                                  PixelFormat.Format32bppArgb );
@@ -53,6 +54,16 @@ namespace SuperImageEvolver {
 
 
         public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState task, double max ) {
+            if( Emphasized ) {
+                if( EmphasisAmount == 2 ) {
+                    maxDivergence = 3L * task.ImageWidth / 2L * task.ImageHeight / 2L * 255L * 255L;
+                } else {
+                    maxDivergence = (long)(3L * task.ImageWidth / 2L * task.ImageHeight / 2L * Math.Pow( 255, EmphasisAmount ));
+                }
+            } else {
+                maxDivergence = 3L * task.ImageWidth / 2L * task.ImageHeight / 2L * 255L;
+            }
+
             long sum = 0;
             long roundedMax = (long)(max * maxDivergence + 1);
             using( Graphics g = Graphics.FromImage( testImage ) ) {
@@ -72,29 +83,45 @@ namespace SuperImageEvolver {
                 originalPointer = (byte*)halfResData.Scan0 + halfResData.Stride * i;
                 testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                 for( int j = 0; j < task.ImageWidth / 2; j++ ) {
-                    sum += Math.Abs( *originalPointer - *testPointer ) +
-                           Math.Abs( originalPointer[1] - testPointer[1] ) +
-                           Math.Abs( originalPointer[2] - testPointer[2] );
+                    int B = Math.Abs( *originalPointer - *testPointer );
+                    int G = Math.Abs( originalPointer[1] - testPointer[1] );
+                    int R = Math.Abs( originalPointer[2] - testPointer[2] );
+                    if( Emphasized ) {
+                        if( EmphasisAmount == 2 ) {
+                            sum += R * R + B * B + G * G;
+                        } else {
+                            sum += (long)(Math.Pow( R, EmphasisAmount ) + Math.Pow( G, EmphasisAmount ) + Math.Pow( B, EmphasisAmount ));
+                        }
+                    } else {
+                        sum += R + B + G;
+                    }
                     originalPointer += 4;
                     testPointer += 4;
                 }
                 if( sum > roundedMax ) break;
             }
             testImage.UnlockBits( testData );
-            return sum / maxDivergence;
+            if( Emphasized ) {
+                return Math.Pow( sum / maxDivergence, 1 / EmphasisAmount );
+            } else {
+                return sum / maxDivergence;
+            }
         }
 
 
         object ICloneable.Clone() {
-            return new SloppyRGBEvaluator();
+            return new SloppyRGBEvaluator {
+                Smooth = Smooth,
+                Emphasized = Emphasized,
+                EmphasisAmount = EmphasisAmount
+            };
         }
 
 
-        void IModule.ReadSettings( BinaryReader reader, int settingsLength ) { }
 
-        void IModule.WriteSettings( BinaryWriter writer ) {
-            writer.Write( 0 );
-        }
+        void IModule.ReadSettings( NBTag tag ) { }
+
+        void IModule.WriteSettings( NBTag tag ) { }
 
     }
 }

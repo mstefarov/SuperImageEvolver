@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 
 namespace SuperImageEvolver {
@@ -12,19 +13,6 @@ namespace SuperImageEvolver {
 
             MouseClick += delegate( object sender, MouseEventArgs e ) {
                 switch( e.Button ) {
-                    case MouseButtons.Right:
-                        if( !Wireframe && !ShowLastChange ) {
-                            Wireframe = true;
-                        } else if( Wireframe && !ShowLastChange ) {
-                            ShowLastChange = true;
-                        } else if( Wireframe && ShowLastChange ) {
-                            Wireframe = false;
-                        } else {
-                            ShowLastChange = false;
-                        }
-                        Invalidate();
-                        break;
-
                     case MouseButtons.Left:
                         state.ClickLocation = this.PointToClient( MousePosition );
                         break;
@@ -36,14 +24,56 @@ namespace SuperImageEvolver {
             };
         }
 
-        public void Init( TaskState _state ) {
-            state = _state;
-        }
-        TaskState state;
 
-        public bool Wireframe { get; set; }
-        public bool ShowLastChange { get; set; }
+        TaskState state;
+        public TaskState State {
+            get { return state; }
+            set {
+                state = value;
+                if( state != null ) {
+                    Size = new Size {
+                        Width = (int)Math.Ceiling( state.ImageWidth * Zoom ),
+                        Height = (int)Math.Ceiling( state.ImageHeight * Zoom )
+                    };
+                }
+                Invalidate();
+            }
+        }
+
+        float _zoom = 1;
+        [DefaultValue(1)]
+        public float Zoom {
+            get { return _zoom; }
+            set {
+                _zoom = value;
+                if( state != null ) {
+                    Size = new Size {
+                        Width = (int)Math.Ceiling( state.ImageWidth * Zoom ),
+                        Height = (int)Math.Ceiling( state.ImageHeight * Zoom )
+                    };
+                }
+                Invalidate();
+            }
+        }
+
+        bool _wireframe;
+        [DefaultValue( false )]
+        public bool Wireframe {
+            get { return _wireframe; }
+            set { _wireframe = value; Invalidate(); }
+        }
+
+
+        bool _showLastChange;
+        [DefaultValue( false )]
+        public bool ShowLastChange {
+            get { return _showLastChange; }
+            set { _showLastChange = value; Invalidate(); }
+        }
+
+
         const string PlaceholderText = "best match";
+
 
         static readonly Pen LastChangePen = new Pen( Color.White, 2 ) {
             EndCap = LineCap.Round
@@ -57,6 +87,8 @@ namespace SuperImageEvolver {
             Graphics g = e.Graphics;
             g.Clear( Color.White );
             if( state != null && state.BestMatch != null ) {
+                e.Graphics.ScaleTransform( _zoom, _zoom );
+                LastChangePen.Width = 2 / _zoom;
                 DNA tempDNA = state.BestMatch;
 
                 g.SmoothingMode = (state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
@@ -64,14 +96,14 @@ namespace SuperImageEvolver {
                 for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                     g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ), tempDNA.Shapes[i].Points, FillMode.Winding );
                     if( Wireframe ) {
-                        g.DrawPolygon( Pens.Black, tempDNA.Shapes[i].Points );
+                        g.DrawPolygon( new Pen( Brushes.Black, 1 / _zoom ), tempDNA.Shapes[i].Points );
                     }
                 }
-                if( ShowLastChange ) {
+                if( _showLastChange ) {
                     for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                         if( tempDNA.Shapes[i].PreviousState != null ) {
-                            g.DrawPolygon( LastChangePen, tempDNA.Shapes[i].Points );
-                            g.DrawPolygon( Pens.Black, tempDNA.Shapes[i].PreviousState.Points );
+                            g.DrawPolygon( LastChangePen, tempDNA.Shapes[i].PreviousState.Points );
+                            g.DrawPolygon( new Pen( Brushes.Black, 1 / _zoom ), tempDNA.Shapes[i].Points );
                         }
 
                         if( tempDNA.Shapes[i].Highlight ) {

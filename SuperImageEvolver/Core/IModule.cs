@@ -3,9 +3,9 @@ using System.IO;
 
 namespace SuperImageEvolver {
     public interface IModule : ICloneable {
-        void ReadSettings( BinaryReader stream, int settingsLength );
+        void ReadSettings( NBTag tag );
 
-        void WriteSettings( BinaryWriter stream );
+        void WriteSettings( NBTag tag );
     }
 
 
@@ -23,12 +23,14 @@ namespace SuperImageEvolver {
 
 
     public class ModulePreset {
-        public ModulePreset( string _name, ModuleInstanceCallback _callback ) {
+        public ModulePreset( string _name, ModuleInstanceCallback _callback, IModuleFactory _factory ) {
             Name = _name;
             callback = _callback;
+            Factory = _factory;
         }
 
         public string Name { get; private set; }
+        public IModuleFactory Factory { get; private set; }
 
         ModuleInstanceCallback callback;
 
@@ -44,4 +46,6 @@ namespace SuperImageEvolver {
         Initializer,
         Mutator
     }
+
+    public class DisableAutoSerializationAttribute : Attribute { }
 }

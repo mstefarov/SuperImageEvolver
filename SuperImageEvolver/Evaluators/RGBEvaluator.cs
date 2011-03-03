@@ -17,8 +17,8 @@ namespace SuperImageEvolver {
         public ModulePreset[] Presets {
             get {
                 return new ModulePreset[]{
-                    new ModulePreset("RGB (Fast)", ()=>(new RGBEvaluator(false)) ),
-                    new ModulePreset("RGB (Smooth)", ()=>(new RGBEvaluator(true)) )
+                    new ModulePreset("RGB (Fast)", ()=>(new RGBEvaluator(false)), this ),
+                    new ModulePreset("RGB (Smooth)", ()=>(new RGBEvaluator(true)), this )
                 };
             }
         }
@@ -26,13 +26,12 @@ namespace SuperImageEvolver {
     }
 
 
-
     unsafe class RGBEvaluator : IEvaluator {
 
         public bool Smooth { get; set; }
         public bool Emphasized { get; set; }
-
         public double EmphasisAmount { get; set; }
+
         double maxDivergence;
 
 
@@ -42,13 +41,13 @@ namespace SuperImageEvolver {
             EmphasisAmount = 2;
         }
 
-        public RGBEvaluator( bool _smooth ) {
+        public RGBEvaluator( bool _smooth )
+            : this() {
             Smooth = _smooth;
         }
 
 
-        public void Initialize( TaskState state ) {
-        }
+        public void Initialize( TaskState state ) { }
 
 
         public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState task, double max ) {
@@ -60,7 +59,7 @@ namespace SuperImageEvolver {
                     maxDivergence = (long)(3L * task.ImageWidth * task.ImageHeight * Math.Pow( 255, EmphasisAmount ));
                 }
             } else {
-                maxDivergence = (long)task.ImageWidth * task.ImageHeight * 3L * 255L;
+                maxDivergence = 3L * task.ImageWidth * task.ImageHeight * 255L;
             }
 
             long sum = 0;
@@ -99,7 +98,11 @@ namespace SuperImageEvolver {
                 if( sum > roundedMax ) break;
             }
             testImage.UnlockBits( testData );
-            return sum / maxDivergence;
+            if( Emphasized ) {
+                return Math.Pow( sum / maxDivergence, 1 / EmphasisAmount );
+            } else {
+                return sum / maxDivergence;
+            }
         }
 
 
@@ -111,14 +114,10 @@ namespace SuperImageEvolver {
             };
         }
 
-        void IModule.ReadSettings( BinaryReader reader, int settingsLength ) {
-            Smooth = reader.ReadBoolean();
-        }
 
-        void IModule.WriteSettings( BinaryWriter writer ) {
-            writer.Write( 1 );
-            writer.Write( Smooth );
-        }
+        void IModule.ReadSettings( NBTag tag ) { }
+
+        void IModule.WriteSettings( NBTag tag ) { }
 
     }
 }

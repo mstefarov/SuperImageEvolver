@@ -11,30 +11,35 @@ namespace SuperImageEvolver {
         public ModulePreset[] Presets {
             get {
                 return new ModulePreset[]{
-                    new ModulePreset("Full Random", ()=>(new SolidColorInitializer(Color.Black)) )
+                    new ModulePreset("Full Random", ()=>(new SolidColorInitializer(Color.Black)), this )
                 };
             }
         }
         public IModule GetInstance() { return new SolidColorInitializer(Color.Black); }
     }
 
+
     class SolidColorInitializer : IInitializer {
-        public Color Color;
+        public Color Color { get; set; }
+        public int MaxOverlap { get; set; }
+        public byte StartingAlpha { get; set; }
 
         public SolidColorInitializer( Color _color ) {
             Color = _color;
+            MaxOverlap = 6;
+            StartingAlpha = 1;
         }
 
         DNA IInitializer.Initialize( Random rand, TaskState task ) {
             DNA dna = new DNA();
-            dna.Shapes = new DNA.Shape[task.Shapes];
-            for( int i = 0; i < dna.Shapes.Length; i++ ) {
-                DNA.Shape shape = new DNA.Shape();
-                shape.Color = Color.FromArgb( 0, Color.R, Color.G, Color.B );
+            dna.Shapes = new Shape[task.Shapes];
+            for( int i = 0; i< dna.Shapes.Length; i++ ) {
+                Shape shape = new Shape();
+                shape.Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B );
                 shape.Points = new PointF[task.Vertices];
                 for( int j = 0; j < shape.Points.Length; j++ ) {
-                    shape.Points[j].X = (float)rand.NextDouble() * task.ImageWidth;
-                    shape.Points[j].Y = (float)rand.NextDouble() * task.ImageHeight;
+                    shape.Points[j] = new PointF( rand.NextFloat( -MaxOverlap, task.ImageWidth + MaxOverlap ),
+                                                  rand.NextFloat( -MaxOverlap, task.ImageHeight + MaxOverlap ) );
                 }
                 dna.Shapes[i] = shape;
             }
@@ -43,16 +48,12 @@ namespace SuperImageEvolver {
 
 
         object ICloneable.Clone() {
-            return new SolidColorInitializer( Color );
+            return new SolidColorInitializer( Color ) {
+                MaxOverlap = MaxOverlap
+            };
         }
 
-        void IModule.ReadSettings( BinaryReader reader, int settingsLength ) {
-            Color = Color.FromArgb( reader.ReadInt32() );
-        }
-
-        void IModule.WriteSettings( BinaryWriter writer ) {
-            writer.Write( 4 );
-            writer.Write( Color.ToArgb() );
-        }
+        void IModule.ReadSettings( NBTag tag ) { }
+        void IModule.WriteSettings( NBTag tag ) { }
     }
 }

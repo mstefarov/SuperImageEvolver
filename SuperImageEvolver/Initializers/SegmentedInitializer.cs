@@ -11,7 +11,7 @@ namespace SuperImageEvolver {
         public ModulePreset[] Presets {
             get {
                 return new ModulePreset[]{
-                    new ModulePreset("Segmented", ()=>(new SegmentedInitializer(Color.Black)) )
+                    new ModulePreset("Segmented", ()=>(new SegmentedInitializer(Color.Black)), this )
                 };
             }
         }
@@ -20,25 +20,29 @@ namespace SuperImageEvolver {
 
 
     public class SegmentedInitializer : IInitializer {
-        public Color Color;
+        public Color Color { get; set; }
+        public int MaxOverlap { get; set; }
+        public byte StartingAlpha { get; set; }
 
         public SegmentedInitializer( Color _color ) {
             Color = _color;
+            MaxOverlap = 6;
+            StartingAlpha = 1;
         }
 
         public DNA Initialize( Random rand, TaskState task ) {
             DNA dna = new DNA();
-            dna.Shapes = new DNA.Shape[task.Shapes];
+            dna.Shapes = new Shape[task.Shapes];
             int shapesPerSegment = task.Shapes / 9;
             int shapeCounter = 0;
 
             for( int i = 0; i < task.Shapes - shapesPerSegment * 9; i++ ) {
-                DNA.Shape shape = new DNA.Shape();
-                shape.Color = Color.FromArgb( 0, Color.R, Color.G, Color.B );
+                Shape shape = new Shape();
+                shape.Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B );
                 shape.Points = new PointF[task.Vertices];
                 for( int j = 0; j < shape.Points.Length; j++ ) {
-                    shape.Points[j] = new PointF( (float)rand.NextDouble() * task.ImageWidth,
-                                                  (float)rand.NextDouble() * task.ImageHeight );
+                    shape.Points[j] = new PointF( rand.NextFloat( -MaxOverlap, task.ImageWidth + MaxOverlap ),
+                                                  rand.NextFloat( -MaxOverlap, task.ImageHeight + MaxOverlap ) );
                 }
                 dna.Shapes[i] = shape;
                 shapeCounter++;
@@ -47,12 +51,12 @@ namespace SuperImageEvolver {
             for( int x = 0; x < 3; x++ ) {
                 for( int y = 0; y < 3; y++ ) {
                     for( int i = 0; i < shapesPerSegment; i++ ) {
-                        DNA.Shape shape = new DNA.Shape();
-                        shape.Color = Color.FromArgb( 0, Color.R, Color.G, Color.B );
+                        Shape shape = new Shape();
+                        shape.Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B );
                         shape.Points = new PointF[task.Vertices];
                         for( int j = 0; j < shape.Points.Length; j++ ) {
-                            shape.Points[j] = new PointF( task.ImageWidth / 3f * x + (float)rand.NextDouble() * task.ImageWidth / 3f,
-                                                          task.ImageHeight / 3f * y + (float)rand.NextDouble() * task.ImageHeight / 3f );
+                            shape.Points[j] = new PointF( rand.NextFloat( task.ImageWidth / 3f * x - MaxOverlap, task.ImageWidth / 3f * (x + 1) + MaxOverlap ),
+                                                          rand.NextFloat( task.ImageHeight / 3f * y - MaxOverlap, task.ImageHeight / 3f * (y + 1) + MaxOverlap ) );
                         }
                         dna.Shapes[shapeCounter] = shape;
                         shapeCounter++;
@@ -63,16 +67,13 @@ namespace SuperImageEvolver {
         }
 
         object ICloneable.Clone() {
-            return new SegmentedInitializer( Color );
+            return new SegmentedInitializer( Color ) {
+                MaxOverlap = MaxOverlap
+            };
         }
 
-        void IModule.ReadSettings( BinaryReader reader, int settingsLength ) {
-            Color = Color.FromArgb( reader.ReadInt32() );
-        }
+        void IModule.ReadSettings( NBTag tag ) { }
 
-        void IModule.WriteSettings( BinaryWriter writer ) {
-            writer.Write( 4 );
-            writer.Write( Color.ToArgb() );
-        }
+        void IModule.WriteSettings( NBTag tag ) { }
     }
 }

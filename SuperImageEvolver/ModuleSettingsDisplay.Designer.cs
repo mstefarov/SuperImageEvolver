@@ -71,6 +71,7 @@
             this.Controls.Add( this.bCancel );
             this.Controls.Add( this.pgGrid );
             this.Name = "ModuleSettingsDisplay";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "ModuleSettingsDisplay";
             this.ResumeLayout( false );
 

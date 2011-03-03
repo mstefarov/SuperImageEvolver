@@ -12,12 +12,13 @@ namespace SuperImageEvolver {
         public ModulePreset[] Presets {
             get {
                 return new ModulePreset[]{
-                    new ModulePreset("Medium", ()=>(new MediumMutator()) )
+                    new ModulePreset("Medium", ()=>new MediumMutator(), this )
                 };
             }
         }
         public IModule GetInstance() { return new MediumMutator(); }
     }
+
 
     public class MediumMutator : IMutator {
         DNA IMutator.Mutate( Random rand, DNA oldDNA, TaskState task ) {
@@ -26,7 +27,7 @@ namespace SuperImageEvolver {
                 case 0:
                     int s1 = rand.Next( newDNA.Shapes.Length );
                     int s2 = rand.Next( newDNA.Shapes.Length );
-                    DNA.Shape shape = newDNA.Shapes[s1];
+                    Shape shape = newDNA.Shapes[s1];
                     newDNA.Shapes[s1] = newDNA.Shapes[s2];
                     newDNA.Shapes[s2] = shape;
                     newDNA.LastMutation = MutationType.SwapShapes;
@@ -39,8 +40,8 @@ namespace SuperImageEvolver {
             return newDNA;
         }
 
-        void MutateShape( Random rand, DNA dna, DNA.Shape shape, TaskState task ) {
-            shape.PreviousState = shape.Clone() as DNA.Shape;
+        void MutateShape( Random rand, DNA dna, Shape shape, TaskState task ) {
+            shape.PreviousState = shape.Clone() as Shape;
             switch( rand.Next( 9 ) ) {
                 case 0:
                     shape.Color = Color.FromArgb( (byte)rand.Next( 1,256 ), shape.Color.R, shape.Color.G, shape.Color.B );
@@ -81,10 +82,9 @@ namespace SuperImageEvolver {
             return new MediumMutator();
         }
 
-        void IModule.ReadSettings( BinaryReader reader, int settingsLength ) { }
 
-        void IModule.WriteSettings( BinaryWriter writer ) {
-            writer.Write( 0 );
-        }
+        void IModule.ReadSettings( NBTag tag ) { }
+
+        void IModule.WriteSettings( NBTag tag ) { }
     }
 }

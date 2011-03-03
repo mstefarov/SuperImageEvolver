@@ -19,6 +19,7 @@ namespace SuperImageEvolver {
         public Bitmap Image;
         public BitmapData ImageData;
         public Bitmap BestMatchRender;
+        public string ProjectFileName;
 
         public List<Mutation> MutationLog = new List<Mutation>();
 
@@ -61,9 +62,9 @@ namespace SuperImageEvolver {
             writer.Write( MutationCounter );
             writer.Write( DateTime.UtcNow.Subtract( TaskStart ).Ticks );
 
-            ModuleManager.WriteModule( Initializer, stream );
-            ModuleManager.WriteModule( Mutator, stream );
-            ModuleManager.WriteModule( Evaluator, stream );
+            //ModuleManager.WriteModule( Initializer, stream );
+            //ModuleManager.WriteModule( Mutator, stream );
+            //ModuleManager.WriteModule( Evaluator, stream );
 
             using( MemoryStream ms = new MemoryStream() ) {
                 Image.Save( ms, ImageFormat.Png );
@@ -126,7 +127,7 @@ namespace SuperImageEvolver {
             root.Add( new XAttribute( "width", ImageWidth ) );
             root.Add( new XAttribute( "height", ImageHeight ) );
             DNA currentBestMatch = BestMatch;
-            foreach( DNA.Shape shape in currentBestMatch.Shapes ) {
+            foreach( Shape shape in currentBestMatch.Shapes ) {
                 root.Add( shape.SerializeSVG( svg ) );
             }
             doc.Add( root );

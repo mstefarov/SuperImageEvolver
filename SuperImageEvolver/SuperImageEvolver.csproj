@@ -28,10 +28,12 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -59,7 +61,7 @@
     <Compile Include="DiffCanvas.Designer.cs">
       <DependentUpon>DiffCanvas.cs</DependentUpon>
     </Compile>
-    <Compile Include="DNA.cs" />
+    <Compile Include="Core\DNA.cs" />
     <Compile Include="Evaluators\SloppyRGBEvaluator.cs" />
     <Compile Include="Evaluators\IEvaluator.cs" />
     <Compile Include="Evaluators\LumaEvaluator.cs" />
@@ -70,7 +72,7 @@
     <Compile Include="GraphWindow.Designer.cs">
       <DependentUpon>GraphWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="IModule.cs" />
+    <Compile Include="Core\IModule.cs" />
     <Compile Include="Initializers\RadialInitializer.cs" />
     <Compile Include="Initializers\IInitializer.cs" />
     <Compile Include="MainForm.cs">
@@ -81,14 +83,14 @@
     </Compile>
     <Compile Include="Initializers\SegmentedInitializer.cs" />
     <Compile Include="Initializers\SolidColorInitializer.cs" />
-    <Compile Include="ModuleManager.cs" />
+    <Compile Include="Core\ModuleManager.cs" />
     <Compile Include="ModuleSettingsDisplay.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ModuleSettingsDisplay.Designer.cs">
       <DependentUpon>ModuleSettingsDisplay.cs</DependentUpon>
     </Compile>
-    <Compile Include="MutationType.cs" />
+    <Compile Include="Core\MutationType.cs" />
     <Compile Include="Mutators\SoftTranslateMutator.cs" />
     <Compile Include="Mutators\TranslateMutator.cs" />
     <Compile Include="Mutators\HardMutator.cs" />
@@ -96,6 +98,7 @@
     <Compile Include="Mutators\SoftMutator.cs" />
     <Compile Include="Mutators\MediumMutator.cs" />
     <Compile Include="Mutators\HarderMutator.cs" />
+    <Compile Include="Core\NBTag.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="MainForm.resx">
@@ -123,8 +126,51 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="TaskState.cs" />
-    <Compile Include="Utilities.cs" />
+    <Compile Include="Core\Shape.cs" />
+    <Compile Include="Core\TaskState.cs" />
+    <Compile Include="Core\Utilities.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\arrow-stop-180.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\control.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\control-stop-square.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\disk-black.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\folder-horizontal-open.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\document-import.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\document-export.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\image-export.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\document.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\disk.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\disk--pencil.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\images.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\information.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\layer-shape-polygon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

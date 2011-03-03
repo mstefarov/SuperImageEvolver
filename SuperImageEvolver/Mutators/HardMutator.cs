@@ -12,18 +12,26 @@ namespace SuperImageEvolver {
         public ModulePreset[] Presets {
             get {
                 return new ModulePreset[]{
-                    new ModulePreset("Hard", ()=>(new HardMutator()) )
+                    new ModulePreset("Hard", ()=>new HardMutator(), this )
                 };
             }
         }
         public IModule GetInstance() { return new HardMutator(); }
     }
 
+
     class HardMutator : IMutator {
+
+        public int MaxOverlap { get; set; }
+
+        public HardMutator(){
+            MaxOverlap = 6;
+        }
+
         public DNA Mutate( Random rand, DNA oldDNA, TaskState task ) {
             DNA newDNA = new DNA( oldDNA );
             int s1 = rand.Next( newDNA.Shapes.Length );
-            DNA.Shape shape = newDNA.Shapes[s1];
+            Shape shape = newDNA.Shapes[s1];
             switch( rand.Next( 20 ) ) {
                 case 0:
                     int s2;
@@ -53,8 +61,8 @@ namespace SuperImageEvolver {
             return newDNA;
         }
 
-        void MutateShape( Random rand, DNA dna, DNA.Shape shape, TaskState task ) {
-            shape.PreviousState = shape.Clone() as DNA.Shape;
+        void MutateShape( Random rand, DNA dna, Shape shape, TaskState task ) {
+            shape.PreviousState = shape.Clone() as Shape;
             switch( rand.Next( 10 ) ) {
                 case 0:
                     shape.Color = Color.FromArgb( (byte)rand.Next( 1, 256 ), shape.Color.R, shape.Color.G, shape.Color.B );
@@ -93,42 +101,41 @@ namespace SuperImageEvolver {
             switch( rand.Next( 5 ) ) {
                 case 0:
                 case 1:
-                    point.X = (float)rand.NextDouble() * task.ImageWidth;
+                    point.X = rand.NextFloat( -MaxOverlap, task.ImageWidth + MaxOverlap );
                     dna.LastMutation = MutationType.ReplacePoint;
                     break;
                 case 2:
                 case 3:
-                    point.Y = (float)rand.NextDouble() * task.ImageHeight;
+                    point.Y = rand.NextFloat( -MaxOverlap, task.ImageHeight + MaxOverlap );
                     dna.LastMutation = MutationType.ReplacePoint;
                     break;
                 case 4:
-                    point.X = (float)rand.NextDouble() * task.ImageWidth;
-                    point.Y = (float)rand.NextDouble() * task.ImageHeight;
+                    point.X = rand.NextFloat( -MaxOverlap, task.ImageWidth + MaxOverlap );
+                    point.Y = rand.NextFloat( -MaxOverlap, task.ImageHeight + MaxOverlap );
                     dna.LastMutation = MutationType.ReplacePoints;
                     break;
             }
             return point;
         }
 
-        void RandomizeShape( Random rand, DNA.Shape shape, TaskState task ) {
-            shape.PreviousState = shape.Clone() as DNA.Shape;
+        void RandomizeShape( Random rand, Shape shape, TaskState task ) {
+            shape.PreviousState = shape.Clone() as Shape;
             shape.Color = Color.FromArgb( rand.Next( 1, 256 ), rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ) );
             for( int i = 0; i < shape.Points.Length; i++ ) {
-                shape.Points[i] = new PointF( (float)rand.NextDouble() * task.ImageWidth,
-                                              (float)rand.NextDouble() * task.ImageHeight );
+                shape.Points[i] = new PointF( rand.NextFloat( -MaxOverlap, task.ImageWidth + MaxOverlap ),
+                                              rand.NextFloat( -MaxOverlap, task.ImageHeight + MaxOverlap ) );
             }
         }
 
 
         object ICloneable.Clone() {
-            return new HardMutator();
+            return new HardMutator {
+                MaxOverlap = MaxOverlap
+            };
         }
 
-        void IModule.ReadSettings( BinaryReader reader, int settingsLength ) {
-        }
+        void IModule.ReadSettings( NBTag tag ) { }
 
-        void IModule.WriteSettings( BinaryWriter writer ) {
-            writer.Write( 0 );
-        }
+        void IModule.WriteSettings( NBTag tag ) { }
     }
 }

@@ -12,7 +12,7 @@ namespace SuperImageEvolver {
         public ModulePreset[] Presets {
             get {
                 return new ModulePreset[]{
-                    new ModulePreset("Harder", ()=>(new HarderMutator()) )
+                    new ModulePreset("Harder", ()=>new HarderMutator(), this )
                 };
             }
         }
@@ -21,14 +21,20 @@ namespace SuperImageEvolver {
 
 
     class HarderMutator : IMutator {
+        public int MaxOverlap { get; set; }
+
+        public HarderMutator() {
+            MaxOverlap = 6;
+        }
+
         public DNA Mutate( Random rand, DNA oldDNA, TaskState task ) {
             DNA newDNA = new DNA( oldDNA );
-            DNA.Shape shape = newDNA.Shapes[rand.Next( newDNA.Shapes.Length )];
-            shape.PreviousState = shape.Clone() as DNA.Shape;
-            shape.Color = Color.FromArgb( rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ) );
+            Shape shape = newDNA.Shapes[rand.Next( newDNA.Shapes.Length )];
+            shape.PreviousState = shape.Clone() as Shape;
+            shape.Color = Color.FromArgb( rand.Next( 1, 256 ), rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ) );
             for( int i = 0; i < shape.Points.Length; i++ ) {
-                shape.Points[i] = new PointF( (float)rand.NextDouble() * task.ImageWidth,
-                                              (float)rand.NextDouble() * task.ImageHeight );
+                shape.Points[i] = new PointF( rand.NextFloat( -MaxOverlap, task.ImageWidth + MaxOverlap ),
+                                              rand.NextFloat( -MaxOverlap, task.ImageHeight + MaxOverlap ) );
             }
             newDNA.LastMutation = MutationType.ReplaceShape;
             return newDNA;
@@ -38,10 +44,9 @@ namespace SuperImageEvolver {
             return new HarderMutator();
         }
 
-        void IModule.ReadSettings( BinaryReader reader, int settingsLength ) { }
 
-        void IModule.WriteSettings( BinaryWriter writer ) {
-            writer.Write( 0 );
-        }
+        void IModule.ReadSettings( NBTag tag ) { }
+
+        void IModule.WriteSettings( NBTag tag ) { }
     }
 }

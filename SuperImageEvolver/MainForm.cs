@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using System.Xml;
-using System.Xml.Linq;
-using System.IO.Compression;
 
 
 namespace SuperImageEvolver {
@@ -18,8 +15,7 @@ namespace SuperImageEvolver {
         public static TaskState state = new TaskState();
         bool stopped = true;
 
-        const int threadCount = 2;
-        Thread[] threads = new Thread[threadCount];
+        Thread[] threads = new Thread[Environment.ProcessorCount];
 
         Bitmap clonedOriginal;
 
@@ -28,7 +24,7 @@ namespace SuperImageEvolver {
             instance = this;
             InitializeComponent();
 
-            ModuleManager.LoadFactories( System.Reflection.Assembly.GetExecutingAssembly() );
+            ModuleManager.LoadFactories( Assembly.GetExecutingAssembly() );
 
             Shown += delegate( object sender, EventArgs eventArgs ) {
                 Bitmap image;
@@ -49,7 +45,22 @@ namespace SuperImageEvolver {
 
                 state = new TaskState();
                 SetImage( image );
+                /*
+                cInitializer.Items.Clear();
+                foreach( var preset in ModuleManager.GetPresets( ModuleFunction.Initializer ) ) {
+                    cInitializer.Items.Add( preset.Value.Name );
+                }
 
+                cMutator.Items.Clear();
+                foreach( var preset in ModuleManager.GetPresets( ModuleFunction.Mutator ) ) {
+                    cMutator.Items.Add( preset.Value.Name );
+                }
+
+                cEvaluator.Items.Clear();
+                foreach( var preset in ModuleManager.GetPresets( ModuleFunction.Evaluator ) ) {
+                    cEvaluator.Items.Add( preset.Value.Name );
+                }
+                */
                 cInitializer.SelectedIndex = 1;
                 cMutator.SelectedIndex = 1;
                 cEvaluator.SelectedIndex = 0;
@@ -75,9 +86,7 @@ namespace SuperImageEvolver {
             picOriginal.Height = state.ImageHeight;
             picOriginal.Image = state.Image;
 
-            picBestMatch.Width = state.ImageWidth;
-            picBestMatch.Height = state.ImageHeight;
-            picBestMatch.Init( state );
+            picBestMatch.State = state;
             picBestMatch.Invalidate();
 
             picDiff.Width = state.ImageWidth;
@@ -133,7 +142,7 @@ namespace SuperImageEvolver {
                     Invoke( (Action)UpdateTick );
                 } catch( ObjectDisposedException ) { }
 
-                Thread.Sleep( 750 );
+                Thread.Sleep( 500 );
             }
         }
 
@@ -145,7 +154,7 @@ namespace SuperImageEvolver {
                 lastUpdate = DateTime.UtcNow;
 
                 tMutationStats.Text = String.Format(
-@"Fitness: {0:0.0000}%
+@"Fitness: {0:0.00000}%
 Improvements: {1} ({2:0.00}/s)
 Mutations: {3} ({4:0}/s)
 Elapsed: {5}
@@ -180,16 +189,6 @@ SinceImproved: {7} / {6}",
 
 
         Thread updateThread;
-        private void bStartStop_Click( object sender, EventArgs e ) {
-            bStartStop.Enabled = false;
-            if( stopped ) {
-                Start( true );
-            } else {
-                Stop();
-            }
-            bStartStop.Enabled = true;
-        }
-
 
         void Start( bool reset ) {
             cInitializer.Enabled = false;
@@ -200,9 +199,9 @@ SinceImproved: {7} / {6}",
                     state.MutationCounts[type] = 0;
                     state.MutationImprovements[type] = 0;
                 }
-                cInitializer_SelectedIndexChanged( cInitializer, EventArgs.Empty );
-                cMutator_SelectedIndexChanged( cMutator, EventArgs.Empty );
-                cEvaluator_SelectedIndexChanged( cEvaluator, EventArgs.Empty );
+                //cInitializer_SelectedIndexChanged( cInitializer, EventArgs.Empty );
+                //cMutator_SelectedIndexChanged( cMutator, EventArgs.Empty );
+                //cEvaluator_SelectedIndexChanged( cEvaluator, EventArgs.Empty );
                 state.TaskStart = DateTime.UtcNow;
                 state.Shapes = (int)nPolygons.Value;
                 state.Vertices = (int)nVertices.Value;
@@ -224,7 +223,10 @@ SinceImproved: {7} / {6}",
             }
             updateThread = new Thread( UpdateStatus );
             updateThread.Start();
-            bStartStop.Text = "Stop";
+
+            bStart.Enabled = false;
+            bRestart.Enabled = true;
+            bStop.Enabled = true;
         }
 
 
@@ -235,18 +237,15 @@ SinceImproved: {7} / {6}",
             }
             Application.DoEvents();
             if( updateThread != null ) updateThread.Join();
-            bStartStop.Text = "Start";
             cInitializer.Enabled = true;
             nPolygons.Enabled = true;
             nVertices.Enabled = true;
+
+            bStart.Enabled = true;
+            bRestart.Enabled = true;
+            bStop.Enabled = false;
         }
 
-
-        public static void UpdateBestMatch() {
-            if( instance.picBestMatch.ShowLastChange ) {
-                instance.picBestMatch.Invalidate();
-            }
-        }
 
         private void cInitializer_SelectedIndexChanged( object sender, EventArgs e ) {
             switch( cInitializer.SelectedIndex ) {
@@ -325,11 +324,8 @@ SinceImproved: {7} / {6}",
 
         #region Menu
 
-        private void menuExit_Click( object sender, EventArgs e ) {
-            Application.Exit();
-        }
 
-        private void menuListModules_Click( object sender, EventArgs e ) {
+        private void bHelpListModules_Click( object sender, EventArgs e ) {
             StringBuilder sb = new StringBuilder();
             IModuleFactory[] factories = ModuleManager.ListAllModules().OrderBy( fac => fac.Function ).ToArray();
             foreach( IModuleFactory factory in factories ) {
@@ -340,28 +336,30 @@ SinceImproved: {7} / {6}",
         }
 
 
-        private void menuOriginalImage_Click( object sender, EventArgs e ) {
-            picOriginal.Visible = menuOriginalImage.Checked;
+        private void bViewOriginalImage_Click( object sender, EventArgs e ) {
+            picOriginal.Visible = bViewOriginalImage.Checked;
         }
 
-        private void menuBestMatchImage_Click( object sender, EventArgs e ) {
-            picBestMatch.Visible = menuBestMatchImage.Checked;
+        private void bViewBestMatchImage_Click( object sender, EventArgs e ) {
+            picBestMatch.Visible = bViewBestMatchImage.Checked;
         }
 
-        private void menuDifferenceImage_Click( object sender, EventArgs e ) {
-            picDiff.Visible = menuDifferenceImage.Checked;
+        private void bViewDifferenceImage_Click( object sender, EventArgs e ) {
+            picDiff.Visible = bViewDifferenceImage.Checked;
         }
 
-        private void menuStatistics_Click( object sender, EventArgs e ) {
-            tMutationStats.Visible = menuStatistics.Checked;
+        private void bViewStatistics_Click( object sender, EventArgs e ) {
+            pStatistics.Visible = bViewStatistics.Checked;
         }
+
+
 
         SaveFileDialog exportImageDialog = new SaveFileDialog {
             Filter = "PNG Image|*.png|TIFF Image|*.tif;*.tiff|BMP Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg",
             Title = "Saving best match image (raster)..."
         };
 
-        private void menuExportImage_Click( object sender, EventArgs e ) {
+        private void bExportImage_Click( object sender, EventArgs e ) {
             if( exportImageDialog.ShowDialog() == DialogResult.OK ) {
                 Bitmap exportBitmap = new Bitmap( picBestMatch.Width, picBestMatch.Height );
                 picBestMatch.DrawToBitmap( exportBitmap, new Rectangle( Point.Empty, picBestMatch.Size ) );
@@ -374,16 +372,19 @@ SinceImproved: {7} / {6}",
             Title = "Saving best match image (SVG)..."
         };
 
-        private void menuExportSVG_Click( object sender, EventArgs e ) {
+        private void bExportVectors_Click( object sender, EventArgs e ) {
             if( exportSVGDialog.ShowDialog() == DialogResult.OK ) {
                 state.SerializeSVG().Save( exportSVGDialog.FileName );
             }
         }
 
-        private void menuNewTask_Click( object sender, EventArgs e ) {
+
+        private void bNewProject_Click( object sender, EventArgs e ) {
             if( !stopped ) Stop();
-            OpenFileDialog fd = new OpenFileDialog();
-            fd.Filter = "Images|*.jpg;*.png;*.bmp;*.gif;*.tiff;*.tga";
+            OpenFileDialog fd = new OpenFileDialog {
+                Filter = "Images|*.jpg;*.png;*.bmp;*.gif;*.tiff;*.tga",
+                Title = "Creating Project from an Image"
+            };
             if( fd.ShowDialog() == DialogResult.OK ) {
                 Bitmap image = (Bitmap)Bitmap.FromFile( fd.FileName );
                 state = new TaskState();
@@ -395,31 +396,67 @@ SinceImproved: {7} / {6}",
 
         SaveFileDialog saveTaskDialog = new SaveFileDialog {
             Filter = "SIE - SuperImageEvolver task|*.sie",
-            Title = "Saving task..."
+            Title = "Save Project As..."
         };
 
-        private void menuSaveTask_Click( object sender, EventArgs e ) {
+        private void bSaveProjectAs_Click( object sender, EventArgs e ) {
             if( saveTaskDialog.ShowDialog() == DialogResult.OK ) {
+                state.ProjectFileName = saveTaskDialog.FileName;
                 using( FileStream fs = File.Create( saveTaskDialog.FileName ) ) {
                     state.Serialize( fs );
                 }
+                Text = "SuperImageEvolver | " + Path.GetFileName( state.ProjectFileName ) + " | saved " + DateTime.Now;
             }
         }
 
-        private void menuOpenTask_Click( object sender, EventArgs e ) {
+        private void bSaveProject_Click( object sender, EventArgs e ) {
+            if( state.ProjectFileName != null ) {
+                using( FileStream fs = File.Create( state.ProjectFileName ) ) {
+                    state.Serialize( fs );
+                }
+                Text = "SuperImageEvolver | " + Path.GetFileName( state.ProjectFileName ) + " | saved " + DateTime.Now;
+            } else {
+                bSaveProjectAs_Click( sender, e );
+            }
+        }
+
+
+        private void bOpenProject_Click( object sender, EventArgs e ) {
             if( !stopped ) Stop();
             OpenFileDialog fd = new OpenFileDialog {
                 Filter = "SIE - SuperImageEvolver task|*.sie",
-                Title = "Opening task..."
+                Title = "Open Existing Project"
             };
             if( fd.ShowDialog() == DialogResult.OK ) {
                 using( FileStream fs = File.OpenRead( fd.FileName ) ) {
                     state = new TaskState( fs );
                 }
+                state.ProjectFileName = fd.FileName;
                 SetImage( state.Image );
                 Start( false );
             }
         }
+
+
+        private void bStart_Click( object sender, EventArgs e ) {
+            if( stopped ) {
+                Start( state.BestMatch == null );
+            }
+        }
+
+        private void bRestart_Click( object sender, EventArgs e ) {
+            if( stopped ) {
+                Stop();
+            }
+            Start( true );
+        }
+
+        private void bStop_Click( object sender, EventArgs e ) {
+            if( !stopped ) {
+                Stop();
+            }
+        }
+
         #endregion
 
         private void bCopyStats_Click( object sender, EventArgs e ) {
@@ -447,5 +484,38 @@ SinceImproved: {7} / {6}",
             }
         }
 
+        private void showWireframeToolStripMenuItem_CheckedChanged( object sender, EventArgs e ) {
+            picBestMatch.Wireframe = cmBestMatchWireframe.Checked;
+        }
+
+        private void showLastChangeToolStripMenuItem_CheckedChanged( object sender, EventArgs e ) {
+            picBestMatch.ShowLastChange = cmBestMatchShowLastChange.Checked;
+        }
+
+        private void zoomToolStripMenuItem_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
+            foreach( ToolStripMenuItem item in cmBestMatchZoom.DropDownItems ) {
+                item.Checked = false;
+            }
+            picBestMatch.Zoom = float.Parse(e.ClickedItem.Tag.ToString());
+        }
+
+        private void cmDiffZoom_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
+            foreach( ToolStripMenuItem item in cmDiffZoom.DropDownItems ) {
+                item.Checked = false;
+            }
+            picDiff.Zoom = float.Parse( e.ClickedItem.Tag.ToString() );
+        }
+
+        private void cmDiffExaggerate_CheckedChanged( object sender, EventArgs e ) {
+            picDiff.Exaggerate = cmDiffExaggerate.Checked;
+        }
+
+        private void cmDiffInvert_CheckedChanged( object sender, EventArgs e ) {
+            picDiff.Invert = cmDiffInvert.Checked;
+        }
+
+        private void cmDiffShowColor_CheckedChanged( object sender, EventArgs e ) {
+            picDiff.ShowColor = cmDiffShowColor.Checked;
+        }
     }
 }

@@ -6,12 +6,12 @@ namespace SuperImageEvolver {
 
     public class RadialInitializerFactory : IModuleFactory {
         public Type ModuleType { get { return typeof( RadialInitializer ); } }
-        public string ID { get { return "std.SquareInitializer.1"; } }
+        public string ID { get { return "std.RadialInitializer.1"; } }
         public ModuleFunction Function { get { return ModuleFunction.Initializer; } }
         public ModulePreset[] Presets {
             get {
                 return new ModulePreset[]{
-                    new ModulePreset("Radial", ()=>(new RadialInitializer(Color.Black)) )
+                    new ModulePreset("Radial", ()=>(new RadialInitializer(Color.Black)), this )
                 };
             }
         }
@@ -20,20 +20,23 @@ namespace SuperImageEvolver {
 
 
     public class RadialInitializer : IInitializer {
-        public Color Color;
+        public Color Color { get; set; }
+        public int MaxOverlap { get; set; }
+        public byte StartingAlpha { get; set; }
 
         public RadialInitializer( Color _color ) {
             Color = _color;
+            MaxOverlap = 6;
+            StartingAlpha = 1;
         }
 
-        const int MaxOverlap = 6;
 
         public DNA Initialize( Random rand, TaskState task ) {
             DNA dna = new DNA();
-            dna.Shapes = new DNA.Shape[task.Shapes];
+            dna.Shapes = new Shape[task.Shapes];
             for( int i = 0; i < task.Shapes; i++ ) {
-                DNA.Shape shape = new DNA.Shape();
-                shape.Color = Color.FromArgb( 0, Color.R, Color.G, Color.B );
+                Shape shape = new Shape();
+                shape.Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B );
                 shape.Points = new PointF[task.Vertices];
                 int radius = rand.Next( 2, Math.Min( task.ImageWidth, task.ImageHeight ) / 2 );
                 Point center = new Point( rand.Next( radius - MaxOverlap, task.ImageWidth - radius + MaxOverlap ),
@@ -52,16 +55,14 @@ namespace SuperImageEvolver {
         }
 
         object ICloneable.Clone() {
-            return new RadialInitializer( Color );
+            return new RadialInitializer( Color ) {
+                MaxOverlap = MaxOverlap
+            };
         }
 
-        void IModule.ReadSettings( BinaryReader reader, int settingsLength ) {
-            Color = Color.FromArgb( reader.ReadInt32() );
-        }
 
-        void IModule.WriteSettings( BinaryWriter writer ) {
-            writer.Write( 4 );
-            writer.Write( Color.ToArgb() );
-        }
+        void IModule.ReadSettings( NBTag tag ) { }
+
+        void IModule.WriteSettings( NBTag tag ) { }
     }
 }

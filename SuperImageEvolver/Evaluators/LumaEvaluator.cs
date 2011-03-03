@@ -16,20 +16,19 @@ namespace SuperImageEvolver {
         public ModulePreset[] Presets {
             get {
                 return new ModulePreset[]{
-                    new ModulePreset("RGB+Luma (Fast)", ()=>(new LumaEvaluator(false)) ),
-                    new ModulePreset("RGB+Luma (Smooth)", ()=>(new LumaEvaluator(true)) )
+                    new ModulePreset("RGB+Luma (Fast)", ()=>(new LumaEvaluator(false)), this ),
+                    new ModulePreset("RGB+Luma (Smooth)", ()=>(new LumaEvaluator(true)), this )
                 };
             }
         }
         public IModule GetInstance() { return new LumaEvaluator(); }
     }
 
+
     unsafe class LumaEvaluator : IEvaluator {
 
-        double maxDivergence;
 
         public void Initialize( TaskState state ) {
-            maxDivergence = state.ImageWidth * state.ImageHeight * 2 * 255;
         }
 
         public bool Smooth { get; set; }
@@ -40,6 +39,7 @@ namespace SuperImageEvolver {
 
 
         public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState task, double max ) {
+            double maxDivergence = task.ImageWidth * task.ImageHeight * 2 * 255;
             long sum = 0;
             long roundedMax = (long)(max * maxDivergence + 1);
             using( Graphics g = Graphics.FromImage( testImage ) ) {
@@ -104,13 +104,9 @@ namespace SuperImageEvolver {
             return new LumaEvaluator( Smooth );
         }
 
-        void IModule.ReadSettings( BinaryReader reader, int length ) {
-            Smooth = reader.ReadBoolean();
-        }
 
-        void IModule.WriteSettings( BinaryWriter writer ) {
-            writer.Write( 1 );
-            writer.Write( Smooth );
-        }
+        void IModule.ReadSettings( NBTag tag ) { }
+
+        void IModule.WriteSettings( NBTag tag ) { }
     }
 }

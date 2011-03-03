@@ -12,8 +12,8 @@ namespace SuperImageEvolver {
         public ModulePreset[] Presets {
             get {
                 return new ModulePreset[]{
-                    new ModulePreset("Soft", ()=>(new SoftMutator(10)) ),
-                    new ModulePreset("Softer", ()=>(new SoftMutator(2)) )
+                    new ModulePreset("Soft", ()=>(new SoftMutator(10)), this ),
+                    new ModulePreset("Softer", ()=>(new SoftMutator(2)), this )
                 };
             }
         }
@@ -36,7 +36,7 @@ namespace SuperImageEvolver {
                 case 0:
                     int s1 = rand.Next( newDNA.Shapes.Length );
                     int s2 = rand.Next( newDNA.Shapes.Length );
-                    DNA.Shape shape = newDNA.Shapes[s1];
+                    Shape shape = newDNA.Shapes[s1];
                     newDNA.Shapes[s1] = newDNA.Shapes[s2];
                     newDNA.Shapes[s2] = shape;
                     newDNA.LastMutation = MutationType.SwapShapes;
@@ -50,13 +50,13 @@ namespace SuperImageEvolver {
         }
 
 
-        void MutateShape( Random rand, DNA dna, DNA.Shape shape, TaskState task ) {
-            shape.PreviousState = shape.Clone() as DNA.Shape;
+        void MutateShape( Random rand, DNA dna, Shape shape, TaskState task ) {
+            shape.PreviousState = shape.Clone() as Shape;
             int delta = (byte)rand.Next( 1, MaxDelta + 1 ) * (rand.Next( 2 ) == 0 ? 1 : -1);
             float posDelta = (float)rand.NextDouble() * MaxDelta * (rand.Next( 2 ) == 0 ? 1 : -1);
             switch( rand.Next( 9 ) ) {
                 case 0:
-                    shape.Color = Color.FromArgb( Math.Max( 0, Math.Min( 255, (int)shape.Color.A + delta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( Math.Max( 1, Math.Min( 255, (int)shape.Color.A + delta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
                     dna.LastMutation = MutationType.AdjustColor;
                     break;
                 case 1:
@@ -97,13 +97,9 @@ namespace SuperImageEvolver {
             return new SoftMutator( MaxDelta );
         }
 
-        void IModule.ReadSettings( BinaryReader reader, int settingsLength ) {
-            MaxDelta = reader.ReadInt32();
-        }
 
-        void IModule.WriteSettings( BinaryWriter writer ) {
-            writer.Write( 4 );
-            writer.Write( MaxDelta );
-        }
+        void IModule.ReadSettings( NBTag tag ) { }
+
+        void IModule.WriteSettings( NBTag tag ) { }
     }
 }
