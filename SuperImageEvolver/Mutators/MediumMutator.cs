@@ -23,18 +23,10 @@ namespace SuperImageEvolver {
     public class MediumMutator : IMutator {
         DNA IMutator.Mutate( Random rand, DNA oldDNA, TaskState task ) {
             DNA newDNA = new DNA( oldDNA );
-            switch( rand.Next( 12 ) ) {
-                case 0:
-                    int s1 = rand.Next( newDNA.Shapes.Length );
-                    int s2 = rand.Next( newDNA.Shapes.Length );
-                    Shape shape = newDNA.Shapes[s1];
-                    newDNA.Shapes[s1] = newDNA.Shapes[s2];
-                    newDNA.Shapes[s2] = shape;
-                    newDNA.LastMutation = MutationType.SwapShapes;
-                    break;
-                default:
-                    MutateShape( rand, newDNA, newDNA.Shapes[rand.Next( newDNA.Shapes.Length )], task );
-                    break;
+            if(rand.Next(20)==0){
+                MutatorHelper.SwapShapes(rand,newDNA,task);
+            }else{
+                MutateShape( rand, newDNA, newDNA.Shapes[rand.Next( newDNA.Shapes.Length )], task );
             }
 
             return newDNA;

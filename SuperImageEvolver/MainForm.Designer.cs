@@ -484,7 +484,8 @@
             "Soft Translate",
             "Soft Translate/Stretch",
             "Soft Translate/Rotate",
-            "Soft Transform"} );
+            "Soft Transform",
+            "Hardish"} );
             this.cMutator.Location = new System.Drawing.Point( 61, 160 );
             this.cMutator.Name = "cMutator";
             this.cMutator.Size = new System.Drawing.Size( 114, 21 );
@@ -826,7 +827,7 @@
             // bHelpListModules
             // 
             this.bHelpListModules.Name = "bHelpListModules";
-            this.bHelpListModules.Size = new System.Drawing.Size( 152, 22 );
+            this.bHelpListModules.Size = new System.Drawing.Size( 141, 22 );
             this.bHelpListModules.Text = "List Modules";
             this.bHelpListModules.Click += new System.EventHandler( this.bHelpListModules_Click );
             // 

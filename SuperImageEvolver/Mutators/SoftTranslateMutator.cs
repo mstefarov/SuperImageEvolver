@@ -81,7 +81,7 @@ namespace SuperImageEvolver {
                     newDNA.LastMutation = MutationType.AdjustColor;
                     break;
                 case 10:
-                    SwapShapes( rand, newDNA, task );
+                    MutatorHelper.SwapShapes( rand, newDNA, task );
                     newDNA.LastMutation = MutationType.SwapShapes;
                     break;
                 case 11:
@@ -150,33 +150,6 @@ namespace SuperImageEvolver {
             for( int i = 0; i < shape.Points.Length; i++ ) {
                 shape.Points[i].X = (float)(rectCenter.X + (shape.Points[i].X - rectCenter.X) * newWidthRatio);
                 shape.Points[i].Y = (float)(rectCenter.Y + (shape.Points[i].Y - rectCenter.Y) * newHeightRatio);
-            }
-        }
-
-
-        void SwapShapes( Random rand, DNA newDNA, TaskState task ) {
-            int s1 = rand.Next( newDNA.Shapes.Length );
-            Shape shape = newDNA.Shapes[s1];
-            shape.PreviousState = shape.Clone() as Shape;
-            if( rand.Next( 2 ) == 0 ) {
-                int s2;
-                do {
-                    s2 = rand.Next( newDNA.Shapes.Length );
-                } while( s1 == s2 );
-                if( s2 > s1 ) {
-                    for( int i = s1; i < s2; i++ ) {
-                        newDNA.Shapes[i] = newDNA.Shapes[i + 1];
-                    }
-                } else {
-                    for( int i = s1; i > s2; i-- ) {
-                        newDNA.Shapes[i] = newDNA.Shapes[i - 1];
-                    }
-                }
-                newDNA.Shapes[s2] = shape;
-            } else {
-                int s2 = rand.Next( newDNA.Shapes.Length );
-                newDNA.Shapes[s1] = newDNA.Shapes[s2];
-                newDNA.Shapes[s2] = shape;
             }
         }
 

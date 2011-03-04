@@ -302,6 +302,12 @@ SinceImproved: {7} / {6}",
                     state.Mutator = new SoftTranslateMutator {
                         EnableRotation = true
                     }; break;
+                case 13:
+                    state.Mutator = new HardishMutator {
+                        MaxColorDelta = 64,
+                        MaxPosDelta = 64,
+                        MaxOverlap = 6
+                    }; break;
             }
         }
 

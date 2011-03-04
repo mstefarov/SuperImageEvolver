@@ -97,6 +97,8 @@
       <DependentUpon>ModuleSettingsDisplay.cs</DependentUpon>
     </Compile>
     <Compile Include="Core\MutationType.cs" />
+    <Compile Include="Mutators\HardishMutator.cs" />
+    <Compile Include="Mutators\MutatorHelper.cs" />
     <Compile Include="Mutators\SoftTranslateMutator.cs" />
     <Compile Include="Mutators\TranslateMutator.cs" />
     <Compile Include="Mutators\HardMutator.cs" />
