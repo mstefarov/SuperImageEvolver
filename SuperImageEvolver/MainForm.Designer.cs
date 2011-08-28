@@ -94,6 +94,7 @@
             this.bExportVectors = new System.Windows.Forms.ToolStripMenuItem();
             this.menuHelp = new System.Windows.Forms.ToolStripDropDownButton();
             this.bHelpListModules = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmDiffShowLastChange = new System.Windows.Forms.ToolStripMenuItem();
             separator1 = new System.Windows.Forms.ToolStripSeparator();
             separator4 = new System.Windows.Forms.ToolStripSeparator();
             separator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -278,9 +279,10 @@
             this.cmDiffZoom,
             this.cmDiffInvert,
             this.cmDiffShowColor,
-            this.cmDiffExaggerate} );
+            this.cmDiffExaggerate,
+            this.cmDiffShowLastChange} );
             this.cmDiff.Name = "cmBestMatch";
-            this.cmDiff.Size = new System.Drawing.Size( 136, 92 );
+            this.cmDiff.Size = new System.Drawing.Size( 172, 136 );
             // 
             // cmDiffZoom
             // 
@@ -292,7 +294,7 @@
             this.cmDiffZoom150,
             this.cmDiffZoom200} );
             this.cmDiffZoom.Name = "cmDiffZoom";
-            this.cmDiffZoom.Size = new System.Drawing.Size( 135, 22 );
+            this.cmDiffZoom.Size = new System.Drawing.Size( 171, 22 );
             this.cmDiffZoom.Text = "Zoom";
             this.cmDiffZoom.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler( this.cmDiffZoom_DropDownItemClicked );
             // 
@@ -348,11 +350,9 @@
             // 
             // cmDiffInvert
             // 
-            this.cmDiffInvert.Checked = true;
             this.cmDiffInvert.CheckOnClick = true;
-            this.cmDiffInvert.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cmDiffInvert.Name = "cmDiffInvert";
-            this.cmDiffInvert.Size = new System.Drawing.Size( 135, 22 );
+            this.cmDiffInvert.Size = new System.Drawing.Size( 171, 22 );
             this.cmDiffInvert.Text = "Invert";
             this.cmDiffInvert.CheckedChanged += new System.EventHandler( this.cmDiffInvert_CheckedChanged );
             // 
@@ -362,7 +362,7 @@
             this.cmDiffShowColor.CheckOnClick = true;
             this.cmDiffShowColor.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cmDiffShowColor.Name = "cmDiffShowColor";
-            this.cmDiffShowColor.Size = new System.Drawing.Size( 135, 22 );
+            this.cmDiffShowColor.Size = new System.Drawing.Size( 171, 22 );
             this.cmDiffShowColor.Text = "Show Color";
             this.cmDiffShowColor.CheckedChanged += new System.EventHandler( this.cmDiffShowColor_CheckedChanged );
             // 
@@ -372,7 +372,7 @@
             this.cmDiffExaggerate.CheckOnClick = true;
             this.cmDiffExaggerate.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cmDiffExaggerate.Name = "cmDiffExaggerate";
-            this.cmDiffExaggerate.Size = new System.Drawing.Size( 135, 22 );
+            this.cmDiffExaggerate.Size = new System.Drawing.Size( 171, 22 );
             this.cmDiffExaggerate.Text = "Exaggerate";
             this.cmDiffExaggerate.CheckedChanged += new System.EventHandler( this.cmDiffExaggerate_CheckedChanged );
             // 
@@ -831,6 +831,14 @@
             this.bHelpListModules.Text = "List Modules";
             this.bHelpListModules.Click += new System.EventHandler( this.bHelpListModules_Click );
             // 
+            // cmDiffShowLastChange
+            // 
+            this.cmDiffShowLastChange.CheckOnClick = true;
+            this.cmDiffShowLastChange.Name = "cmDiffShowLastChange";
+            this.cmDiffShowLastChange.Size = new System.Drawing.Size( 171, 22 );
+            this.cmDiffShowLastChange.Text = "Show Last Change";
+            this.cmDiffShowLastChange.Click += new System.EventHandler( this.cmDiffShowLastChange_Click );
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -926,6 +934,7 @@
         private System.Windows.Forms.ToolStripMenuItem cmDiffShowColor;
         private System.Windows.Forms.ToolStripMenuItem cmDiffInvert;
         private System.Windows.Forms.ToolStripMenuItem cmDiffExaggerate;
+        private System.Windows.Forms.ToolStripMenuItem cmDiffShowLastChange;
     }
 }
 

@@ -133,8 +133,13 @@ namespace SuperImageEvolver {
             int maxWidth = (int)(Math.Min( rect.X, task.ImageWidth - rect.Right ) + rect.Width) + MaxOverlap * 2;
             int maxHeight = (int)(Math.Min( rect.Y, task.ImageHeight - rect.Bottom ) + rect.Height) + MaxOverlap * 2;
 
-            double newWidthRatio = rand.Next( (int)Math.Max( 3, rect.Width - MaxDelta ), (int)Math.Min( rect.Width + MaxDelta, maxWidth + 1 ) ) / rect.Width;
-            double newHeightRatio = rand.Next( (int)Math.Max( 3, rect.Height - MaxDelta ), (int)Math.Min( rect.Height + MaxDelta, maxHeight + 1 ) ) / rect.Height;
+            int minWidthRatio = (int)Math.Max( 3, rect.Width - MaxDelta );
+            int maxWidthRatio = (int)Math.Min( rect.Width + MaxDelta, maxWidth + 1 );
+            double newWidthRatio = rand.Next( Math.Min( minWidthRatio, maxWidthRatio ), Math.Max( minWidthRatio, maxWidthRatio ) ) / rect.Width;
+
+            int minHeightRatio = (int)Math.Max( 3, rect.Height - MaxDelta );
+            int maxHeightRatio = (int)Math.Min( rect.Height + MaxDelta, maxHeight + 1 );
+            double newHeightRatio = rand.Next( Math.Min( minHeightRatio, maxHeightRatio ), Math.Max( minHeightRatio, maxHeightRatio ) ) / rect.Height;
             //double newHeightRatio = rand.Next( 3, maxHeight + 1 ) / rect.Height;
 
             if( PreserveAspectRatio ) {

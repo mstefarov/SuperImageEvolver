@@ -24,7 +24,6 @@ namespace SuperImageEvolver {
             };
         }
 
-
         TaskState state;
         public TaskState State {
             get { return state; }
@@ -41,7 +40,7 @@ namespace SuperImageEvolver {
         }
 
         float _zoom = 1;
-        [DefaultValue(1)]
+        [DefaultValue( 1 )]
         public float Zoom {
             get { return _zoom; }
             set {
@@ -90,7 +89,6 @@ namespace SuperImageEvolver {
                 e.Graphics.ScaleTransform( _zoom, _zoom );
                 LastChangePen.Width = 2 / _zoom;
                 DNA tempDNA = state.BestMatch;
-
                 g.SmoothingMode = (state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
 
                 for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
@@ -102,8 +100,8 @@ namespace SuperImageEvolver {
                 if( _showLastChange ) {
                     for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                         if( tempDNA.Shapes[i].PreviousState != null ) {
-                            g.DrawPolygon( LastChangePen, tempDNA.Shapes[i].PreviousState.Points );
-                            g.DrawPolygon( new Pen( Brushes.Black, 1 / _zoom ), tempDNA.Shapes[i].Points );
+                            g.DrawPolygon( LastChangePen, tempDNA.Shapes[i].Points );
+                            g.DrawPolygon( new Pen( Brushes.Black, 1 / _zoom ), tempDNA.Shapes[i].PreviousState.Points );
                         }
 
                         if( tempDNA.Shapes[i].Highlight ) {

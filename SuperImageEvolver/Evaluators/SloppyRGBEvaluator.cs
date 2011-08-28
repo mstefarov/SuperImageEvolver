@@ -42,7 +42,6 @@ namespace SuperImageEvolver {
         public void Initialize( TaskState state ) {
             halfResImage = new Bitmap( state.ImageWidth / 2, state.ImageHeight / 2, PixelFormat.Format32bppArgb );
             using( Graphics g = Graphics.FromImage( halfResImage ) ) {
-                g.CompositingQuality = CompositingQuality.HighQuality;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 g.SmoothingMode = SmoothingMode.HighQuality;
                 g.DrawImage( state.Image, 0, 0, halfResImage.Width, halfResImage.Height );

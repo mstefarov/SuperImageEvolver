@@ -12,12 +12,12 @@ namespace SuperImageEvolver {
         public ModulePreset[] Presets {
             get {
                 return new ModulePreset[]{
-                    new ModulePreset("Soft", ()=>(new SoftMutator(10)), this ),
-                    new ModulePreset("Softer", ()=>(new SoftMutator(2)), this )
+                    new ModulePreset("Soft", ()=>(new SoftMutator(8,12)), this ),
+                    new ModulePreset("Softer", ()=>(new SoftMutator(1,2)), this )
                 };
             }
         }
-        public IModule GetInstance() { return new SoftMutator( 2 ); }
+        public IModule GetInstance() { return new SoftMutator( 1, 2 ); }
     }
 
 
@@ -33,10 +33,10 @@ namespace SuperImageEvolver {
             MaxColorDelta = 12;
         }
 
-        public SoftMutator( int _maxDelta )
+        public SoftMutator( int _maxColorDelta, int _maxPosDelta )
             : this() {
-            MaxPosDelta = _maxDelta;
-            MaxColorDelta = _maxDelta;
+            MaxColorDelta = _maxColorDelta;
+            MaxPosDelta = _maxPosDelta;
         }
 
 

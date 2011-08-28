@@ -21,16 +21,23 @@ namespace SuperImageEvolver {
             this.DoubleBuffered = true;
         }
 
+        Pen pen = new Pen( Color.Black, 2 );
 
         protected override void OnPaint( PaintEventArgs e ) {
-            if( MainForm.state != null && MainForm.state.BestMatch != null && Points != null && Points.Length > 1 ) {
-                Graphics g = e.Graphics;
-                g.Clear( Color.White );
-                for( int i = 1; i < 10; i++ ) {
-                    float level = (float)(Math.Log( i / 10f * LogSteepness + 1 ) / Math.Log( LogSteepness + 1 )) * Height;
-                    g.DrawLine( Pens.Silver, 0, level, Width, level );
+            Graphics g = e.Graphics;
+            g.Clear( Color.White );
+            for( int i = 1; i < 10; i++ ) {
+                float level = (float)(Math.Log( i / 10f * LogSteepness + 1 ) / Math.Log( LogSteepness + 1 )) * Height;
+                g.DrawLine( Pens.Silver, 0, level, Width, level );
+            }
+            if( Points != null && Points.Length > 1 ) {
+                try {
+                    g.DrawLines( pen, Points );
+                } catch( Exception ex ) {
+                    Console.WriteLine( ex );
                 }
-                g.DrawLines( new Pen(Color.Black,2), Points );
+            }
+            if( MainForm.state != null && MainForm.state.BestMatch != null ) {
                 g.DrawString( (1 - MainForm.state.BestMatch.Divergence).ToString( "0.0000%" ), font, Brushes.Black, PointF.Empty );
             }
             base.OnPaint( e );
@@ -38,7 +45,9 @@ namespace SuperImageEvolver {
 
 
         public void SetData( PointF[] input, bool LogXAxis, bool LogYAxis, bool NormalizeYStart, bool NormalizeYEnd, bool NormalizeXStart, bool NormalizeXEnd ) {
-            if( input.Length < 2 ) return;
+            if( input.Length < 2 ) {
+                Points = null;
+            }
             PointF[] output = new PointF[input.Length];
 
             float minX = float.MaxValue,

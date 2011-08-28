@@ -64,7 +64,7 @@ namespace SuperImageEvolver {
                 */
                 cInitializer.SelectedIndex = 1;
                 cMutator.SelectedIndex = 1;
-                cEvaluator.SelectedIndex = 0;
+                cEvaluator.SelectedIndex = 2;
             };
 
             FormClosing += delegate( object sender, FormClosingEventArgs e ) {
@@ -191,26 +191,30 @@ SinceImproved: {7} / {6}",
 
         Thread updateThread;
 
+        void Reset() {
+            foreach( MutationType type in Enum.GetValues( typeof( MutationType ) ) ) {
+                state.MutationCounts[type] = 0;
+                state.MutationImprovements[type] = 0;
+            }
+            //cInitializer_SelectedIndexChanged( cInitializer, EventArgs.Empty );
+            //cMutator_SelectedIndexChanged( cMutator, EventArgs.Empty );
+            //cEvaluator_SelectedIndexChanged( cEvaluator, EventArgs.Empty );
+            state.TaskStart = DateTime.UtcNow;
+            state.Shapes = (int)nPolygons.Value;
+            state.Vertices = (int)nVertices.Value;
+            state.ImprovementCounter = 0;
+            state.MutationLog.Clear();
+            LastMutationtCounter = 0;
+            state.MutationCounter = 0;
+            state.BestMatch = state.Initializer.Initialize( new Random(), state );
+        }
+
         void Start( bool reset ) {
             cInitializer.Enabled = false;
             nPolygons.Enabled = false;
             nVertices.Enabled = false;
             if( reset ) {
-                foreach( MutationType type in Enum.GetValues( typeof( MutationType ) ) ) {
-                    state.MutationCounts[type] = 0;
-                    state.MutationImprovements[type] = 0;
-                }
-                //cInitializer_SelectedIndexChanged( cInitializer, EventArgs.Empty );
-                //cMutator_SelectedIndexChanged( cMutator, EventArgs.Empty );
-                //cEvaluator_SelectedIndexChanged( cEvaluator, EventArgs.Empty );
-                state.TaskStart = DateTime.UtcNow;
-                state.Shapes = (int)nPolygons.Value;
-                state.Vertices = (int)nVertices.Value;
-                state.ImprovementCounter = 0;
-                state.MutationLog.Clear();
-                LastMutationtCounter = 0;
-                state.MutationCounter = 0;
-                state.BestMatch = state.Initializer.Initialize( new Random(), state );
+                Reset();
             } else {
                 LastMutationtCounter = state.MutationCounter;
             }
@@ -269,9 +273,9 @@ SinceImproved: {7} / {6}",
                 case 2:
                     state.Mutator = new MediumMutator(); break;
                 case 3:
-                    state.Mutator = new SoftMutator( 10 ); break;
+                    state.Mutator = new SoftMutator( 8, 12 ); break;
                 case 4:
-                    state.Mutator = new SoftMutator( 2 ); break;
+                    state.Mutator = new SoftMutator( 1, 2 ); break;
                 case 5:
                     state.Mutator = new TranslateMutator {
                         PreserveAspectRatio = true
@@ -304,7 +308,7 @@ SinceImproved: {7} / {6}",
                     }; break;
                 case 13:
                     state.Mutator = new HardishMutator {
-                        MaxColorDelta = 64,
+                        MaxColorDelta = 16,
                         MaxPosDelta = 64,
                         MaxOverlap = 6
                     }; break;
@@ -453,9 +457,14 @@ SinceImproved: {7} / {6}",
 
         private void bRestart_Click( object sender, EventArgs e ) {
             if( stopped ) {
+                Reset();
+                UpdateTick();
+                picDiff.Invalidate();
+                picBestMatch.Invalidate();
+            } else {
                 Stop();
+                Start( true );
             }
-            Start( true );
         }
 
         private void bStop_Click( object sender, EventArgs e ) {
@@ -547,11 +556,14 @@ SinceImproved: {7} / {6}",
         private void bImportDNA_Click( object sender, EventArgs e ) {
             DNAImportWindow win = new DNAImportWindow();
             if( win.ShowDialog() == DialogResult.OK ) {
+                Reset();
                 try {
                     string[] parts = win.DNA.Split( ' ' );
                     Stop();
                     state.Vertices = Int32.Parse( parts[0] );
                     state.Shapes = Int32.Parse( parts[1] );
+                    nVertices.Value = state.Vertices;
+                    nPolygons.Value = state.Shapes;
                     DNA importedDNA = new DNA();
                     importedDNA.Shapes = new Shape[state.Shapes];
                     int offset = 2;
@@ -581,6 +593,10 @@ SinceImproved: {7} / {6}",
                     MessageBox.Show( "Could not import DNA!" + Environment.NewLine + ex );
                 }
             }
+        }
+
+        private void cmDiffShowLastChange_Click( object sender, EventArgs e ) {
+            picDiff.ShowLastChange = cmDiffShowLastChange.Checked;
         }
     }
 }

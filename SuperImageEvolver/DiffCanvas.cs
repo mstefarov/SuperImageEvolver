@@ -11,7 +11,7 @@ namespace SuperImageEvolver {
         public DiffCanvas() {
             InitializeComponent();
             DoubleBuffered = true;
-            Invert = true;
+            Invert = false;
             ShowColor = true;
             Exaggerate = true;
         }
@@ -25,8 +25,8 @@ namespace SuperImageEvolver {
 
         #region Properties
 
-        bool _invert = true;
-        [DefaultValue( true )]
+        bool _invert = false;
+        [DefaultValue( false )]
         public bool Invert {
             get { return _invert; }
             set { _invert = value; Invalidate(); }
@@ -34,7 +34,7 @@ namespace SuperImageEvolver {
 
 
         bool _showColor = true;
-        [DefaultValue(true)]
+        [DefaultValue( true )]
         public bool ShowColor {
             get { return _showColor; }
             set { _showColor = value; Invalidate(); }
@@ -47,6 +47,32 @@ namespace SuperImageEvolver {
             get { return _exaggerate; }
             set { _exaggerate = value; Invalidate(); }
         }
+
+
+        float _zoom = 1;
+        [DefaultValue( 1 )]
+        public float Zoom {
+            get { return _zoom; }
+            set {
+                _zoom = value;
+                if( state != null ) {
+                    Size = new Size {
+                        Width = (int)Math.Ceiling( state.ImageWidth * Zoom ),
+                        Height = (int)Math.Ceiling( state.ImageHeight * Zoom )
+                    };
+                }
+                Invalidate();
+            }
+        }
+
+
+        bool _showLastChange;
+        [DefaultValue( false )]
+        public bool ShowLastChange {
+            get { return _showLastChange; }
+            set { _showLastChange = value; Invalidate(); }
+        }
+
 
 
         TaskState state;
@@ -64,22 +90,6 @@ namespace SuperImageEvolver {
             }
         }
 
-        float zoom = 1;
-        [DefaultValue( 1 )]
-        public float Zoom {
-            get { return zoom; }
-            set {
-                zoom = value;
-                if( state != null ) {
-                    Size = new Size {
-                        Width = (int)Math.Ceiling( state.ImageWidth * Zoom ),
-                        Height = (int)Math.Ceiling( state.ImageHeight * Zoom )
-                    };
-                }
-                Invalidate();
-            }
-        }
-
         #endregion
 
 
@@ -87,14 +97,18 @@ namespace SuperImageEvolver {
 
         const string PlaceholderText = "differences";
 
+        static readonly Pen LastChangePen = new Pen( Color.White, 2 ) {
+            EndCap = LineCap.Round
+        };
 
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g2 = e.Graphics;
             if( state != null && state.BestMatch != null ) {
-                e.Graphics.ScaleTransform( zoom, zoom );
+                e.Graphics.ScaleTransform( _zoom, _zoom );
                 DNA tempDNA = state.BestMatch;
                 using( Graphics g = Graphics.FromImage( canvasImage ) ) {
                     g.Clear( Color.White );
+
                     g.SmoothingMode = (state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
                     for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                         g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ), tempDNA.Shapes[i].Points, FillMode.Alternate );
@@ -142,7 +156,7 @@ namespace SuperImageEvolver {
                             }
                             */
                             if( _exaggerate ) {
-                                val = (byte)Math.Max( 0, Math.Min( 255, 127 - Math.Sign(originalLumi - testLumi) * Math.Sqrt(Math.Abs(originalLumi - testLumi)/255d)*255d ) );
+                                val = (byte)Math.Max( 0, Math.Min( 255, 127 - Math.Sign( originalLumi - testLumi ) * Math.Sqrt( Math.Abs( originalLumi - testLumi ) / 255d ) * 255d ) );
                             } else {
                                 val = (byte)Math.Max( 0, Math.Min( 255, 127 - (originalLumi - testLumi) ) );
                             }
@@ -179,7 +193,21 @@ namespace SuperImageEvolver {
                     }
                 }
                 canvasImage.UnlockBits( testData );
+                if( _zoom == 2 || _zoom == 1 ) {
+                    g2.InterpolationMode = InterpolationMode.NearestNeighbor;
+                }
                 g2.DrawImageUnscaled( canvasImage, 0, 0 );
+
+                if( _showLastChange ) {
+                    g2.SmoothingMode = (state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
+                    for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
+                        if( tempDNA.Shapes[i].PreviousState != null ) {
+                            g2.DrawPolygon( LastChangePen, tempDNA.Shapes[i].Points );
+                            g2.DrawPolygon( new Pen( Brushes.Black, 1 / _zoom ), tempDNA.Shapes[i].PreviousState.Points );
+                        }
+                    }
+                }
+
             } else {
                 SizeF align = g2.MeasureString( PlaceholderText, Font );
                 g2.DrawString( PlaceholderText, Font, Brushes.White, Width / 2 - align.Width / 2, Height / 2 - align.Height / 2 );

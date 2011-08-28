@@ -44,7 +44,7 @@ namespace SuperImageEvolver {
             long roundedMax = (long)(max * maxDivergence + 1);
             using( Graphics g = Graphics.FromImage( testImage ) ) {
                 g.Clear( Color.Red );
-                if( Smooth ) g.SmoothingMode = SmoothingMode.HighQuality;
+                g.SmoothingMode = (Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
                 for( int i = 0; i < dna.Shapes.Length; i++ ) {
                     g.FillPolygon( new SolidBrush( dna.Shapes[i].Color ), dna.Shapes[i].Points, FillMode.Alternate );
                 }
