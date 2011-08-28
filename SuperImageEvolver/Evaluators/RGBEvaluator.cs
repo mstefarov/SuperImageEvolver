@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
-using System.IO;
 
 
 namespace SuperImageEvolver {
@@ -16,7 +12,7 @@ namespace SuperImageEvolver {
         public ModuleFunction Function { get { return ModuleFunction.Evaluator; } }
         public ModulePreset[] Presets {
             get {
-                return new ModulePreset[]{
+                return new[]{
                     new ModulePreset("RGB (Fast)", ()=>(new RGBEvaluator(false)), this ),
                     new ModulePreset("RGB (Smooth)", ()=>(new RGBEvaluator(true)), this )
                 };
@@ -26,7 +22,7 @@ namespace SuperImageEvolver {
     }
 
 
-    unsafe class RGBEvaluator : IEvaluator {
+    sealed unsafe class RGBEvaluator : IEvaluator {
 
         public bool Smooth { get; set; }
         public bool Emphasized { get; set; }
@@ -41,9 +37,9 @@ namespace SuperImageEvolver {
             EmphasisAmount = 2;
         }
 
-        public RGBEvaluator( bool _smooth )
+        public RGBEvaluator( bool smooth )
             : this() {
-            Smooth = _smooth;
+            Smooth = smooth;
         }
 
 
@@ -81,13 +77,13 @@ namespace SuperImageEvolver {
             if( Emphasized ) {
                 if( EmphasisAmount == 2 ) {
                     for( int i = 0; i < task.ImageHeight; i++ ) {
-                        originalPointer = (byte*)task.ImageData.Scan0 + task.ImageData.Stride * i;
+                        originalPointer = (byte*)task.OriginalImageData.Scan0 + task.OriginalImageData.Stride * i;
                         testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                         for( int j = 0; j < task.ImageWidth; j++ ) {
-                            int B = Math.Abs( *originalPointer - *testPointer );
-                            int G = Math.Abs( originalPointer[1] - testPointer[1] );
-                            int R = Math.Abs( originalPointer[2] - testPointer[2] );
-                            sum += R * R + B * B + G * G;
+                            int b = Math.Abs( *originalPointer - *testPointer );
+                            int g = Math.Abs( originalPointer[1] - testPointer[1] );
+                            int r = Math.Abs( originalPointer[2] - testPointer[2] );
+                            sum += r * r + b * b + g * g;
                             originalPointer += 4;
                             testPointer += 4;
                         }
@@ -95,13 +91,13 @@ namespace SuperImageEvolver {
                     }
                 } else {
                     for( int i = 0; i < task.ImageHeight; i++ ) {
-                        originalPointer = (byte*)task.ImageData.Scan0 + task.ImageData.Stride * i;
+                        originalPointer = (byte*)task.OriginalImageData.Scan0 + task.OriginalImageData.Stride * i;
                         testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                         for( int j = 0; j < task.ImageWidth; j++ ) {
-                            int B = Math.Abs( *originalPointer - *testPointer );
-                            int G = Math.Abs( originalPointer[1] - testPointer[1] );
-                            int R = Math.Abs( originalPointer[2] - testPointer[2] );
-                            sum += (long)(Math.Pow( R, EmphasisAmount ) + Math.Pow( G, EmphasisAmount ) + Math.Pow( B, EmphasisAmount ));
+                            int b = Math.Abs( *originalPointer - *testPointer );
+                            int g = Math.Abs( originalPointer[1] - testPointer[1] );
+                            int r = Math.Abs( originalPointer[2] - testPointer[2] );
+                            sum += (long)(Math.Pow( r, EmphasisAmount ) + Math.Pow( g, EmphasisAmount ) + Math.Pow( b, EmphasisAmount ));
                             originalPointer += 4;
                             testPointer += 4;
                         }
@@ -110,13 +106,13 @@ namespace SuperImageEvolver {
                 }
             } else {
                 for( int i = 0; i < task.ImageHeight; i++ ) {
-                    originalPointer = (byte*)task.ImageData.Scan0 + task.ImageData.Stride * i;
+                    originalPointer = (byte*)task.OriginalImageData.Scan0 + task.OriginalImageData.Stride * i;
                     testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                     for( int j = 0; j < task.ImageWidth; j++ ) {
-                        int B = Math.Abs( *originalPointer - *testPointer );
-                        int G = Math.Abs( originalPointer[1] - testPointer[1] );
-                        int R = Math.Abs( originalPointer[2] - testPointer[2] );
-                        sum += R + B + G;
+                        int b = Math.Abs( *originalPointer - *testPointer );
+                        int g = Math.Abs( originalPointer[1] - testPointer[1] );
+                        int r = Math.Abs( originalPointer[2] - testPointer[2] );
+                        sum += r + b + g;
                         originalPointer += 4;
                         testPointer += 4;
                     }

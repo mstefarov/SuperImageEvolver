@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 
 
 namespace SuperImageEvolver {
@@ -11,7 +10,7 @@ namespace SuperImageEvolver {
         public ModuleFunction Function { get { return ModuleFunction.Mutator; } }
         public ModulePreset[] Presets {
             get {
-                return new ModulePreset[]{
+                return new[]{
                     new ModulePreset("Soft", ()=>(new SoftMutator(8,12)), this ),
                     new ModulePreset("Softer", ()=>(new SoftMutator(1,2)), this )
                 };
@@ -21,7 +20,7 @@ namespace SuperImageEvolver {
     }
 
 
-    class SoftMutator : IMutator {
+    sealed class SoftMutator : IMutator {
 
         public int MaxOverlap { get; set; }
         public int MaxPosDelta { get; set; }
@@ -33,17 +32,17 @@ namespace SuperImageEvolver {
             MaxColorDelta = 12;
         }
 
-        public SoftMutator( int _maxColorDelta, int _maxPosDelta )
+        public SoftMutator( int maxColorDelta, int maxPosDelta )
             : this() {
-            MaxColorDelta = _maxColorDelta;
-            MaxPosDelta = _maxPosDelta;
+            MaxColorDelta = maxColorDelta;
+            MaxPosDelta = maxPosDelta;
         }
 
 
         public DNA Mutate( Random rand, DNA oldDNA, TaskState task ) {
             DNA newDNA = new DNA( oldDNA );
             if( rand.Next( 20 ) == 0 ) {
-                MutatorHelper.SwapShapes( rand, newDNA, task );
+                MutatorHelper.SwapShapes( rand, newDNA );
             } else {
                 MutateShape( rand, newDNA, newDNA.Shapes[rand.Next( newDNA.Shapes.Length )], task );
             }
@@ -58,19 +57,19 @@ namespace SuperImageEvolver {
             float posDelta = (float)rand.NextDouble() * MaxPosDelta * (rand.Next( 2 ) == 0 ? 1 : -1);
             switch( rand.Next( 9 ) ) {
                 case 0:
-                    shape.Color = Color.FromArgb( Math.Max( 1, Math.Min( 255, (int)shape.Color.A + colorDelta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( Math.Max( 1, Math.Min( 255, shape.Color.A + colorDelta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
                     dna.LastMutation = MutationType.AdjustColor;
                     break;
                 case 1:
-                    shape.Color = Color.FromArgb( shape.Color.A, Math.Max( 0, Math.Min( 255, (int)shape.Color.R + colorDelta ) ), shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( shape.Color.A, Math.Max( 0, Math.Min( 255, shape.Color.R + colorDelta ) ), shape.Color.G, shape.Color.B );
                     dna.LastMutation = MutationType.AdjustColor;
                     break;
                 case 2:
-                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, Math.Max( 0, Math.Min( 255, (int)shape.Color.G + colorDelta ) ), shape.Color.B );
+                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, Math.Max( 0, Math.Min( 255, shape.Color.G + colorDelta ) ), shape.Color.B );
                     dna.LastMutation = MutationType.AdjustColor;
                     break;
                 case 3:
-                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, shape.Color.G, Math.Max( 0, Math.Min( 255, (int)shape.Color.B + colorDelta ) ) );
+                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, shape.Color.G, Math.Max( 0, Math.Min( 255, shape.Color.B + colorDelta ) ) );
                     dna.LastMutation = MutationType.AdjustColor;
                     break;
                 case 4:

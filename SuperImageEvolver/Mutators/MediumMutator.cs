@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 
 
 namespace SuperImageEvolver {
@@ -11,7 +10,7 @@ namespace SuperImageEvolver {
         public ModuleFunction Function { get { return ModuleFunction.Mutator; } }
         public ModulePreset[] Presets {
             get {
-                return new ModulePreset[]{
+                return new[]{
                     new ModulePreset("Medium", ()=>new MediumMutator(), this )
                 };
             }
@@ -20,11 +19,11 @@ namespace SuperImageEvolver {
     }
 
 
-    public class MediumMutator : IMutator {
+    public sealed class MediumMutator : IMutator {
         DNA IMutator.Mutate( Random rand, DNA oldDNA, TaskState task ) {
             DNA newDNA = new DNA( oldDNA );
             if(rand.Next(20)==0){
-                MutatorHelper.SwapShapes(rand,newDNA,task);
+                MutatorHelper.SwapShapes(rand,newDNA);
             }else{
                 MutateShape( rand, newDNA, newDNA.Shapes[rand.Next( newDNA.Shapes.Length )], task );
             }
@@ -32,7 +31,8 @@ namespace SuperImageEvolver {
             return newDNA;
         }
 
-        void MutateShape( Random rand, DNA dna, Shape shape, TaskState task ) {
+
+        static void MutateShape( Random rand, DNA dna, Shape shape, TaskState task ) {
             shape.PreviousState = shape.Clone() as Shape;
             switch( rand.Next( 9 ) ) {
                 case 0:

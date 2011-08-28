@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Xml;
 using System.Xml.Linq;
-using System.Linq;
 
 namespace SuperImageEvolver {
-    public class TaskState {
+    public sealed class TaskState {
         public int Shapes, Vertices;
         public int ImageWidth, ImageHeight;
 
@@ -16,12 +14,11 @@ namespace SuperImageEvolver {
 
         public int ImprovementCounter, MutationCounter;
 
-        public Bitmap Image;
-        public BitmapData ImageData;
-        public Bitmap BestMatchRender;
+        public Bitmap OriginalImage;
+        public BitmapData OriginalImageData;
         public string ProjectFileName;
 
-        public List<Mutation> MutationLog = new List<Mutation>();
+        public readonly List<Mutation> MutationLog = new List<Mutation>();
 
         public IInitializer Initializer = new SegmentedInitializer(Color.Black);
         public IMutator Mutator = new HardMutator();
@@ -34,15 +31,15 @@ namespace SuperImageEvolver {
 
         public const int FormatVersion = 1;
 
-        public object ImprovementLock = new object();
+        public readonly object ImprovementLock = new object();
 
-        public Dictionary<MutationType, int> MutationCounts = new Dictionary<MutationType, int>();
-        public Dictionary<MutationType, double> MutationImprovements = new Dictionary<MutationType, double>();
+        public readonly Dictionary<MutationType, int> MutationCounts = new Dictionary<MutationType, int>();
+        public readonly Dictionary<MutationType, double> MutationImprovements = new Dictionary<MutationType, double>();
         
 
         public void SetEvaluator( IEvaluator newEvaluator ) {
             lock( ImprovementLock ) {
-                if( Image != null && BestMatch != null ) {
+                if( OriginalImage != null && BestMatch != null ) {
                     using( Bitmap testCanvas = new Bitmap( ImageWidth, ImageHeight ) ) {
                         newEvaluator.Initialize( this );
                         BestMatch.Divergence = newEvaluator.CalculateDivergence( testCanvas, BestMatch, this, 1 );
@@ -67,7 +64,7 @@ namespace SuperImageEvolver {
             //ModuleManager.WriteModule( Evaluator, stream );
 
             using( MemoryStream ms = new MemoryStream() ) {
-                Image.Save( ms, ImageFormat.Png );
+                OriginalImage.Save( ms, ImageFormat.Png );
                 ms.Flush();
                 writer.Write( (int)ms.Length );
                 writer.Write( ms.GetBuffer() );
@@ -76,7 +73,7 @@ namespace SuperImageEvolver {
             writer.Write( MutationCounts.Count );
             foreach( MutationType mtype in Enum.GetValues(typeof(MutationType)) ) {
                 writer.Write( mtype.ToString() );
-                writer.Write( (int)MutationCounts[mtype] );
+                writer.Write( MutationCounts[mtype] );
                 writer.Write( (int)MutationImprovements[mtype] );
             }
         }
@@ -104,7 +101,7 @@ namespace SuperImageEvolver {
 
             int imageLength = reader.ReadInt32();
             using( MemoryStream ms = new MemoryStream( reader.ReadBytes( imageLength ) ) ) {
-                Image = new Bitmap( Bitmap.FromStream( ms ) );
+                OriginalImage = new Bitmap( Image.FromStream( ms ) );
             }
 
             int statCount = reader.ReadInt32();

@@ -1,5 +1,5 @@
 ﻿namespace SuperImageEvolver {
-    partial class GraphWindow {
+    sealed partial class GraphWindow {
         /// <summary> 
         /// Required designer variable.
         /// </summary>

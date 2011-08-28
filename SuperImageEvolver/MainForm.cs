@@ -11,40 +11,39 @@ using System.Collections.Generic;
 
 
 namespace SuperImageEvolver {
-    public partial class MainForm : Form {
-        static MainForm instance;
-        public static TaskState state = new TaskState();
+    public sealed partial class MainForm : Form {
+        public static TaskState State = new TaskState();
         bool stopped = true;
 
-        Thread[] threads = new Thread[Environment.ProcessorCount];
+        readonly Thread[] threads = new Thread[Environment.ProcessorCount];
 
         Bitmap clonedOriginal;
 
 
         public MainForm( string[] args ) {
-            instance = this;
             InitializeComponent();
 
             ModuleManager.LoadFactories( Assembly.GetExecutingAssembly() );
 
-            Shown += delegate( object sender, EventArgs eventArgs ) {
+            Shown += delegate {
                 Bitmap image;
                 if( args.Length == 1 ) {
-                    image = (Bitmap)Bitmap.FromFile( args[0] );
+                    image = (Bitmap)Image.FromFile( args[0] );
                 } else if( File.Exists( "original.png" ) ) {
-                    image = (Bitmap)Bitmap.FromFile( "original.png" );
+                    image = (Bitmap)Image.FromFile( "original.png" );
                 } else {
-                    OpenFileDialog fd = new OpenFileDialog();
-                    fd.Filter = "Images|*.jpg;*.png;*.bmp;*.gif;*.tiff;*.tga";
+                    OpenFileDialog fd = new OpenFileDialog {
+                        Filter = "Images|*.jpg;*.png;*.bmp;*.gif;*.tiff;*.tga"
+                    };
                     if( fd.ShowDialog() == DialogResult.OK ) {
-                        image = (Bitmap)Bitmap.FromFile( fd.FileName );
+                        image = (Bitmap)Image.FromFile( fd.FileName );
                     } else {
                         Application.Exit();
                         return;
                     }
                 }
 
-                state = new TaskState();
+                State = new TaskState();
                 SetImage( image );
                 /*
                 cInitializer.Items.Clear();
@@ -67,65 +66,65 @@ namespace SuperImageEvolver {
                 cEvaluator.SelectedIndex = 2;
             };
 
-            FormClosing += delegate( object sender, FormClosingEventArgs e ) {
+            FormClosing += delegate {
                 stopped = true;
             };
         }
 
 
         void SetImage( Bitmap image ) {
-            state.Image = image;
+            State.OriginalImage = image;
 
-            clonedOriginal = (Bitmap)state.Image.Clone();
-            state.ImageData = clonedOriginal.LockBits( new Rectangle( Point.Empty, state.Image.Size ),
+            clonedOriginal = (Bitmap)State.OriginalImage.Clone();
+            State.OriginalImageData = clonedOriginal.LockBits( new Rectangle( Point.Empty, State.OriginalImage.Size ),
                                                        ImageLockMode.ReadOnly,
                                                        PixelFormat.Format32bppArgb );
-            state.ImageWidth = state.Image.Width;
-            state.ImageHeight = state.Image.Height;
+            State.ImageWidth = State.OriginalImage.Width;
+            State.ImageHeight = State.OriginalImage.Height;
 
-            picOriginal.Width = state.ImageWidth;
-            picOriginal.Height = state.ImageHeight;
-            picOriginal.Image = state.Image;
+            picOriginal.Width = State.ImageWidth;
+            picOriginal.Height = State.ImageHeight;
+            picOriginal.Image = State.OriginalImage;
 
-            picBestMatch.State = state;
+            picBestMatch.State = State;
             picBestMatch.Invalidate();
 
-            picDiff.Width = state.ImageWidth;
-            picDiff.Height = state.ImageHeight;
-            picDiff.Init( state );
+            picDiff.Width = State.ImageWidth;
+            picDiff.Height = State.ImageHeight;
+            picDiff.Init( State );
             picDiff.Invalidate();
         }
 
 
         void Run() {
             Random rand = new Random();
-            Bitmap testCanvas = new Bitmap( state.ImageWidth,state.ImageHeight );
+            Bitmap testCanvas = new Bitmap( State.ImageWidth,State.ImageHeight );
 
             while( !stopped ) {
-                Interlocked.Increment( ref state.MutationCounter );
-                DNA mutation = state.Mutator.Mutate( rand, state.BestMatch, state );
-                mutation.Divergence = state.Evaluator.CalculateDivergence( testCanvas, mutation, state, state.BestMatch.Divergence );
+                Interlocked.Increment( ref State.MutationCounter );
+                DNA mutation = State.Mutator.Mutate( rand, State.BestMatch, State );
+                mutation.Divergence = State.Evaluator.CalculateDivergence( testCanvas, mutation, State, State.BestMatch.Divergence );
 
-                double improvement = state.BestMatch.Divergence - mutation.Divergence;
+                double improvement = State.BestMatch.Divergence - mutation.Divergence;
                 if( improvement > 0 ) {
-                    lock( state.ImprovementLock ) {
-                        mutation.Divergence = state.Evaluator.CalculateDivergence( testCanvas, mutation, state, state.BestMatch.Divergence );
-                        improvement = state.BestMatch.Divergence - mutation.Divergence;
+                    lock( State.ImprovementLock ) {
+                        mutation.Divergence = State.Evaluator.CalculateDivergence( testCanvas, mutation, State, State.BestMatch.Divergence );
+                        improvement = State.BestMatch.Divergence - mutation.Divergence;
                         if( improvement > 0 ) {
-                            state.ImprovementCounter++;
-                            state.MutationCounts[mutation.LastMutation]++;
-                            state.MutationImprovements[mutation.LastMutation] += improvement;
+                            State.ImprovementCounter++;
+                            State.MutationCounts[mutation.LastMutation]++;
+                            State.MutationImprovements[mutation.LastMutation] += improvement;
 
-                            state.MutationLog.Add( new Mutation( state.BestMatch, mutation ) );
-                            state.BestMatch = mutation;
-                            state.LastImprovementTime = DateTime.UtcNow;
-                            state.LastImprovementMutationCount = state.MutationCounter;
+                            State.MutationLog.Add( new Mutation( State.BestMatch, mutation ) );
+                            State.BestMatch = mutation;
+                            State.LastImprovementTime = DateTime.UtcNow;
+                            State.LastImprovementMutationCount = State.MutationCounter;
                             picBestMatch.Invalidate();
                             picDiff.Invalidate();
-                            PointF[] points = new PointF[state.MutationLog.Count];
+                            PointF[] points = new PointF[State.MutationLog.Count];
                             for( int i = 0; i < points.Length; i++ ) {
-                                points[i].X = (float)state.MutationLog[i].Timestamp.Subtract( state.TaskStart ).TotalSeconds;
-                                points[i].Y = (float)state.MutationLog[i].NewDNA.Divergence;
+                                points[i].X = (float)State.MutationLog[i].Timestamp.Subtract( State.TaskStart ).TotalSeconds;
+                                points[i].Y = (float)State.MutationLog[i].NewDNA.Divergence;
                             }
                             graphWindow1.SetData( points, true, true, false, false, true, true );
                         }
@@ -149,8 +148,8 @@ namespace SuperImageEvolver {
 
         void UpdateTick() {
             try {
-                int mutationDelta = state.MutationCounter - LastMutationtCounter;
-                LastMutationtCounter = state.MutationCounter;
+                int mutationDelta = State.MutationCounter - LastMutationtCounter;
+                LastMutationtCounter = State.MutationCounter;
                 double timeDelta = (DateTime.UtcNow - lastUpdate).TotalSeconds;
                 lastUpdate = DateTime.UtcNow;
 
@@ -160,26 +159,26 @@ Improvements: {1} ({2:0.00}/s)
 Mutations: {3} ({4:0}/s)
 Elapsed: {5}
 SinceImproved: {7} / {6}",
-                   100 - state.BestMatch.Divergence * 100,
-                   state.ImprovementCounter,
-                   state.ImprovementCounter / DateTime.UtcNow.Subtract( state.TaskStart ).TotalSeconds,
-                   state.MutationCounter,
+                   100 - State.BestMatch.Divergence * 100,
+                   State.ImprovementCounter,
+                   State.ImprovementCounter / DateTime.UtcNow.Subtract( State.TaskStart ).TotalSeconds,
+                   State.MutationCounter,
                    mutationDelta / timeDelta,
-                   DateTime.UtcNow.Subtract( state.TaskStart ).ToCompactString(),
-                   DateTime.UtcNow.Subtract( state.LastImprovementTime ).ToCompactString(),
-                   state.MutationCounter - state.LastImprovementMutationCount );
+                   DateTime.UtcNow.Subtract( State.TaskStart ).ToCompactString(),
+                   DateTime.UtcNow.Subtract( State.LastImprovementTime ).ToCompactString(),
+                   State.MutationCounter - State.LastImprovementMutationCount );
                 StringBuilder sb = new StringBuilder( Environment.NewLine );
                 sb.Append( Environment.NewLine );
                 foreach( MutationType type in Enum.GetValues( typeof( MutationType ) ) ) {
                     double rate = 0;
-                    if( state.MutationCounts[type] != 0 ) {
-                        rate = state.MutationImprovements[type] / (double)state.MutationCounts[type];
+                    if( State.MutationCounts[type] != 0 ) {
+                        rate = State.MutationImprovements[type] / State.MutationCounts[type];
                     }
                     sb.AppendFormat( "{0} - {1}*{2:0.0000} ({3:0.0000})",
                                      type,
-                                     state.MutationCounts[type],
+                                     State.MutationCounts[type],
                                      rate * 100,
-                                     state.MutationImprovements[type] * 100 );
+                                     State.MutationImprovements[type] * 100 );
                     sb.Append( Environment.NewLine );
                 }
                 tMutationStats.Text += sb.ToString();
@@ -193,20 +192,20 @@ SinceImproved: {7} / {6}",
 
         void Reset() {
             foreach( MutationType type in Enum.GetValues( typeof( MutationType ) ) ) {
-                state.MutationCounts[type] = 0;
-                state.MutationImprovements[type] = 0;
+                State.MutationCounts[type] = 0;
+                State.MutationImprovements[type] = 0;
             }
             //cInitializer_SelectedIndexChanged( cInitializer, EventArgs.Empty );
             //cMutator_SelectedIndexChanged( cMutator, EventArgs.Empty );
             //cEvaluator_SelectedIndexChanged( cEvaluator, EventArgs.Empty );
-            state.TaskStart = DateTime.UtcNow;
-            state.Shapes = (int)nPolygons.Value;
-            state.Vertices = (int)nVertices.Value;
-            state.ImprovementCounter = 0;
-            state.MutationLog.Clear();
+            State.TaskStart = DateTime.UtcNow;
+            State.Shapes = (int)nPolygons.Value;
+            State.Vertices = (int)nVertices.Value;
+            State.ImprovementCounter = 0;
+            State.MutationLog.Clear();
             LastMutationtCounter = 0;
-            state.MutationCounter = 0;
-            state.BestMatch = state.Initializer.Initialize( new Random(), state );
+            State.MutationCounter = 0;
+            State.BestMatch = State.Initializer.Initialize( new Random(), State );
         }
 
         void Start( bool reset ) {
@@ -216,10 +215,10 @@ SinceImproved: {7} / {6}",
             if( reset ) {
                 Reset();
             } else {
-                LastMutationtCounter = state.MutationCounter;
+                LastMutationtCounter = State.MutationCounter;
             }
 
-            state.SetEvaluator( state.Evaluator );
+            State.SetEvaluator( State.Evaluator );
 
             stopped = false;
             for( int i = 0; i < threads.Length; i++ ) {
@@ -255,11 +254,11 @@ SinceImproved: {7} / {6}",
         private void cInitializer_SelectedIndexChanged( object sender, EventArgs e ) {
             switch( cInitializer.SelectedIndex ) {
                 case 0:
-                    state.Initializer = new SolidColorInitializer( Color.Black ); break;
+                    State.Initializer = new SolidColorInitializer( Color.Black ); break;
                 case 1:
-                    state.Initializer = new SegmentedInitializer( Color.Black ); break;
+                    State.Initializer = new SegmentedInitializer( Color.Black ); break;
                 case 2:
-                    state.Initializer = new RadialInitializer( Color.Black ); break;
+                    State.Initializer = new RadialInitializer( Color.Black ); break;
             }
         }
 
@@ -267,47 +266,47 @@ SinceImproved: {7} / {6}",
         private void cMutator_SelectedIndexChanged( object sender, EventArgs e ) {
             switch( cMutator.SelectedIndex ) {
                 case 0:
-                    state.Mutator = new HarderMutator(); break;
+                    State.Mutator = new HarderMutator(); break;
                 case 1:
-                    state.Mutator = new HardMutator(); break;
+                    State.Mutator = new HardMutator(); break;
                 case 2:
-                    state.Mutator = new MediumMutator(); break;
+                    State.Mutator = new MediumMutator(); break;
                 case 3:
-                    state.Mutator = new SoftMutator( 8, 12 ); break;
+                    State.Mutator = new SoftMutator( 8, 12 ); break;
                 case 4:
-                    state.Mutator = new SoftMutator( 1, 2 ); break;
+                    State.Mutator = new SoftMutator( 1, 2 ); break;
                 case 5:
-                    state.Mutator = new TranslateMutator {
+                    State.Mutator = new TranslateMutator {
                         PreserveAspectRatio = true
                     }; break;
                 case 6:
-                    state.Mutator = new TranslateMutator(); break;
+                    State.Mutator = new TranslateMutator(); break;
                 case 7:
-                    state.Mutator = new TranslateMutator {
+                    State.Mutator = new TranslateMutator {
                         PreserveAspectRatio = true,
                         EnableRotation = true
                     }; break;
                 case 8:
-                    state.Mutator = new TranslateMutator {
+                    State.Mutator = new TranslateMutator {
                         EnableRotation = true
                     }; break;
                 case 9:
-                    state.Mutator = new SoftTranslateMutator {
+                    State.Mutator = new SoftTranslateMutator {
                         PreserveAspectRatio = true
                     }; break;
                 case 10:
-                    state.Mutator = new SoftTranslateMutator(); break;
+                    State.Mutator = new SoftTranslateMutator(); break;
                 case 11:
-                    state.Mutator = new SoftTranslateMutator {
+                    State.Mutator = new SoftTranslateMutator {
                         PreserveAspectRatio = true,
                         EnableRotation = true
                     }; break;
                 case 12:
-                    state.Mutator = new SoftTranslateMutator {
+                    State.Mutator = new SoftTranslateMutator {
                         EnableRotation = true
                     }; break;
                 case 13:
-                    state.Mutator = new HardishMutator {
+                    State.Mutator = new HardishMutator {
                         MaxColorDelta = 16,
                         MaxPosDelta = 64,
                         MaxOverlap = 6
@@ -319,15 +318,15 @@ SinceImproved: {7} / {6}",
         private void cEvaluator_SelectedIndexChanged( object sender, EventArgs e ) {
             switch( cEvaluator.SelectedIndex ) {
                 case 0:
-                    state.SetEvaluator( new SloppyRGBEvaluator() ); break;
+                    State.SetEvaluator( new SloppyRGBEvaluator() ); break;
                 case 1:
-                    state.SetEvaluator( new RGBEvaluator( false ) ); break;
+                    State.SetEvaluator( new RGBEvaluator( false ) ); break;
                 case 2:
-                    state.SetEvaluator( new RGBEvaluator( true ) ); break;
+                    State.SetEvaluator( new RGBEvaluator( true ) ); break;
                 case 3:
-                    state.SetEvaluator( new LumaEvaluator( false ) ); break;
+                    State.SetEvaluator( new LumaEvaluator( false ) ); break;
                 case 4:
-                    state.SetEvaluator( new LumaEvaluator( true ) ); break;
+                    State.SetEvaluator( new LumaEvaluator( true ) ); break;
             }
             picBestMatch.Invalidate();
         }
@@ -364,8 +363,7 @@ SinceImproved: {7} / {6}",
         }
 
 
-
-        SaveFileDialog exportImageDialog = new SaveFileDialog {
+        readonly SaveFileDialog exportImageDialog = new SaveFileDialog {
             Filter = "PNG Image|*.png|TIFF Image|*.tif;*.tiff|BMP Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg",
             Title = "Saving best match image (raster)..."
         };
@@ -378,14 +376,15 @@ SinceImproved: {7} / {6}",
             }
         }
 
-        SaveFileDialog exportSVGDialog = new SaveFileDialog {
+
+        readonly SaveFileDialog exportSVGDialog = new SaveFileDialog {
             Filter = "SVG Image|*.svg",
             Title = "Saving best match image (SVG)..."
         };
 
         private void bExportVectors_Click( object sender, EventArgs e ) {
             if( exportSVGDialog.ShowDialog() == DialogResult.OK ) {
-                state.SerializeSVG().Save( exportSVGDialog.FileName );
+                State.SerializeSVG().Save( exportSVGDialog.FileName );
             }
         }
 
@@ -397,35 +396,36 @@ SinceImproved: {7} / {6}",
                 Title = "Creating Project from an Image"
             };
             if( fd.ShowDialog() == DialogResult.OK ) {
-                Bitmap image = (Bitmap)Bitmap.FromFile( fd.FileName );
-                state = new TaskState();
+                Bitmap image = (Bitmap)Image.FromFile( fd.FileName );
+                State = new TaskState();
                 SetImage( image );
             } else {
                 return;
             }
         }
 
-        SaveFileDialog saveTaskDialog = new SaveFileDialog {
+
+        readonly SaveFileDialog saveTaskDialog = new SaveFileDialog {
             Filter = "SIE - SuperImageEvolver task|*.sie",
             Title = "Save Project As..."
         };
 
         private void bSaveProjectAs_Click( object sender, EventArgs e ) {
             if( saveTaskDialog.ShowDialog() == DialogResult.OK ) {
-                state.ProjectFileName = saveTaskDialog.FileName;
+                State.ProjectFileName = saveTaskDialog.FileName;
                 using( FileStream fs = File.Create( saveTaskDialog.FileName ) ) {
-                    state.Serialize( fs );
+                    State.Serialize( fs );
                 }
-                Text = "SuperImageEvolver | " + Path.GetFileName( state.ProjectFileName ) + " | saved " + DateTime.Now;
+                Text = "SuperImageEvolver | " + Path.GetFileName( State.ProjectFileName ) + " | saved " + DateTime.Now;
             }
         }
 
         private void bSaveProject_Click( object sender, EventArgs e ) {
-            if( state.ProjectFileName != null ) {
-                using( FileStream fs = File.Create( state.ProjectFileName ) ) {
-                    state.Serialize( fs );
+            if( State.ProjectFileName != null ) {
+                using( FileStream fs = File.Create( State.ProjectFileName ) ) {
+                    State.Serialize( fs );
                 }
-                Text = "SuperImageEvolver | " + Path.GetFileName( state.ProjectFileName ) + " | saved " + DateTime.Now;
+                Text = "SuperImageEvolver | " + Path.GetFileName( State.ProjectFileName ) + " | saved " + DateTime.Now;
             } else {
                 bSaveProjectAs_Click( sender, e );
             }
@@ -440,10 +440,10 @@ SinceImproved: {7} / {6}",
             };
             if( fd.ShowDialog() == DialogResult.OK ) {
                 using( FileStream fs = File.OpenRead( fd.FileName ) ) {
-                    state = new TaskState( fs );
+                    State = new TaskState( fs );
                 }
-                state.ProjectFileName = fd.FileName;
-                SetImage( state.Image );
+                State.ProjectFileName = fd.FileName;
+                SetImage( State.OriginalImage );
                 Start( false );
             }
         }
@@ -451,7 +451,7 @@ SinceImproved: {7} / {6}",
 
         private void bStart_Click( object sender, EventArgs e ) {
             if( stopped ) {
-                Start( state.BestMatch == null );
+                Start( State.BestMatch == null );
             }
         }
 
@@ -480,23 +480,23 @@ SinceImproved: {7} / {6}",
         }
 
         private void bEditInitializerSetting_Click( object sender, EventArgs e ) {
-            ModuleSettingsDisplay md = new ModuleSettingsDisplay( state.Initializer );
+            ModuleSettingsDisplay md = new ModuleSettingsDisplay( State.Initializer );
             if( md.ShowDialog() == DialogResult.OK ) {
-                state.Initializer = (IInitializer)md.Module;
+                State.Initializer = (IInitializer)md.Module;
             }
         }
 
         private void bEditMutatorSettings_Click( object sender, EventArgs e ) {
-            ModuleSettingsDisplay md = new ModuleSettingsDisplay( state.Mutator );
+            ModuleSettingsDisplay md = new ModuleSettingsDisplay( State.Mutator );
             if( md.ShowDialog() == DialogResult.OK ) {
-                state.Mutator = (IMutator)md.Module;
+                State.Mutator = (IMutator)md.Module;
             }
         }
 
         private void bEditEvaluatorSettings_Click( object sender, EventArgs e ) {
-            ModuleSettingsDisplay md = new ModuleSettingsDisplay( state.Evaluator );
+            ModuleSettingsDisplay md = new ModuleSettingsDisplay( State.Evaluator );
             if( md.ShowDialog() == DialogResult.OK ) {
-                state.SetEvaluator( (IEvaluator)md.Module );
+                State.SetEvaluator( (IEvaluator)md.Module );
             }
         }
 
@@ -535,11 +535,12 @@ SinceImproved: {7} / {6}",
         }
 
         private void bExportDNA_Click( object sender, EventArgs e ) {
-            if( state == null || state.BestMatch == null ) return;
-            List<string> parts = new List<string>();
-            parts.Add( state.Vertices.ToString() );
-            parts.Add( state.Shapes.ToString() );
-            foreach( Shape shape in state.BestMatch.Shapes ) {
+            if( State == null || State.BestMatch == null ) return;
+            List<string> parts = new List<string> {
+                State.Vertices.ToString(),
+                State.Shapes.ToString()
+            };
+            foreach( Shape shape in State.BestMatch.Shapes ) {
                 parts.Add( shape.Color.R.ToString() );
                 parts.Add( shape.Color.G.ToString() );
                 parts.Add( shape.Color.B.ToString() );
@@ -560,23 +561,25 @@ SinceImproved: {7} / {6}",
                 try {
                     string[] parts = win.DNA.Split( ' ' );
                     Stop();
-                    state.Vertices = Int32.Parse( parts[0] );
-                    state.Shapes = Int32.Parse( parts[1] );
-                    nVertices.Value = state.Vertices;
-                    nPolygons.Value = state.Shapes;
-                    DNA importedDNA = new DNA();
-                    importedDNA.Shapes = new Shape[state.Shapes];
+                    State.Vertices = Int32.Parse( parts[0] );
+                    State.Shapes = Int32.Parse( parts[1] );
+                    nVertices.Value = State.Vertices;
+                    nPolygons.Value = State.Shapes;
+                    DNA importedDNA = new DNA {
+                        Shapes = new Shape[State.Shapes]
+                    };
                     int offset = 2;
-                    for( int s = 0; s < state.Shapes; s++ ) {
-                        Shape shape = new Shape();
-                        shape.Points = new PointF[state.Vertices];
-                        int R = Int32.Parse(parts[offset]);
-                        int G = Int32.Parse(parts[offset+1]);
-                        int B = Int32.Parse(parts[offset+2]);
-                        int A = (int)(float.Parse(parts[offset+3])*255);
-                        shape.Color = Color.FromArgb( A, R, G, B );
+                    for( int s = 0; s < State.Shapes; s++ ) {
+                        Shape shape = new Shape {
+                            Points = new PointF[State.Vertices]
+                        };
+                        int r = Int32.Parse(parts[offset]);
+                        int g = Int32.Parse(parts[offset+1]);
+                        int b = Int32.Parse(parts[offset+2]);
+                        int a = (int)(float.Parse(parts[offset+3])*255);
+                        shape.Color = Color.FromArgb( a, r, g, b );
                         offset += 4;
-                        for( int v = 0; v < state.Vertices; v++ ) {
+                        for( int v = 0; v < State.Vertices; v++ ) {
                             float X = float.Parse( parts[offset] );
                             float Y = float.Parse( parts[offset+1] );
                             shape.Points[v] = new PointF( X, Y );
@@ -584,8 +587,8 @@ SinceImproved: {7} / {6}",
                         }
                         importedDNA.Shapes[s] = shape;
                     }
-                    state.BestMatch = importedDNA;
-                    state.SetEvaluator( state.Evaluator );
+                    State.BestMatch = importedDNA;
+                    State.SetEvaluator( State.Evaluator );
                     picBestMatch.Invalidate();
                     picDiff.Invalidate();
 

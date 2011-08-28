@@ -5,7 +5,7 @@ using System.Xml.Linq;
 using System.Text;
 
 namespace SuperImageEvolver {
-    public class Shape : ICloneable {
+    public sealed class Shape : ICloneable {
         public Shape() { }
         public Shape( Shape other ) {
             Color = other.Color;
@@ -15,7 +15,6 @@ namespace SuperImageEvolver {
         public Color Color;
         public PointF[] Points;
         public Shape PreviousState;
-        public bool Highlight;
 
 
         public void Serialize( Stream stream ) {

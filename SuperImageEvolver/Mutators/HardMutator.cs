@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 
 
 namespace SuperImageEvolver {
@@ -11,7 +10,7 @@ namespace SuperImageEvolver {
         public ModuleFunction Function { get { return ModuleFunction.Mutator; } }
         public ModulePreset[] Presets {
             get {
-                return new ModulePreset[]{
+                return new[]{
                     new ModulePreset("Hard", ()=>new HardMutator(), this )
                 };
             }
@@ -20,7 +19,7 @@ namespace SuperImageEvolver {
     }
 
 
-    class HardMutator : IMutator {
+    sealed class HardMutator : IMutator {
 
         public int MaxOverlap { get; set; }
 
@@ -34,7 +33,7 @@ namespace SuperImageEvolver {
             Shape shape = newDNA.Shapes[s1];
             switch( rand.Next( 20 ) ) {
                 case 0:
-                    MutatorHelper.SwapShapes( rand, newDNA, task );
+                    MutatorHelper.SwapShapes( rand, newDNA );
                     break;
                 case 1:
                     RandomizeShape( rand, shape, task );
@@ -66,7 +65,6 @@ namespace SuperImageEvolver {
                     shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, shape.Color.G, (byte)rand.Next( 256 ) );
                     dna.LastMutation = MutationType.ReplaceColor;
                     break;
-                case 4:
 
                 default:
                     int index = rand.Next( shape.Points.Length );

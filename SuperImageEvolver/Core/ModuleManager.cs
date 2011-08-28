@@ -9,12 +9,12 @@ using System.Drawing;
 namespace SuperImageEvolver {
     public static class ModuleManager {
 
-        static Dictionary<string, IModuleFactory> factoriesByID = new Dictionary<string, IModuleFactory>();
-        static Dictionary<string, ModulePreset> presets = new Dictionary<string, ModulePreset>();
-        static Dictionary<Type, IModuleFactory> factoriesByType = new Dictionary<Type, IModuleFactory>();
+        static readonly Dictionary<string, IModuleFactory> FactoriesById = new Dictionary<string, IModuleFactory>();
+        static readonly Dictionary<string, ModulePreset> Presets = new Dictionary<string, ModulePreset>();
+        static readonly Dictionary<Type, IModuleFactory> FactoriesByType = new Dictionary<Type, IModuleFactory>();
 
         public static Dictionary<string, ModulePreset> GetPresets( ModuleFunction function ) {
-            return presets.Where( p => p.Value.Factory.Function == function ).ToDictionary( k => k.Key, v => v.Value );
+            return Presets.Where( p => p.Value.Factory.Function == function ).ToDictionary( k => k.Key, v => v.Value );
         }
 
         public static void LoadAllPluginAssemblies( string path ) {
@@ -36,25 +36,25 @@ namespace SuperImageEvolver {
 
         public static void AddModule( IModuleFactory factory ) {
             foreach( ModulePreset preset in factory.Presets ) {
-                presets.Add( preset.Name, preset );
+                Presets.Add( preset.Name, preset );
             }
-            factoriesByType.Add( factory.ModuleType, factory );
-            factoriesByID.Add( factory.ID, factory );
+            FactoriesByType.Add( factory.ModuleType, factory );
+            FactoriesById.Add( factory.ID, factory );
         }
 
 
-        public static IModuleFactory GetFactoryByID( string ID ) {
-            return factoriesByID[ID];
+        public static IModuleFactory GetFactoryByID( string id ) {
+            return FactoriesById[id];
         }
 
 
         public static IModuleFactory GetFactoryByType( Type type ) {
-            return factoriesByType[type];
+            return FactoriesByType[type];
         }
 
 
-        public static IModule GetPresetByName( string ID ) {
-            return presets[ID].GetInstance();
+        public static IModule GetPresetByName( string id ) {
+            return Presets[id].GetInstance();
         }
 
 
@@ -62,7 +62,7 @@ namespace SuperImageEvolver {
             BinaryReader reader = new BinaryReader( stream );
             string moduleID = reader.ReadString();
             int settingsLength = reader.ReadInt32();
-            if( factoriesByID.ContainsKey( moduleID ) ) {
+            if( FactoriesById.ContainsKey( moduleID ) ) {
                 IModuleFactory factory = GetFactoryByID( moduleID );
                 IModule module = factory.GetInstance();
                 //module.ReadSettings( reader, settingsLength );
@@ -74,7 +74,7 @@ namespace SuperImageEvolver {
         }
 
         public static IModuleFactory[] ListAllModules() {
-            return factoriesByID.Values.ToArray();
+            return FactoriesById.Values.ToArray();
         }
 
 
@@ -82,7 +82,7 @@ namespace SuperImageEvolver {
 
         public static IModule ReadModule( NBTag tag ) {
             string moduleID = tag["ID"].GetString();
-            if( !factoriesByID.ContainsKey( moduleID ) ) {
+            if( !FactoriesById.ContainsKey( moduleID ) ) {
                 return null;
             }
             IModuleFactory factory = GetFactoryByID( moduleID );
@@ -97,7 +97,7 @@ namespace SuperImageEvolver {
         }
 
         public static void ReadModuleProperties( IModule module, NBTag tag ) {
-            IModuleFactory factory = ModuleManager.GetFactoryByType( module.GetType() );
+            IModuleFactory factory = GetFactoryByType( module.GetType() );
             foreach( PropertyInfo p in factory.ModuleType.GetProperties() ) {
                 if( !tag.Contains( p.Name ) ) continue;
                 if( p.PropertyType == typeof( byte ) ) {
@@ -121,7 +121,7 @@ namespace SuperImageEvolver {
                 } else if( p.PropertyType == typeof( Color ) ) {
                     p.SetValue( module, tag.GetColor(), null );
                 } else if( p.PropertyType == typeof( Point ) ) {
-                    p.SetValue( module, tag.GetPoint(), null );
+                    p.SetValue( module, tag.GetBool(), null );
                 } else if( p.PropertyType == typeof( PointF ) ) {
                     p.SetValue( module, tag.GetPointF(), null );
                 } else {
@@ -137,7 +137,7 @@ namespace SuperImageEvolver {
 
         public static NBTag WriteModule( IModule module ) {
             NBTCompound root = new NBTCompound();
-            IModuleFactory factory = ModuleManager.GetFactoryByType( module.GetType() );
+            IModuleFactory factory = GetFactoryByType( module.GetType() );
             root.Append( "ID", factory.ID );
 
             bool auto = !factory.ModuleType.GetCustomAttributes( typeof( DisableAutoSerializationAttribute ), true ).Any();
@@ -151,7 +151,7 @@ namespace SuperImageEvolver {
 
 
         public static NBTag WriteModuleProperties( IModule module ) {
-            IModuleFactory factory = ModuleManager.GetFactoryByType( module.GetType() );
+            IModuleFactory factory = GetFactoryByType( module.GetType() );
             NBTag root = new NBTCompound();
             foreach( PropertyInfo p in factory.ModuleType.GetProperties() ) {
                 object val = p.GetValue( module, null );

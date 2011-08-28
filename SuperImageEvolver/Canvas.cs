@@ -6,7 +6,7 @@ using System.ComponentModel;
 
 
 namespace SuperImageEvolver {
-    partial class Canvas : UserControl {
+    sealed partial class Canvas : UserControl {
         public Canvas() {
             InitializeComponent();
             DoubleBuffered = true;
@@ -14,7 +14,7 @@ namespace SuperImageEvolver {
             MouseClick += delegate( object sender, MouseEventArgs e ) {
                 switch( e.Button ) {
                     case MouseButtons.Left:
-                        state.ClickLocation = this.PointToClient( MousePosition );
+                        state.ClickLocation = PointToClient( MousePosition );
                         break;
 
                     case MouseButtons.Middle:
@@ -39,12 +39,12 @@ namespace SuperImageEvolver {
             }
         }
 
-        float _zoom = 1;
+        float zoom = 1;
         [DefaultValue( 1 )]
         public float Zoom {
-            get { return _zoom; }
+            get { return zoom; }
             set {
-                _zoom = value;
+                zoom = value;
                 if( state != null ) {
                     Size = new Size {
                         Width = (int)Math.Ceiling( state.ImageWidth * Zoom ),
@@ -55,19 +55,19 @@ namespace SuperImageEvolver {
             }
         }
 
-        bool _wireframe;
+        bool wireframe;
         [DefaultValue( false )]
         public bool Wireframe {
-            get { return _wireframe; }
-            set { _wireframe = value; Invalidate(); }
+            get { return wireframe; }
+            set { wireframe = value; Invalidate(); }
         }
 
 
-        bool _showLastChange;
+        bool showLastChange;
         [DefaultValue( false )]
         public bool ShowLastChange {
-            get { return _showLastChange; }
-            set { _showLastChange = value; Invalidate(); }
+            get { return showLastChange; }
+            set { showLastChange = value; Invalidate(); }
         }
 
 
@@ -77,36 +77,28 @@ namespace SuperImageEvolver {
         static readonly Pen LastChangePen = new Pen( Color.White, 2 ) {
             EndCap = LineCap.Round
         };
-        static readonly Pen HighlightPen = new Pen( Color.Red, 2 ) {
-            EndCap = LineCap.Round
-        };
 
 
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g = e.Graphics;
             g.Clear( Color.White );
             if( state != null && state.BestMatch != null ) {
-                e.Graphics.ScaleTransform( _zoom, _zoom );
-                LastChangePen.Width = 2 / _zoom;
+                e.Graphics.ScaleTransform( zoom, zoom );
+                LastChangePen.Width = 2 / zoom;
                 DNA tempDNA = state.BestMatch;
                 g.SmoothingMode = (state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
 
                 for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                     g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ), tempDNA.Shapes[i].Points, FillMode.Winding );
                     if( Wireframe ) {
-                        g.DrawPolygon( new Pen( Brushes.Black, 1 / _zoom ), tempDNA.Shapes[i].Points );
+                        g.DrawPolygon( new Pen( Brushes.Black, 1 / zoom ), tempDNA.Shapes[i].Points );
                     }
                 }
-                if( _showLastChange ) {
+                if( showLastChange ) {
                     for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                         if( tempDNA.Shapes[i].PreviousState != null ) {
                             g.DrawPolygon( LastChangePen, tempDNA.Shapes[i].Points );
-                            g.DrawPolygon( new Pen( Brushes.Black, 1 / _zoom ), tempDNA.Shapes[i].PreviousState.Points );
-                        }
-
-                        if( tempDNA.Shapes[i].Highlight ) {
-                            g.DrawPolygon( HighlightPen, tempDNA.Shapes[i].Points );
-                            g.DrawPolygon( Pens.White, tempDNA.Shapes[i].Points );
+                            g.DrawPolygon( new Pen( Brushes.Black, 1 / zoom ), tempDNA.Shapes[i].PreviousState.Points );
                         }
                     }
                 }

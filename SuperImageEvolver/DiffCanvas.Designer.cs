@@ -1,5 +1,5 @@
 ﻿namespace SuperImageEvolver {
-    partial class DiffCanvas {
+    sealed partial class DiffCanvas {
         /// <summary> 
         /// Required designer variable.
         /// </summary>

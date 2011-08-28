@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace SuperImageEvolver {
     public static class MutatorHelper {
-        public static void SwapShapes( Random rand, DNA newDNA, TaskState task ) {
+        public static void SwapShapes( Random rand, DNA newDNA ) {
             int s1 = rand.Next( newDNA.Shapes.Length );
             Shape shape = newDNA.Shapes[s1];
             shape.PreviousState = shape.Clone() as Shape;

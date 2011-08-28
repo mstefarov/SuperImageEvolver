@@ -1,5 +1,5 @@
 ﻿namespace SuperImageEvolver {
-    partial class DNAImportWindow {
+    sealed partial class DNAImportWindow {
         /// <summary>
         /// Required designer variable.
         /// </summary>

@@ -1,5 +1,5 @@
 ﻿namespace SuperImageEvolver {
-    partial class ModuleSettingsDisplay {
+    sealed partial class ModuleSettingsDisplay {
         /// <summary>
         /// Required designer variable.
         /// </summary>

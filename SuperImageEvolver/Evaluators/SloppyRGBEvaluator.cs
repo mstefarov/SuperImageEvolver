@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -13,7 +12,7 @@ namespace SuperImageEvolver {
         public ModuleFunction Function { get { return ModuleFunction.Evaluator; } }
         public ModulePreset[] Presets {
             get {
-                return new ModulePreset[]{
+                return new[]{
                     new ModulePreset("RGB (Sloppy)", ()=>(new SloppyRGBEvaluator()), this )
                 };
             }
@@ -22,7 +21,7 @@ namespace SuperImageEvolver {
     }
 
 
-    unsafe class SloppyRGBEvaluator : IEvaluator {
+    sealed unsafe class SloppyRGBEvaluator : IEvaluator {
 
         double maxDivergence;
         Bitmap halfResImage;
@@ -44,7 +43,7 @@ namespace SuperImageEvolver {
             using( Graphics g = Graphics.FromImage( halfResImage ) ) {
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 g.SmoothingMode = SmoothingMode.HighQuality;
-                g.DrawImage( state.Image, 0, 0, halfResImage.Width, halfResImage.Height );
+                g.DrawImage( state.OriginalImage, 0, 0, halfResImage.Width, halfResImage.Height );
             }
             halfResData = halfResImage.LockBits( new Rectangle( Point.Empty, halfResImage.Size ),
                                                  ImageLockMode.ReadOnly,
@@ -73,26 +72,25 @@ namespace SuperImageEvolver {
                     g.FillPolygon( new SolidBrush( dna.Shapes[i].Color ), dna.Shapes[i].Points, FillMode.Alternate );
                 }
             }
-            byte* originalPointer, testPointer;
 
             BitmapData testData = testImage.LockBits( new Rectangle( Point.Empty, testImage.Size ),
                                                       ImageLockMode.ReadOnly,
                                                       PixelFormat.Format32bppArgb );
             for( int i = 0; i < task.ImageHeight / 2; i++ ) {
-                originalPointer = (byte*)halfResData.Scan0 + halfResData.Stride * i;
-                testPointer = (byte*)testData.Scan0 + testData.Stride * i;
+                byte* originalPointer = (byte*)halfResData.Scan0 + halfResData.Stride * i;
+                byte* testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                 for( int j = 0; j < task.ImageWidth / 2; j++ ) {
-                    int B = Math.Abs( *originalPointer - *testPointer );
-                    int G = Math.Abs( originalPointer[1] - testPointer[1] );
-                    int R = Math.Abs( originalPointer[2] - testPointer[2] );
+                    int b = Math.Abs( *originalPointer - *testPointer );
+                    int g = Math.Abs( originalPointer[1] - testPointer[1] );
+                    int r = Math.Abs( originalPointer[2] - testPointer[2] );
                     if( Emphasized ) {
                         if( EmphasisAmount == 2 ) {
-                            sum += R * R + B * B + G * G;
+                            sum += r * r + b * b + g * g;
                         } else {
-                            sum += (long)(Math.Pow( R, EmphasisAmount ) + Math.Pow( G, EmphasisAmount ) + Math.Pow( B, EmphasisAmount ));
+                            sum += (long)(Math.Pow( r, EmphasisAmount ) + Math.Pow( g, EmphasisAmount ) + Math.Pow( b, EmphasisAmount ));
                         }
                     } else {
-                        sum += R + B + G;
+                        sum += r + b + g;
                     }
                     originalPointer += 4;
                     testPointer += 4;

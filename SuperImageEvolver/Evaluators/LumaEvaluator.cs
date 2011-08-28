@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
-using System.IO;
 
 namespace SuperImageEvolver {
 
@@ -15,7 +11,7 @@ namespace SuperImageEvolver {
         public ModuleFunction Function { get { return ModuleFunction.Evaluator; } }
         public ModulePreset[] Presets {
             get {
-                return new ModulePreset[]{
+                return new[]{
                     new ModulePreset("RGB+Luma (Fast)", ()=>(new LumaEvaluator(false)), this ),
                     new ModulePreset("RGB+Luma (Smooth)", ()=>(new LumaEvaluator(true)), this )
                 };
@@ -25,16 +21,15 @@ namespace SuperImageEvolver {
     }
 
 
-    unsafe class LumaEvaluator : IEvaluator {
-
+    sealed unsafe class LumaEvaluator : IEvaluator {
 
         public void Initialize( TaskState state ) {
         }
 
         public bool Smooth { get; set; }
         public LumaEvaluator() { }
-        public LumaEvaluator( bool _smooth ) {
-            Smooth = _smooth;
+        public LumaEvaluator( bool smooth ) {
+            Smooth = smooth;
         }
 
 
@@ -49,14 +44,13 @@ namespace SuperImageEvolver {
                     g.FillPolygon( new SolidBrush( dna.Shapes[i].Color ), dna.Shapes[i].Points, FillMode.Alternate );
                 }
             }
-            byte* originalPointer, testPointer;
 
             BitmapData testData = testImage.LockBits( new Rectangle( Point.Empty, testImage.Size ),
                                                       ImageLockMode.ReadOnly,
                                                       PixelFormat.Format32bppArgb );
             for( int i = 0; i < task.ImageHeight; i++ ) {
-                originalPointer = (byte*)task.ImageData.Scan0 + task.ImageData.Stride * i;
-                testPointer = (byte*)testData.Scan0 + testData.Stride * i;
+                byte* originalPointer = (byte*)task.OriginalImageData.Scan0 + task.OriginalImageData.Stride * i;
+                byte* testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                 for( int j = 0; j < task.ImageWidth; j++ ) {
 
                     /*

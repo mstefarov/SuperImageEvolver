@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 
 namespace SuperImageEvolver {
 
@@ -10,7 +9,7 @@ namespace SuperImageEvolver {
         public ModuleFunction Function { get { return ModuleFunction.Initializer; } }
         public ModulePreset[] Presets {
             get {
-                return new ModulePreset[]{
+                return new[]{
                     new ModulePreset("Segmented", ()=>(new SegmentedInitializer(Color.Black)), this )
                 };
             }
@@ -19,27 +18,29 @@ namespace SuperImageEvolver {
     }
 
 
-    public class SegmentedInitializer : IInitializer {
+    public sealed class SegmentedInitializer : IInitializer {
         public Color Color { get; set; }
         public int MaxOverlap { get; set; }
         public byte StartingAlpha { get; set; }
 
-        public SegmentedInitializer( Color _color ) {
-            Color = _color;
+        public SegmentedInitializer( Color color ) {
+            Color = color;
             MaxOverlap = 6;
             StartingAlpha = 1;
         }
 
         public DNA Initialize( Random rand, TaskState task ) {
-            DNA dna = new DNA();
-            dna.Shapes = new Shape[task.Shapes];
+            DNA dna = new DNA {
+                Shapes = new Shape[task.Shapes]
+            };
             int shapesPerSegment = task.Shapes / 9;
             int shapeCounter = 0;
 
             for( int i = 0; i < task.Shapes - shapesPerSegment * 9; i++ ) {
-                Shape shape = new Shape();
-                shape.Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B );
-                shape.Points = new PointF[task.Vertices];
+                Shape shape = new Shape {
+                    Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B ),
+                    Points = new PointF[task.Vertices]
+                };
                 for( int j = 0; j < shape.Points.Length; j++ ) {
                     shape.Points[j] = new PointF( rand.NextFloat( -MaxOverlap, task.ImageWidth + MaxOverlap ),
                                                   rand.NextFloat( -MaxOverlap, task.ImageHeight + MaxOverlap ) );
@@ -51,9 +52,10 @@ namespace SuperImageEvolver {
             for( int x = 0; x < 3; x++ ) {
                 for( int y = 0; y < 3; y++ ) {
                     for( int i = 0; i < shapesPerSegment; i++ ) {
-                        Shape shape = new Shape();
-                        shape.Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B );
-                        shape.Points = new PointF[task.Vertices];
+                        Shape shape = new Shape {
+                            Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B ),
+                            Points = new PointF[task.Vertices]
+                        };
                         for( int j = 0; j < shape.Points.Length; j++ ) {
                             shape.Points[j] = new PointF( rand.NextFloat( task.ImageWidth / 3f * x - MaxOverlap, task.ImageWidth / 3f * (x + 1) + MaxOverlap ),
                                                           rand.NextFloat( task.ImageHeight / 3f * y - MaxOverlap, task.ImageHeight / 3f * (y + 1) + MaxOverlap ) );

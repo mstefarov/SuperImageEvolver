@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 
 
 namespace SuperImageEvolver {
@@ -11,7 +10,7 @@ namespace SuperImageEvolver {
         public ModuleFunction Function { get { return ModuleFunction.Mutator; } }
         public ModulePreset[] Presets {
             get {
-                return new ModulePreset[]{
+                return new[]{
                     new ModulePreset("Soft Translate", ()=>(new SoftTranslateMutator{
                         PreserveAspectRatio=true
                     }), this),
@@ -29,7 +28,7 @@ namespace SuperImageEvolver {
     }
 
 
-    class SoftTranslateMutator : IMutator {
+    sealed class SoftTranslateMutator : IMutator {
 
         public bool PreserveAspectRatio { get; set; }
         public bool EnableRotation { get; set; }
@@ -77,35 +76,35 @@ namespace SuperImageEvolver {
                 case 8:
                 case 9:
                     shape.PreviousState = shape.Clone() as Shape;
-                    ChangeColor( rand, shape, task );
+                    ChangeColor( rand, shape );
                     newDNA.LastMutation = MutationType.AdjustColor;
                     break;
                 case 10:
-                    MutatorHelper.SwapShapes( rand, newDNA, task );
+                    MutatorHelper.SwapShapes( rand, newDNA );
                     newDNA.LastMutation = MutationType.SwapShapes;
                     break;
                 case 11:
                     shape.PreviousState = shape.Clone() as Shape;
                     MoveShape( rand, shape, task );
                     ScaleShape( rand, shape, task );
-                    ChangeColor( rand, shape, task );
+                    ChangeColor( rand, shape );
                     newDNA.LastMutation = MutationType.Transform;
                     break;
                 case 12:
                 case 13:
                     shape.PreviousState = shape.Clone() as Shape;
-                    RotateShape( rand, shape, task );
+                    RotateShape( rand, shape );
                     newDNA.LastMutation = MutationType.Rotate;
                     break;
                 case 14:
                     shape.PreviousState = shape.Clone() as Shape;
                     MoveShape( rand, shape, task );
-                    RotateShape( rand, shape, task );
+                    RotateShape( rand, shape );
                     newDNA.LastMutation = MutationType.Rotate;
                     break;
                 case 15:
                     shape.PreviousState = shape.Clone() as Shape;
-                    ChangeColor( rand, shape, task );
+                    ChangeColor( rand, shape );
                     newDNA.LastMutation = MutationType.AdjustColor;
                     break;
             }
@@ -159,27 +158,27 @@ namespace SuperImageEvolver {
         }
 
 
-        void ChangeColor( Random rand, Shape shape, TaskState task ) {
+        void ChangeColor( Random rand, Shape shape ) {
             shape.PreviousState = shape.Clone() as Shape;
             int delta = (byte)rand.Next( 1, (int)(MaxDelta + 1) ) * (rand.Next( 2 ) == 0 ? 1 : -1);
             switch( rand.Next( 4 ) ) {
                 case 0:
-                    shape.Color = Color.FromArgb( Math.Max( 1, Math.Min( 255, (int)shape.Color.A + delta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( Math.Max( 1, Math.Min( 255, shape.Color.A + delta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
                     break;
                 case 1:
-                    shape.Color = Color.FromArgb( shape.Color.A, Math.Max( 0, Math.Min( 255, (int)shape.Color.R + delta ) ), shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( shape.Color.A, Math.Max( 0, Math.Min( 255, shape.Color.R + delta ) ), shape.Color.G, shape.Color.B );
                     break;
                 case 2:
-                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, Math.Max( 0, Math.Min( 255, (int)shape.Color.G + delta ) ), shape.Color.B );
+                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, Math.Max( 0, Math.Min( 255, shape.Color.G + delta ) ), shape.Color.B );
                     break;
                 case 3:
-                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, shape.Color.G, Math.Max( 0, Math.Min( 255, (int)shape.Color.B + delta ) ) );
+                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, shape.Color.G, Math.Max( 0, Math.Min( 255, shape.Color.B + delta ) ) );
                     break;
             }
         }
 
 
-        void RotateShape( Random rand, Shape shape, TaskState task ) {
+        void RotateShape( Random rand, Shape shape ) {
             RectangleF rect = shape.GetBoundaries();
             PointF rectCenter = new PointF {
                 X = rect.X + rect.Width / 2,

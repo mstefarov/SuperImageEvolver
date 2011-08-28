@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 namespace SuperImageEvolver {
     public interface IModule : ICloneable {
@@ -22,17 +21,16 @@ namespace SuperImageEvolver {
     }
 
 
-    public class ModulePreset {
-        public ModulePreset( string _name, ModuleInstanceCallback _callback, IModuleFactory _factory ) {
-            Name = _name;
+    public sealed class ModulePreset {
+        public ModulePreset( string name, ModuleInstanceCallback _callback, IModuleFactory factory ) {
+            Name = name;
             callback = _callback;
-            Factory = _factory;
+            Factory = factory;
         }
 
+        readonly ModuleInstanceCallback callback;
         public string Name { get; private set; }
         public IModuleFactory Factory { get; private set; }
-
-        ModuleInstanceCallback callback;
 
         public IModule GetInstance() {
             return callback();
@@ -47,5 +45,5 @@ namespace SuperImageEvolver {
         Mutator
     }
 
-    public class DisableAutoSerializationAttribute : Attribute { }
+    public sealed class DisableAutoSerializationAttribute : Attribute { }
 }

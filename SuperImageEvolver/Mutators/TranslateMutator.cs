@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 
 
 namespace SuperImageEvolver {
@@ -11,7 +10,7 @@ namespace SuperImageEvolver {
         public ModuleFunction Function { get { return ModuleFunction.Mutator; } }
         public ModulePreset[] Presets {
             get {
-                return new ModulePreset[]{
+                return new[]{
                     new ModulePreset("Translate", ()=>(new TranslateMutator{
                         PreserveAspectRatio=true
                     }), this ),
@@ -29,7 +28,7 @@ namespace SuperImageEvolver {
     }
 
 
-    class TranslateMutator : IMutator {
+    sealed class TranslateMutator : IMutator {
 
         public bool PreserveAspectRatio { get; set; }
         public bool EnableRotation { get; set; }
@@ -74,35 +73,35 @@ namespace SuperImageEvolver {
                 case 8:
                 case 9:
                     shape.PreviousState = shape.Clone() as Shape;
-                    ChangeColor( rand, shape, task );
+                    ChangeColor( rand, shape );
                     newDNA.LastMutation = MutationType.ReplaceColor;
                     break;
                 case 10:
-                    MutatorHelper.SwapShapes( rand, newDNA, task );
+                    MutatorHelper.SwapShapes( rand, newDNA );
                     newDNA.LastMutation = MutationType.SwapShapes;
                     break;
                 case 11:
                     shape.PreviousState = shape.Clone() as Shape;
                     MoveShape( rand, shape, task );
                     ScaleShape( rand, shape, task );
-                    ChangeColor( rand, shape, task );
+                    ChangeColor( rand, shape );
                     newDNA.LastMutation = MutationType.ReplaceShape;
                     break;
                 case 12:
                 case 13:
                     shape.PreviousState = shape.Clone() as Shape;
-                    RotateShape( rand, shape, task );
+                    RotateShape( rand, shape );
                     newDNA.LastMutation = MutationType.Rotate;
                     break;
                 case 14:
                     shape.PreviousState = shape.Clone() as Shape;
                     MoveShape( rand, shape, task );
-                    RotateShape( rand, shape, task );
+                    RotateShape( rand, shape );
                     newDNA.LastMutation = MutationType.Transform;
                     break;
                 case 15:
                     shape.PreviousState = shape.Clone() as Shape;
-                    ChangeColor( rand, shape, task );
+                    ChangeColor( rand, shape );
                     newDNA.LastMutation = MutationType.ReplaceColor;
                     break;
             }
@@ -150,7 +149,7 @@ namespace SuperImageEvolver {
         }
 
 
-        void ChangeColor( Random rand, Shape shape, TaskState task ) {
+        static void ChangeColor( Random rand, Shape shape ) {
             shape.PreviousState = shape.Clone() as Shape;
             switch( rand.Next( 4 ) ) {
                 case 0:
@@ -169,7 +168,7 @@ namespace SuperImageEvolver {
         }
 
 
-        void RotateShape( Random rand, Shape shape, TaskState task ) {
+        static void RotateShape( Random rand, Shape shape ) {
             RectangleF rect = shape.GetBoundaries();
             PointF rectCenter = new PointF {
                 X = rect.X + rect.Width / 2,

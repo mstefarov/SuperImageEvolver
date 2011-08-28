@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 
 namespace SuperImageEvolver {
-    unsafe partial class DiffCanvas : UserControl {
+    sealed unsafe partial class DiffCanvas : UserControl {
         public DiffCanvas() {
             InitializeComponent();
             DoubleBuffered = true;
@@ -25,36 +25,36 @@ namespace SuperImageEvolver {
 
         #region Properties
 
-        bool _invert = false;
+        bool invert;
         [DefaultValue( false )]
         public bool Invert {
-            get { return _invert; }
-            set { _invert = value; Invalidate(); }
+            get { return invert; }
+            set { invert = value; Invalidate(); }
         }
 
 
-        bool _showColor = true;
+        bool showColor = true;
         [DefaultValue( true )]
         public bool ShowColor {
-            get { return _showColor; }
-            set { _showColor = value; Invalidate(); }
+            get { return showColor; }
+            set { showColor = value; Invalidate(); }
         }
 
 
-        bool _exaggerate = true;
+        bool exaggerate = true;
         [DefaultValue( true )]
         public bool Exaggerate {
-            get { return _exaggerate; }
-            set { _exaggerate = value; Invalidate(); }
+            get { return exaggerate; }
+            set { exaggerate = value; Invalidate(); }
         }
 
 
-        float _zoom = 1;
+        float zoom = 1;
         [DefaultValue( 1 )]
         public float Zoom {
-            get { return _zoom; }
+            get { return zoom; }
             set {
-                _zoom = value;
+                zoom = value;
                 if( state != null ) {
                     Size = new Size {
                         Width = (int)Math.Ceiling( state.ImageWidth * Zoom ),
@@ -66,11 +66,11 @@ namespace SuperImageEvolver {
         }
 
 
-        bool _showLastChange;
+        bool showLastChange;
         [DefaultValue( false )]
         public bool ShowLastChange {
-            get { return _showLastChange; }
-            set { _showLastChange = value; Invalidate(); }
+            get { return showLastChange; }
+            set { showLastChange = value; Invalidate(); }
         }
 
 
@@ -104,7 +104,7 @@ namespace SuperImageEvolver {
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g2 = e.Graphics;
             if( state != null && state.BestMatch != null ) {
-                e.Graphics.ScaleTransform( _zoom, _zoom );
+                e.Graphics.ScaleTransform( zoom, zoom );
                 DNA tempDNA = state.BestMatch;
                 using( Graphics g = Graphics.FromImage( canvasImage ) ) {
                     g.Clear( Color.White );
@@ -115,16 +115,14 @@ namespace SuperImageEvolver {
                     }
                 }
 
-                byte* originalPointer, testPointer;
-
                 BitmapData testData = canvasImage.LockBits( new Rectangle( Point.Empty, canvasImage.Size ),
                                                             ImageLockMode.ReadOnly,
                                                             PixelFormat.Format32bppArgb );
                 for( int i = 0; i < canvasImage.Height; i++ ) {
-                    originalPointer = (byte*)state.ImageData.Scan0 + state.ImageData.Stride * i;
-                    testPointer = (byte*)testData.Scan0 + testData.Stride * i;
+                    byte* originalPointer = (byte*)state.OriginalImageData.Scan0 + state.OriginalImageData.Stride * i;
+                    byte* testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                     for( int j = 0; j < state.ImageWidth; j++ ) {
-                        if( !_showColor ) {
+                        if( !showColor ) {
                             byte val;
                             /*int originalLuma = (299 * originalPointer[2] + 587 * originalPointer[1] + 114 * *originalPointer) / 1000;
                             int testLuma = (299 * testPointer[2] + 587 * testPointer[1] + 114 * *testPointer) / 1000;
@@ -143,9 +141,9 @@ namespace SuperImageEvolver {
                             int testLumi = (Math.Min( Math.Min( testPointer[2], testPointer[1] ), *testPointer ) +
                                             Math.Max( Math.Max( testPointer[2], testPointer[1] ), *testPointer )) / 2;
 
-                            val = (byte)Math.Abs( originalLumi - testLumi );
-
                             /*
+                            val = (byte)Math.Abs( originalLumi - testLumi );
+                            
                             int oringinalChroma = (Math.Max( Math.Max( originalPointer[2], originalPointer[1] ), *originalPointer ) -
                                                    Math.Min( Math.Min( originalPointer[2], originalPointer[1] ), *originalPointer ));
                             int testChroma = (Math.Max( Math.Max( testPointer[2], testPointer[1] ), *testPointer ) -
@@ -155,19 +153,20 @@ namespace SuperImageEvolver {
                                 val = (byte)(255 * Math.Sqrt( (val / 2 + Math.Abs( oringinalChroma - testChroma ) * val / (255 * 2)) / 255d ));
                             }
                             */
-                            if( _exaggerate ) {
+
+                            if( exaggerate ) {
                                 val = (byte)Math.Max( 0, Math.Min( 255, 127 - Math.Sign( originalLumi - testLumi ) * Math.Sqrt( Math.Abs( originalLumi - testLumi ) / 255d ) * 255d ) );
                             } else {
                                 val = (byte)Math.Max( 0, Math.Min( 255, 127 - (originalLumi - testLumi) ) );
                             }
 
-                            if( _invert ) val = (byte)(255 - val);
+                            if( invert ) val = (byte)(255 - val);
                             testPointer[2] = val;
                             testPointer[1] = val;
                             *testPointer = val;
 
-                        } else if( _invert ) {
-                            if( _exaggerate ) {
+                        } else if( invert ) {
+                            if( exaggerate ) {
                                 testPointer[2] = (byte)(255 - (int)(255 * Math.Sqrt( Math.Abs( originalPointer[2] - testPointer[2] ) / 255d )));
                                 testPointer[1] = (byte)(255 - (int)(255 * Math.Sqrt( Math.Abs( originalPointer[1] - testPointer[1] ) / 255d )));
                                 *testPointer = (byte)(255 - (int)(255 * Math.Sqrt( Math.Abs( *originalPointer - *testPointer ) / 255d )));
@@ -178,7 +177,7 @@ namespace SuperImageEvolver {
                             }
 
                         } else {
-                            if( _exaggerate ) {
+                            if( exaggerate ) {
                                 testPointer[2] = (byte)(255 * Math.Sqrt( Math.Abs( originalPointer[2] - testPointer[2] ) / 255d ));
                                 testPointer[1] = (byte)(255 * Math.Sqrt( Math.Abs( originalPointer[1] - testPointer[1] ) / 255d ));
                                 *testPointer = (byte)(255 * Math.Sqrt( Math.Abs( *originalPointer - *testPointer ) / 255d ));
@@ -193,17 +192,17 @@ namespace SuperImageEvolver {
                     }
                 }
                 canvasImage.UnlockBits( testData );
-                if( _zoom == 2 || _zoom == 1 ) {
+                if( zoom == 2 || zoom == 1 ) {
                     g2.InterpolationMode = InterpolationMode.NearestNeighbor;
                 }
                 g2.DrawImageUnscaled( canvasImage, 0, 0 );
 
-                if( _showLastChange ) {
+                if( showLastChange ) {
                     g2.SmoothingMode = (state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
                     for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                         if( tempDNA.Shapes[i].PreviousState != null ) {
                             g2.DrawPolygon( LastChangePen, tempDNA.Shapes[i].Points );
-                            g2.DrawPolygon( new Pen( Brushes.Black, 1 / _zoom ), tempDNA.Shapes[i].PreviousState.Points );
+                            g2.DrawPolygon( new Pen( Brushes.Black, 1 / zoom ), tempDNA.Shapes[i].PreviousState.Points );
                         }
                     }
                 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 
 namespace SuperImageEvolver {
 
@@ -10,7 +9,7 @@ namespace SuperImageEvolver {
         public ModuleFunction Function { get { return ModuleFunction.Initializer; } }
         public ModulePreset[] Presets {
             get {
-                return new ModulePreset[]{
+                return new[]{
                     new ModulePreset("Radial", ()=>(new RadialInitializer(Color.Black)), this )
                 };
             }
@@ -19,25 +18,27 @@ namespace SuperImageEvolver {
     }
 
 
-    public class RadialInitializer : IInitializer {
+    public sealed class RadialInitializer : IInitializer {
         public Color Color { get; set; }
         public int MaxOverlap { get; set; }
         public byte StartingAlpha { get; set; }
 
-        public RadialInitializer( Color _color ) {
-            Color = _color;
+        public RadialInitializer( Color color ) {
+            Color = color;
             MaxOverlap = 6;
             StartingAlpha = 1;
         }
 
 
         public DNA Initialize( Random rand, TaskState task ) {
-            DNA dna = new DNA();
-            dna.Shapes = new Shape[task.Shapes];
+            DNA dna = new DNA {
+                Shapes = new Shape[task.Shapes]
+            };
             for( int i = 0; i < task.Shapes; i++ ) {
-                Shape shape = new Shape();
-                shape.Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B );
-                shape.Points = new PointF[task.Vertices];
+                Shape shape = new Shape {
+                    Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B ),
+                    Points = new PointF[task.Vertices]
+                };
                 int radius = rand.Next( 2, Math.Min( task.ImageWidth, task.ImageHeight ) / 2 );
                 Point center = new Point( rand.Next( radius - MaxOverlap, task.ImageWidth - radius + MaxOverlap ),
                                           rand.Next( radius - MaxOverlap, task.ImageHeight - radius + MaxOverlap ) );

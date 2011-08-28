@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 
 
 namespace SuperImageEvolver {
@@ -11,7 +10,7 @@ namespace SuperImageEvolver {
         public ModuleFunction Function { get { return ModuleFunction.Mutator; } }
         public ModulePreset[] Presets {
             get {
-                return new ModulePreset[]{
+                return new[]{
                     new ModulePreset("Harder", ()=>new HarderMutator(), this )
                 };
             }
@@ -20,7 +19,7 @@ namespace SuperImageEvolver {
     }
 
 
-    class HarderMutator : IMutator {
+    sealed class HarderMutator : IMutator {
         public int MaxOverlap { get; set; }
         public double MaxPolygonArea { get; set; }
 

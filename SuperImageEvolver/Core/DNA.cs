@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
-using System.Xml;
-using System.Xml.Linq;
-using System.Text;
 
 
 namespace SuperImageEvolver {
-    public class DNA : ICloneable {
+    public sealed class DNA : ICloneable {
         public DNA() { }
 
         public DNA( DNA other ) {
@@ -41,17 +37,16 @@ namespace SuperImageEvolver {
     }
 
 
-    public class Mutation {
-        public Mutation( DNA _previousDNA, DNA _newDNA ) {
-            PreviousDNA = _previousDNA;
-            NewDNA = _newDNA;
+    public sealed class Mutation {
+        public Mutation( DNA previousDna, DNA newDna ) {
+            PreviousDNA = previousDna;
+            NewDNA = newDna;
             Timestamp = DateTime.UtcNow;
         }
 
-        public DNA PreviousDNA;
-        public DNA NewDNA;
-
-        public DateTime Timestamp;
+        public DNA PreviousDNA { get; set; }
+        public DNA NewDNA { get; set; }
+        public DateTime Timestamp { get; set; }
 
         public double DivergenceDelta {
             get {

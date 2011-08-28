@@ -1,27 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace SuperImageEvolver {
-    public partial class GraphWindow : UserControl {
-
-        public PointF[] Points { get; private set; }
-        Font font = new Font( FontFamily.GenericSansSerif, 15, FontStyle.Bold );
-
-        public float LogSteepness = 100;
+    public sealed partial class GraphWindow : UserControl {
+        PointF[] Points { get; set; }
+        readonly Font font = new Font( FontFamily.GenericSansSerif, 15, FontStyle.Bold );
+        const float LogSteepness = 100;
 
 
         public GraphWindow() {
             InitializeComponent();
-            this.DoubleBuffered = true;
+            DoubleBuffered = true;
         }
 
-        Pen pen = new Pen( Color.Black, 2 );
+
+        readonly Pen pen = new Pen( Color.Black, 2 );
 
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g = e.Graphics;
@@ -37,14 +31,14 @@ namespace SuperImageEvolver {
                     Console.WriteLine( ex );
                 }
             }
-            if( MainForm.state != null && MainForm.state.BestMatch != null ) {
-                g.DrawString( (1 - MainForm.state.BestMatch.Divergence).ToString( "0.0000%" ), font, Brushes.Black, PointF.Empty );
+            if( MainForm.State != null && MainForm.State.BestMatch != null ) {
+                g.DrawString( (1 - MainForm.State.BestMatch.Divergence).ToString( "0.0000%" ), font, Brushes.Black, PointF.Empty );
             }
             base.OnPaint( e );
         }
 
 
-        public void SetData( PointF[] input, bool LogXAxis, bool LogYAxis, bool NormalizeYStart, bool NormalizeYEnd, bool NormalizeXStart, bool NormalizeXEnd ) {
+        public void SetData( PointF[] input, bool logXAxis, bool logYAxis, bool normalizeYStart, bool normalizeYEnd, bool normalizeXStart, bool normalizeXEnd ) {
             if( input.Length < 2 ) {
                 Points = null;
             }
@@ -63,10 +57,10 @@ namespace SuperImageEvolver {
                 maxY = Math.Max( maxY, input[i].Y );
             }
 
-            if( !NormalizeXStart ) minX = 0;
-            if( !NormalizeYStart ) minY = 0;
-            if( !NormalizeXEnd ) maxX = 1;
-            if( !NormalizeYEnd ) maxY = 1;
+            if( !normalizeXStart ) minX = 0;
+            if( !normalizeYStart ) minY = 0;
+            if( !normalizeXEnd ) maxX = 1;
+            if( !normalizeYEnd ) maxY = 1;
 
             float multiplierX = 1 / (maxX - minX);
             float constantX = -minX / (maxX - minX);
@@ -77,17 +71,17 @@ namespace SuperImageEvolver {
 
             for( int i = 0; i < input.Length; i++ ) {
                 output[i].X = input[i].X * multiplierX + constantX; // normalize
-                if( LogXAxis ) {
+                if( logXAxis ) {
                     output[i].X = (float)(Math.Log( output[i].X * LogSteepness + 1 ) * logScaleMultiplier); // scale
                 }
-                output[i].X = (float)((Width - 1) * output[i].X);
+                output[i].X = (Width - 1) * output[i].X;
 
 
                 output[i].Y = input[i].Y * multiplierY + constantY; // normalize
-                if( LogYAxis ) {
+                if( logYAxis ) {
                     output[i].Y = (float)(Math.Log( output[i].Y * LogSteepness + 1 ) * logScaleMultiplier); // scale
                 }
-                output[i].Y = (float)((Height - 1) * output[i].Y);
+                output[i].Y = (Height - 1) * output[i].Y;
             }
 
             Points = output;

@@ -38,8 +38,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Drawing;
-using System.Reflection;
-using System.Linq;
 
 namespace SuperImageEvolver {
     public enum NBTType : byte {
@@ -64,25 +62,27 @@ namespace SuperImageEvolver {
 
 
     public class NBTag : IEnumerable<NBTag> {
-        public NBTType Type { get; set; }
-        public string Name { get; set; }
-        public object Payload { get; set; }
-        public NBTag Parent { get; set; }
+        protected NBTType Type { get; set; }
+        protected string Name { get; set; }
+        object Payload { get; set; }
+        NBTag Parent { get; set; }
 
         #region Constructors
 
-        public NBTag() { }
+        protected NBTag() { }
 
-        public NBTag( NBTType _type, NBTag _parent ) {
-            Type = _type;
-            Parent = _parent;
+
+        public NBTag( NBTType type, NBTag parent ) {
+            Type = type;
+            Parent = parent;
         }
 
-        public NBTag( NBTType _type, string _name, object _payload, NBTag _parent ) {
-            Type = _type;
-            Name = _name;
-            Payload = _payload;
-            Parent = _parent;
+
+        public NBTag( NBTType type, string name, object payload, NBTag parent ) {
+            Type = type;
+            Name = name;
+            Payload = payload;
+            Parent = parent;
         }
 
         #endregion
@@ -212,62 +212,62 @@ namespace SuperImageEvolver {
             return (NBTCompound)ReadTag( reader, (NBTType)reader.ReadByte(), null, null );
         }
 
-        public static NBTag ReadTag( BinaryReader reader, NBTType type, string name, NBTag _parent ) {
+        public static NBTag ReadTag( BinaryReader reader, NBTType type, string name, NBTag parent ) {
             if( name == null && type != NBTType.End ) {
                 name = ReadString( reader );
             }
             switch( type ) {
                 case NBTType.End:
-                    return new NBTag( NBTType.End, _parent );
+                    return new NBTag( NBTType.End, parent );
 
                 case NBTType.Byte:
-                    return new NBTag( NBTType.Byte, name, reader.ReadByte(), _parent );
+                    return new NBTag( NBTType.Byte, name, reader.ReadByte(), parent );
 
                 case NBTType.Short:
-                    return new NBTag( NBTType.Short, name, reader.ReadInt16(), _parent );
+                    return new NBTag( NBTType.Short, name, reader.ReadInt16(), parent );
 
                 case NBTType.Int:
-                    return new NBTag( NBTType.Int, name, reader.ReadInt32(), _parent );
+                    return new NBTag( NBTType.Int, name, reader.ReadInt32(), parent );
 
                 case NBTType.Long:
-                    return new NBTag( NBTType.Long, name, reader.ReadInt64(), _parent );
+                    return new NBTag( NBTType.Long, name, reader.ReadInt64(), parent );
 
                 case NBTType.Float:
-                    return new NBTag( NBTType.Float, name, reader.ReadSingle(), _parent );
+                    return new NBTag( NBTType.Float, name, reader.ReadSingle(), parent );
 
                 case NBTType.Double:
-                    return new NBTag( NBTType.Double, name, reader.ReadDouble(), _parent );
+                    return new NBTag( NBTType.Double, name, reader.ReadDouble(), parent );
 
                 case NBTType.Bytes:
                     int bytesLength = reader.ReadInt32();
-                    return new NBTag( NBTType.Bytes, name, reader.ReadBytes( bytesLength ), _parent );
+                    return new NBTag( NBTType.Bytes, name, reader.ReadBytes( bytesLength ), parent );
 
                 case NBTType.String:
-                    return new NBTag( NBTType.String, name, ReadString( reader ), _parent );
+                    return new NBTag( NBTType.String, name, ReadString( reader ), parent );
 
 
                 case NBTType.Bool:
-                    return new NBTag( NBTType.Bool, name, reader.ReadBoolean(), _parent );
+                    return new NBTag( NBTType.Bool, name, reader.ReadBoolean(), parent );
 
                 case NBTType.Color:
-                    return new NBTag( NBTType.Color, name, Color.FromArgb( reader.ReadInt32() ), _parent );
+                    return new NBTag( NBTType.Color, name, Color.FromArgb( reader.ReadInt32() ), parent );
 
                 case NBTType.Point:
                     int iX = reader.ReadInt32();
                     int iY = reader.ReadInt32();
-                    return new NBTag( NBTType.Point, name, new Point( iX, iY ), _parent );
+                    return new NBTag( NBTType.Point, name, new Point( iX, iY ), parent );
 
                 case NBTType.PointF:
                     float fX = reader.ReadSingle();
                     float fY = reader.ReadSingle();
-                    return new NBTag( NBTType.PointF, name, new PointF( fX, fY ), _parent );
+                    return new NBTag( NBTType.PointF, name, new PointF( fX, fY ), parent );
 
 
                 case NBTType.List:
                     NBTList list = new NBTList {
                         Type = NBTType.List,
                         Name = name,
-                        Parent = _parent,
+                        Parent = parent,
                         ListType = (NBTType)reader.ReadByte()
                     };
                     int listLength = reader.ReadInt32();
@@ -283,7 +283,7 @@ namespace SuperImageEvolver {
                     NBTCompound compound = new NBTCompound {
                         Type = NBTType.Compound,
                         Name = name,
-                        Parent = _parent
+                        Parent = parent
                     };
                     while( true ) {
                         childTag = ReadTag( reader, (NBTType)reader.ReadByte(), null, compound );
@@ -466,7 +466,7 @@ namespace SuperImageEvolver {
         public Point GetPoint() { return (Point)Payload; }
         public PointF GetPointF() { return (PointF)Payload; }
 
-        public void Set( object _payload ) { Payload = _payload; }
+        public void Set( object payload ) { Payload = payload; }
 
         object GetChild( string name, object defaultValue ) {
             return Contains( name ) ? this[name].Payload : defaultValue;
@@ -490,34 +490,34 @@ namespace SuperImageEvolver {
 
 
         #region Indexers
-        public NBTag this[int Index] {
+        public NBTag this[int index] {
             get {
                 if( this is NBTList ) {
-                    return ((NBTList)this).Tags[Index];
+                    return ((NBTList)this).Tags[index];
                 } else {
                     throw new NotSupportedException();
                 }
             }
             set {
                 if( this is NBTList ) {
-                    ((NBTList)this).Tags[Index] = value;
+                    ((NBTList)this).Tags[index] = value;
                 } else {
                     throw new NotSupportedException();
                 }
             }
         }
 
-        public NBTag this[string Key] {
+        public NBTag this[string key] {
             get {
                 if( this is NBTCompound ) {
-                    return ((NBTCompound)this).Tags[Key];
+                    return ((NBTCompound)this).Tags[key];
                 } else {
                     throw new NotSupportedException();
                 }
             }
             set {
                 if( this is NBTCompound ) {
-                    ((NBTCompound)this).Tags[Key] = value;
+                    ((NBTCompound)this).Tags[key] = value;
                 } else {
                     throw new NotSupportedException();
                 }
@@ -535,8 +535,8 @@ namespace SuperImageEvolver {
             return new NBTEnumerator( this );
         }
 
-        public class NBTEnumerator : IEnumerator<NBTag> {
-            NBTag[] tags;
+        public sealed class NBTEnumerator : IEnumerator<NBTag> {
+            readonly NBTag[] tags;
             int index = -1;
 
             public NBTEnumerator( NBTag tag ) {
@@ -574,37 +574,26 @@ namespace SuperImageEvolver {
             public void Dispose() { }
         }
         #endregion
-
-
-        public void Merge( NBTag other ) {
-            if( this is NBTCompound && other is NBTCompound ) {
-                foreach( var otherChild in ((NBTCompound)other).Tags ) {
-                    this[otherChild.Key] = otherChild.Value;
-                }
-            } else {
-                throw new NotSupportedException();
-            }
-        }
     }
 
 
-    public class NBTList : NBTag {
+    public sealed class NBTList : NBTag {
         public NBTList() {
             Type = NBTType.List;
         }
-        public NBTList( string _name, NBTType _type, int count ) {
-            Name = _name;
+        public NBTList( string name, NBTType type, int count ) {
+            Name = name;
             Type = NBTType.List;
-            ListType = _type;
+            ListType = type;
             Tags = new NBTag[count];
         }
-        public NBTList( string _name, NBTType _type, Array _payloads ) {
-            Name = _name;
+        public NBTList( string name, NBTType type, Array payloads ) {
+            Name = name;
             Type = NBTType.List;
-            ListType = _type;
-            Tags = new NBTag[_payloads.Length];
+            ListType = type;
+            Tags = new NBTag[payloads.Length];
             int i = 0;
-            foreach( object payload in _payloads ) {
+            foreach( object payload in payloads ) {
                 Tags[i++] = new NBTag( ListType, null, payload, this );
             }
         }
@@ -613,14 +602,10 @@ namespace SuperImageEvolver {
     }
 
 
-    public class NBTCompound : NBTag {
+    public sealed class NBTCompound : NBTag {
         public NBTCompound() {
             Type = NBTType.Compound;
         }
-        public NBTCompound( string _name ) {
-            Name = _name;
-            Type = NBTType.Compound;
-        }
-        public Dictionary<string, NBTag> Tags = new Dictionary<string, NBTag>();
+        public readonly Dictionary<string, NBTag> Tags = new Dictionary<string, NBTag>();
     }
 }

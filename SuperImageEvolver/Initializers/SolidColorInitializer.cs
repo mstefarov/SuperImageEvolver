@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 
 namespace SuperImageEvolver {
 
@@ -10,7 +9,7 @@ namespace SuperImageEvolver {
         public ModuleFunction Function { get { return ModuleFunction.Initializer; } }
         public ModulePreset[] Presets {
             get {
-                return new ModulePreset[]{
+                return new[]{
                     new ModulePreset("Full Random", ()=>(new SolidColorInitializer(Color.Black)), this )
                 };
             }
@@ -19,24 +18,26 @@ namespace SuperImageEvolver {
     }
 
 
-    class SolidColorInitializer : IInitializer {
+    sealed class SolidColorInitializer : IInitializer {
         public Color Color { get; set; }
         public int MaxOverlap { get; set; }
         public byte StartingAlpha { get; set; }
 
-        public SolidColorInitializer( Color _color ) {
-            Color = _color;
+        public SolidColorInitializer( Color color ) {
+            Color = color;
             MaxOverlap = 6;
             StartingAlpha = 1;
         }
 
         DNA IInitializer.Initialize( Random rand, TaskState task ) {
-            DNA dna = new DNA();
-            dna.Shapes = new Shape[task.Shapes];
+            DNA dna = new DNA {
+                Shapes = new Shape[task.Shapes]
+            };
             for( int i = 0; i< dna.Shapes.Length; i++ ) {
-                Shape shape = new Shape();
-                shape.Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B );
-                shape.Points = new PointF[task.Vertices];
+                Shape shape = new Shape {
+                    Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B ),
+                    Points = new PointF[task.Vertices]
+                };
                 for( int j = 0; j < shape.Points.Length; j++ ) {
                     shape.Points[j] = new PointF( rand.NextFloat( -MaxOverlap, task.ImageWidth + MaxOverlap ),
                                                   rand.NextFloat( -MaxOverlap, task.ImageHeight + MaxOverlap ) );
