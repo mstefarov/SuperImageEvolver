@@ -308,8 +308,7 @@ SinceImproved: {7} / {6}",
                 case 13:
                     State.Mutator = new HardishMutator {
                         MaxColorDelta = 16,
-                        MaxPosDelta = 64,
-                        MaxOverlap = 6
+                        MaxPosDelta = 64
                     }; break;
             }
         }
@@ -600,6 +599,14 @@ SinceImproved: {7} / {6}",
 
         private void cmDiffShowLastChange_Click( object sender, EventArgs e ) {
             picDiff.ShowLastChange = cmDiffShowLastChange.Checked;
+        }
+
+        private void bProjectOptions_Click( object sender, EventArgs e ) {
+            if( State == null ) return;
+            ModuleSettingsDisplay md = new ModuleSettingsDisplay( State.ProjectOptions );
+            if( md.ShowDialog() == DialogResult.OK ) {
+                State.ProjectOptions = (ProjectOptions)md.Module;
+            }
         }
     }
 }

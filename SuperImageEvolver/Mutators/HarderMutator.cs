@@ -20,24 +20,23 @@ namespace SuperImageEvolver {
 
 
     sealed class HarderMutator : IMutator {
-        public int MaxOverlap { get; set; }
         public double MaxPolygonArea { get; set; }
 
         public HarderMutator() {
-            MaxOverlap = 6;
             MaxPolygonArea = .5;
         }
 
         public DNA Mutate( Random rand, DNA oldDNA, TaskState task ) {
+            int maxOverlap = task.ProjectOptions.MaxOverlap;
             DNA newDNA = new DNA( oldDNA );
             Shape shape = newDNA.Shapes[rand.Next( newDNA.Shapes.Length )];
             shape.PreviousState = shape.Clone() as Shape;
-            shape.Color = Color.FromArgb( rand.Next( 1, 256 ), rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ) );
+            shape.Color = Color.FromArgb( rand.Next( task.ProjectOptions.MinAlpha, 256 ), rand.NextByte(), rand.NextByte(), rand.NextByte() );
             double area, maxArea = MaxPolygonArea * task.ImageWidth * task.ImageHeight;
             do {
                 for( int i = 0; i < shape.Points.Length; i++ ) {
-                    shape.Points[i] = new PointF( rand.NextFloat( -MaxOverlap, task.ImageWidth + MaxOverlap ),
-                                                  rand.NextFloat( -MaxOverlap, task.ImageHeight + MaxOverlap ) );
+                    shape.Points[i] = new PointF( rand.NextFloat( -maxOverlap, task.ImageWidth + maxOverlap ),
+                                                  rand.NextFloat( -maxOverlap, task.ImageHeight + maxOverlap ) );
                 }
                 area = CalculateArea( shape.Points );
             } while( area > maxArea );
@@ -58,7 +57,9 @@ namespace SuperImageEvolver {
         }
 
         object ICloneable.Clone() {
-            return new HarderMutator();
+            return new HarderMutator {
+                MaxPolygonArea = MaxPolygonArea
+            };
         }
 
 

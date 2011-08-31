@@ -26,6 +26,7 @@ namespace SuperImageEvolver {
                 newDNA.Shapes[s1] = newDNA.Shapes[s2];
                 newDNA.Shapes[s2] = shape;
             }
+            newDNA.LastMutation = MutationType.SwapShapes;
         }
     }
 }

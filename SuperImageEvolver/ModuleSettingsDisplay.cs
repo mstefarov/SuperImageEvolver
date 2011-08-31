@@ -1,16 +1,18 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 
 namespace SuperImageEvolver {
     public sealed partial class ModuleSettingsDisplay : Form {
-        public IModule Module {
+        public ICloneable Module {
             get;
             private set;
         }
 
-        public ModuleSettingsDisplay( IModule module ) {
+        public ModuleSettingsDisplay( ICloneable module ) {
+            if( module == null ) throw new ArgumentNullException( "module" );
             InitializeComponent();
             Text = module.GetType().Name;
-            Module = (IModule)module.Clone();
+            Module = (ICloneable)module.Clone();
             pgGrid.SelectedObject = Module;
         }
     }

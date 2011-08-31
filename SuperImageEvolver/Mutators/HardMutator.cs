@@ -21,12 +21,6 @@ namespace SuperImageEvolver {
 
     sealed class HardMutator : IMutator {
 
-        public int MaxOverlap { get; set; }
-
-        public HardMutator(){
-            MaxOverlap = 6;
-        }
-
         public DNA Mutate( Random rand, DNA oldDNA, TaskState task ) {
             DNA newDNA = new DNA( oldDNA );
             int s1 = rand.Next( newDNA.Shapes.Length );
@@ -50,7 +44,7 @@ namespace SuperImageEvolver {
             shape.PreviousState = shape.Clone() as Shape;
             switch( rand.Next( 10 ) ) {
                 case 0:
-                    shape.Color = Color.FromArgb( (byte)rand.Next( 1, 256 ), shape.Color.R, shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( (byte)rand.Next( task.ProjectOptions.MinAlpha, 256 ), shape.Color.R, shape.Color.G, shape.Color.B );
                     dna.LastMutation = MutationType.ReplaceColor;
                     break;
                 case 1:
@@ -77,25 +71,27 @@ namespace SuperImageEvolver {
                             shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
                         }
                     }
+                    dna.LastMutation = MutationType.ReplacePoints;
                     break;
             }
         }
 
         PointF MutatePoint( Random rand, DNA dna, PointF point, TaskState task ) {
+            int maxOverlap = task.ProjectOptions.MaxOverlap;
             switch( rand.Next( 5 ) ) {
                 case 0:
                 case 1:
-                    point.X = rand.NextFloat( -MaxOverlap, task.ImageWidth + MaxOverlap );
+                    point.X = rand.NextFloat( -maxOverlap, task.ImageWidth + maxOverlap );
                     dna.LastMutation = MutationType.ReplacePoint;
                     break;
                 case 2:
                 case 3:
-                    point.Y = rand.NextFloat( -MaxOverlap, task.ImageHeight + MaxOverlap );
+                    point.Y = rand.NextFloat( -maxOverlap, task.ImageHeight + maxOverlap );
                     dna.LastMutation = MutationType.ReplacePoint;
                     break;
                 case 4:
-                    point.X = rand.NextFloat( -MaxOverlap, task.ImageWidth + MaxOverlap );
-                    point.Y = rand.NextFloat( -MaxOverlap, task.ImageHeight + MaxOverlap );
+                    point.X = rand.NextFloat( -maxOverlap, task.ImageWidth + maxOverlap );
+                    point.Y = rand.NextFloat( -maxOverlap, task.ImageHeight + maxOverlap );
                     dna.LastMutation = MutationType.ReplacePoints;
                     break;
             }
@@ -103,19 +99,18 @@ namespace SuperImageEvolver {
         }
 
         void RandomizeShape( Random rand, Shape shape, TaskState task ) {
+            int maxOverlap = task.ProjectOptions.MaxOverlap;
             shape.PreviousState = shape.Clone() as Shape;
-            shape.Color = Color.FromArgb( rand.Next( 1, 256 ), rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ) );
+            shape.Color = Color.FromArgb( rand.Next( task.ProjectOptions.MinAlpha, 256 ), rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ) );
             for( int i = 0; i < shape.Points.Length; i++ ) {
-                shape.Points[i] = new PointF( rand.NextFloat( -MaxOverlap, task.ImageWidth + MaxOverlap ),
-                                              rand.NextFloat( -MaxOverlap, task.ImageHeight + MaxOverlap ) );
+                shape.Points[i] = new PointF( rand.NextFloat( -maxOverlap, task.ImageWidth + maxOverlap ),
+                                              rand.NextFloat( -maxOverlap, task.ImageHeight + maxOverlap ) );
             }
         }
 
 
         object ICloneable.Clone() {
-            return new HardMutator {
-                MaxOverlap = MaxOverlap
-            };
+            return this;
         }
 
         void IModule.ReadSettings( NBTag tag ) { }

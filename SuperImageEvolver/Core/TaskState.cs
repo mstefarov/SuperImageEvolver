@@ -12,6 +12,10 @@ namespace SuperImageEvolver {
 
         public DNA BestMatch;
 
+        public ProjectOptions ProjectOptions = new ProjectOptions {
+            Matte = Color.Transparent,
+            MaxOverlap = 8
+        };
         public int ImprovementCounter, MutationCounter;
 
         public Bitmap OriginalImage;

@@ -55,6 +55,7 @@
     <Compile Include="Canvas.Designer.cs">
       <DependentUpon>Canvas.cs</DependentUpon>
     </Compile>
+    <Compile Include="Core\ProjectOptions.cs" />
     <Compile Include="DiffCanvas.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -182,6 +183,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Icons\layer-shape-polygon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Icons\gear.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

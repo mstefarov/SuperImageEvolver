@@ -32,11 +32,6 @@ namespace SuperImageEvolver {
 
         public bool PreserveAspectRatio { get; set; }
         public bool EnableRotation { get; set; }
-        public int MaxOverlap { get; set; }
-
-        public TranslateMutator() {
-            MaxOverlap = 6;
-        }
 
         public DNA Mutate( Random rand, DNA oldDNA, TaskState task ) {
             DNA newDNA = new DNA( oldDNA );
@@ -73,19 +68,18 @@ namespace SuperImageEvolver {
                 case 8:
                 case 9:
                     shape.PreviousState = shape.Clone() as Shape;
-                    ChangeColor( rand, shape );
+                    ChangeColor( rand, shape, task );
                     newDNA.LastMutation = MutationType.ReplaceColor;
                     break;
                 case 10:
                     MutatorHelper.SwapShapes( rand, newDNA );
-                    newDNA.LastMutation = MutationType.SwapShapes;
                     break;
                 case 11:
                     shape.PreviousState = shape.Clone() as Shape;
                     MoveShape( rand, shape, task );
                     ScaleShape( rand, shape, task );
-                    ChangeColor( rand, shape );
-                    newDNA.LastMutation = MutationType.ReplaceShape;
+                    ChangeColor( rand, shape, task );
+                    newDNA.LastMutation = MutationType.Transform;
                     break;
                 case 12:
                 case 13:
@@ -101,7 +95,7 @@ namespace SuperImageEvolver {
                     break;
                 case 15:
                     shape.PreviousState = shape.Clone() as Shape;
-                    ChangeColor( rand, shape );
+                    ChangeColor( rand, shape, task );
                     newDNA.LastMutation = MutationType.ReplaceColor;
                     break;
             }
@@ -112,9 +106,10 @@ namespace SuperImageEvolver {
 
         void MoveShape( Random rand, Shape shape, TaskState task ) {
             RectangleF rect = shape.GetBoundaries();
+            int maxOverlap = task.ProjectOptions.MaxOverlap;
             PointF delta = new PointF {
-                X = Next( rand, -rect.X - MaxOverlap, task.ImageWidth - rect.Right + MaxOverlap ),
-                Y = Next( rand, -rect.Y - MaxOverlap, task.ImageHeight - rect.Bottom + MaxOverlap )
+                X = rand.NextFloat( -rect.X - maxOverlap, task.ImageWidth - rect.Right + maxOverlap ),
+                Y = rand.NextFloat( -rect.Y - maxOverlap, task.ImageHeight - rect.Bottom + maxOverlap )
             };
             for( int i = 0; i < shape.Points.Length; i++ ) {
                 shape.Points[i].X += delta.X;
@@ -125,9 +120,10 @@ namespace SuperImageEvolver {
 
         void ScaleShape( Random rand, Shape shape, TaskState task ) {
             RectangleF rect = shape.GetBoundaries();
+            int maxOverlap = task.ProjectOptions.MaxOverlap;
 
-            int maxWidth = (int)(Math.Min( rect.X, task.ImageWidth - rect.Right ) + rect.Width) + MaxOverlap * 2;
-            int maxHeight = (int)(Math.Min( rect.Y, task.ImageHeight - rect.Bottom ) + rect.Height) + MaxOverlap * 2;
+            int maxWidth = (int)(Math.Min( rect.X, task.ImageWidth - rect.Right ) + rect.Width) + maxOverlap * 2;
+            int maxHeight = (int)(Math.Min( rect.Y, task.ImageHeight - rect.Bottom ) + rect.Height) + maxOverlap * 2;
 
             double newWidthRatio = rand.Next( 3, maxWidth + 1 ) / rect.Width;
             double newHeightRatio = rand.Next( 3, maxHeight + 1 ) / rect.Height;
@@ -149,20 +145,20 @@ namespace SuperImageEvolver {
         }
 
 
-        static void ChangeColor( Random rand, Shape shape ) {
+        static void ChangeColor( Random rand, Shape shape, TaskState task ) {
             shape.PreviousState = shape.Clone() as Shape;
             switch( rand.Next( 4 ) ) {
                 case 0:
-                    shape.Color = Color.FromArgb( (byte)rand.Next( 1,256 ), shape.Color.R, shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( rand.NextByte( task.ProjectOptions.MinAlpha, 256 ), shape.Color.R, shape.Color.G, shape.Color.B );
                     break;
                 case 1:
-                    shape.Color = Color.FromArgb( shape.Color.A, (byte)rand.Next( 256 ), shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( shape.Color.A, rand.NextByte(), shape.Color.G, shape.Color.B );
                     break;
                 case 2:
-                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, (byte)rand.Next( 256 ), shape.Color.B );
+                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, rand.NextByte(), shape.Color.B );
                     break;
                 case 3:
-                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, shape.Color.G, (byte)rand.Next( 256 ) );
+                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, shape.Color.G, rand.NextByte() );
                     break;
             }
         }
@@ -184,17 +180,11 @@ namespace SuperImageEvolver {
                 shape.Points[i].Y = (float)(rectCenter.Y + alignedX * Math.Sin( rotation ) + alignedY * Math.Cos( rotation ));
             }
         }
-
-
-        static float Next( Random rand, double min, double max ) {
-            return (float)(rand.NextDouble() * (max - min) + min);
-        }
         
 
         object ICloneable.Clone() {
             return new TranslateMutator {
                 EnableRotation = EnableRotation,
-                MaxOverlap = MaxOverlap,
                 PreserveAspectRatio = PreserveAspectRatio
             };
         }

@@ -30,7 +30,6 @@
             System.Windows.Forms.ToolStripSeparator separator3;
             System.Windows.Forms.ToolStripSeparator separator5;
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.picOriginal = new System.Windows.Forms.PictureBox();
             this.picBestMatch = new SuperImageEvolver.Canvas();
             this.cmBestMatch = new System.Windows.Forms.ContextMenuStrip( this.components );
             this.cmBestMatchZoom = new System.Windows.Forms.ToolStripMenuItem();
@@ -54,6 +53,7 @@
             this.cmDiffInvert = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDiffShowColor = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDiffExaggerate = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmDiffShowLastChange = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.bEditEvaluatorSettings = new System.Windows.Forms.Button();
             this.bEditMutatorSettings = new System.Windows.Forms.Button();
@@ -94,14 +94,15 @@
             this.bExportVectors = new System.Windows.Forms.ToolStripMenuItem();
             this.menuHelp = new System.Windows.Forms.ToolStripDropDownButton();
             this.bHelpListModules = new System.Windows.Forms.ToolStripMenuItem();
-            this.cmDiffShowLastChange = new System.Windows.Forms.ToolStripMenuItem();
+            this.picOriginal = new System.Windows.Forms.PictureBox();
+            this.menuOptions = new System.Windows.Forms.ToolStripDropDownButton();
+            this.bProjectOptions = new System.Windows.Forms.ToolStripMenuItem();
             separator1 = new System.Windows.Forms.ToolStripSeparator();
             separator4 = new System.Windows.Forms.ToolStripSeparator();
             separator2 = new System.Windows.Forms.ToolStripSeparator();
             separator3 = new System.Windows.Forms.ToolStripSeparator();
             separator5 = new System.Windows.Forms.ToolStripSeparator();
             this.flowLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).BeginInit();
             this.cmBestMatch.SuspendLayout();
             this.cmDiff.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -109,6 +110,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nVertices)).BeginInit();
             this.pStatistics.SuspendLayout();
             this.toolStrip.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).BeginInit();
             this.SuspendLayout();
             // 
             // separator1
@@ -155,14 +157,6 @@
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding( 0, 2, 0, 0 );
             this.flowLayoutPanel1.Size = new System.Drawing.Size( 882, 461 );
             this.flowLayoutPanel1.TabIndex = 3;
-            // 
-            // picOriginal
-            // 
-            this.picOriginal.Location = new System.Drawing.Point( 3, 5 );
-            this.picOriginal.Name = "picOriginal";
-            this.picOriginal.Size = new System.Drawing.Size( 35, 38 );
-            this.picOriginal.TabIndex = 2;
-            this.picOriginal.TabStop = false;
             // 
             // picBestMatch
             // 
@@ -282,7 +276,7 @@
             this.cmDiffExaggerate,
             this.cmDiffShowLastChange} );
             this.cmDiff.Name = "cmBestMatch";
-            this.cmDiff.Size = new System.Drawing.Size( 172, 136 );
+            this.cmDiff.Size = new System.Drawing.Size( 172, 114 );
             // 
             // cmDiffZoom
             // 
@@ -375,6 +369,14 @@
             this.cmDiffExaggerate.Size = new System.Drawing.Size( 171, 22 );
             this.cmDiffExaggerate.Text = "Exaggerate";
             this.cmDiffExaggerate.CheckedChanged += new System.EventHandler( this.cmDiffExaggerate_CheckedChanged );
+            // 
+            // cmDiffShowLastChange
+            // 
+            this.cmDiffShowLastChange.CheckOnClick = true;
+            this.cmDiffShowLastChange.Name = "cmDiffShowLastChange";
+            this.cmDiffShowLastChange.Size = new System.Drawing.Size( 171, 22 );
+            this.cmDiffShowLastChange.Text = "Show Last Change";
+            this.cmDiffShowLastChange.Click += new System.EventHandler( this.cmDiffShowLastChange_Click );
             // 
             // panel1
             // 
@@ -623,6 +625,7 @@
             separator4,
             this.menuExport,
             separator5,
+            this.menuOptions,
             this.menuHelp} );
             this.toolStrip.Location = new System.Drawing.Point( 0, 0 );
             this.toolStrip.Name = "toolStrip";
@@ -827,17 +830,35 @@
             // bHelpListModules
             // 
             this.bHelpListModules.Name = "bHelpListModules";
-            this.bHelpListModules.Size = new System.Drawing.Size( 141, 22 );
+            this.bHelpListModules.Size = new System.Drawing.Size( 152, 22 );
             this.bHelpListModules.Text = "List Modules";
             this.bHelpListModules.Click += new System.EventHandler( this.bHelpListModules_Click );
             // 
-            // cmDiffShowLastChange
+            // picOriginal
             // 
-            this.cmDiffShowLastChange.CheckOnClick = true;
-            this.cmDiffShowLastChange.Name = "cmDiffShowLastChange";
-            this.cmDiffShowLastChange.Size = new System.Drawing.Size( 171, 22 );
-            this.cmDiffShowLastChange.Text = "Show Last Change";
-            this.cmDiffShowLastChange.Click += new System.EventHandler( this.cmDiffShowLastChange_Click );
+            this.picOriginal.Location = new System.Drawing.Point( 3, 5 );
+            this.picOriginal.Name = "picOriginal";
+            this.picOriginal.Size = new System.Drawing.Size( 35, 38 );
+            this.picOriginal.TabIndex = 2;
+            this.picOriginal.TabStop = false;
+            // 
+            // menuOptions
+            // 
+            this.menuOptions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.menuOptions.DropDownItems.AddRange( new System.Windows.Forms.ToolStripItem[] {
+            this.bProjectOptions} );
+            this.menuOptions.Image = global::SuperImageEvolver.Properties.Resources.gear;
+            this.menuOptions.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.menuOptions.Name = "menuOptions";
+            this.menuOptions.Size = new System.Drawing.Size( 29, 22 );
+            this.menuOptions.Text = "toolStripDropDownButton1";
+            // 
+            // bProjectOptions
+            // 
+            this.bProjectOptions.Name = "bProjectOptions";
+            this.bProjectOptions.Size = new System.Drawing.Size( 156, 22 );
+            this.bProjectOptions.Text = "Project Options";
+            this.bProjectOptions.Click += new System.EventHandler( this.bProjectOptions_Click );
             // 
             // MainForm
             // 
@@ -851,7 +872,6 @@
             this.Name = "MainForm";
             this.Text = "Super Image Evolver";
             this.flowLayoutPanel1.ResumeLayout( false );
-            ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).EndInit();
             this.cmBestMatch.ResumeLayout( false );
             this.cmDiff.ResumeLayout( false );
             this.panel1.ResumeLayout( false );
@@ -862,6 +882,7 @@
             this.pStatistics.PerformLayout();
             this.toolStrip.ResumeLayout( false );
             this.toolStrip.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).EndInit();
             this.ResumeLayout( false );
             this.PerformLayout();
 
@@ -935,6 +956,8 @@
         private System.Windows.Forms.ToolStripMenuItem cmDiffInvert;
         private System.Windows.Forms.ToolStripMenuItem cmDiffExaggerate;
         private System.Windows.Forms.ToolStripMenuItem cmDiffShowLastChange;
+        private System.Windows.Forms.ToolStripDropDownButton menuOptions;
+        private System.Windows.Forms.ToolStripMenuItem bProjectOptions;
     }
 }
 

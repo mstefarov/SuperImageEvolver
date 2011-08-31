@@ -21,12 +21,10 @@ namespace SuperImageEvolver {
 
     sealed class HardishMutator : IMutator {
 
-        public int MaxOverlap { get; set; }
         public int MaxPosDelta { get; set; }
         public int MaxColorDelta { get; set; }
 
         public HardishMutator() {
-            MaxOverlap = 6;
             MaxPosDelta = 10;
             MaxColorDelta = 10;
         }
@@ -51,20 +49,20 @@ namespace SuperImageEvolver {
             int colorDelta = (byte)rand.Next( 1, MaxColorDelta + 1 ) * (rand.Next( 2 ) == 0 ? 1 : -1);
             switch( rand.Next( 10 ) ) {
                 case 0:
-                    shape.Color = Color.FromArgb( Math.Max( 1, Math.Min( 255, shape.Color.A + colorDelta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
-                    dna.LastMutation = MutationType.ReplaceColor;
+                    shape.Color = Color.FromArgb( Math.Max( task.ProjectOptions.MinAlpha, Math.Min( 255, shape.Color.A + colorDelta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
+                    dna.LastMutation = MutationType.AdjustColor;
                     break;
                 case 1:
                     shape.Color = Color.FromArgb( shape.Color.A, Math.Max( 0, Math.Min( 255, shape.Color.R + colorDelta ) ), shape.Color.G, shape.Color.B );
-                    dna.LastMutation = MutationType.ReplaceColor;
+                    dna.LastMutation = MutationType.AdjustColor;
                     break;
                 case 2:
                     shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, Math.Max( 0, Math.Min( 255, shape.Color.G + colorDelta ) ), shape.Color.B );
-                    dna.LastMutation = MutationType.ReplaceColor;
+                    dna.LastMutation = MutationType.AdjustColor;
                     break;
                 case 3:
                     shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, shape.Color.G, Math.Max( 0, Math.Min( 255, shape.Color.B + colorDelta ) ) );
-                    dna.LastMutation = MutationType.ReplaceColor;
+                    dna.LastMutation = MutationType.AdjustColor;
                     break;
 
                 default:
@@ -78,6 +76,7 @@ namespace SuperImageEvolver {
                             shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
                         }
                     }
+                    dna.LastMutation = MutationType.AdjustPoints;
                     break;
             }
         }
@@ -85,21 +84,22 @@ namespace SuperImageEvolver {
 
         PointF MutatePoint( Random rand, DNA dna, PointF point, TaskState task ) {
             float posDelta = (float)rand.NextDouble() * MaxPosDelta * (rand.Next( 2 ) == 0 ? 1 : -1);
+            int maxOverlap = task.ProjectOptions.MaxOverlap;
             switch( rand.Next( 5 ) ) {
                 case 0:
                 case 1:
-                    point.X = Math.Max( -MaxOverlap, Math.Min( task.ImageWidth - 1 + MaxOverlap, point.X + posDelta ) );
-                    dna.LastMutation = MutationType.ReplacePoint;
+                    point.X = Math.Max( -maxOverlap, Math.Min( task.ImageWidth - 1 + maxOverlap, point.X + posDelta ) );
+                    dna.LastMutation = MutationType.AdjustPoint;
                     break;
                 case 2:
                 case 3:
-                    point.Y = Math.Max( -MaxOverlap, Math.Min( task.ImageHeight - 1 + MaxOverlap, point.Y + posDelta ) );
-                    dna.LastMutation = MutationType.ReplacePoint;
+                    point.Y = Math.Max( -maxOverlap, Math.Min( task.ImageHeight - 1 + maxOverlap, point.Y + posDelta ) );
+                    dna.LastMutation = MutationType.AdjustPoint;
                     break;
                 case 4:
-                    point.X = Math.Max( -MaxOverlap, Math.Min( task.ImageWidth - 1 + MaxOverlap, point.X + posDelta ) );
-                    point.Y = Math.Max( -MaxOverlap, Math.Min( task.ImageHeight - 1 + MaxOverlap, point.Y + posDelta ) );
-                    dna.LastMutation = MutationType.ReplacePoints;
+                    point.X = Math.Max( -maxOverlap, Math.Min( task.ImageWidth - 1 + maxOverlap, point.X + posDelta ) );
+                    point.Y = Math.Max( -maxOverlap, Math.Min( task.ImageHeight - 1 + maxOverlap, point.Y + posDelta ) );
+                    dna.LastMutation = MutationType.AdjustPoints;
                     break;
             }
             return point;
@@ -108,7 +108,6 @@ namespace SuperImageEvolver {
 
         object ICloneable.Clone() {
             return new HardishMutator {
-                MaxOverlap = MaxOverlap,
                 MaxColorDelta = MaxColorDelta,
                 MaxPosDelta = MaxPosDelta
             };
