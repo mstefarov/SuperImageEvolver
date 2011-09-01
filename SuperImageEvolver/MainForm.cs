@@ -606,6 +606,7 @@ SinceImproved: {7} / {6}",
             ModuleSettingsDisplay md = new ModuleSettingsDisplay( State.ProjectOptions );
             if( md.ShowDialog() == DialogResult.OK ) {
                 State.ProjectOptions = (ProjectOptions)md.Module;
+                BackColor = State.ProjectOptions.BackColor;
             }
         }
     }
