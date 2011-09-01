@@ -52,14 +52,14 @@ namespace SuperImageEvolver {
                 if( EmphasisAmount == 2 ) {
                     maxDivergence = 3L * task.ImageWidth * task.ImageHeight * 255L * 255L;
                 } else {
-                    maxDivergence = (long)(3L * task.ImageWidth * task.ImageHeight * Math.Pow( 255, EmphasisAmount ));
+                    maxDivergence = 3L * task.ImageWidth * task.ImageHeight * Math.Pow( 255, EmphasisAmount );
                 }
             } else {
                 maxDivergence = 3L * task.ImageWidth * task.ImageHeight * 255L;
             }
 
-            long sum = 0;
-            long roundedMax = (long)(max * maxDivergence + 1);
+            double sum = 0;
+            double roundedMax = (max * maxDivergence + 1);
             using( Graphics g = Graphics.FromImage( testImage ) ) {
                 g.Clear( Color.White );
                 g.SmoothingMode = (Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
@@ -97,7 +97,7 @@ namespace SuperImageEvolver {
                             int b = Math.Abs( *originalPointer - *testPointer );
                             int g = Math.Abs( originalPointer[1] - testPointer[1] );
                             int r = Math.Abs( originalPointer[2] - testPointer[2] );
-                            sum += (long)(Math.Pow( r, EmphasisAmount ) + Math.Pow( g, EmphasisAmount ) + Math.Pow( b, EmphasisAmount ));
+                            sum += Math.Pow( r, EmphasisAmount ) + Math.Pow( g, EmphasisAmount ) + Math.Pow( b, EmphasisAmount );
                             originalPointer += 4;
                             testPointer += 4;
                         }

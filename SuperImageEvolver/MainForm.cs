@@ -64,6 +64,8 @@ namespace SuperImageEvolver {
                 cInitializer.SelectedIndex = 1;
                 cMutator.SelectedIndex = 1;
                 cEvaluator.SelectedIndex = 2;
+                Reset();
+                State.SetEvaluator( State.Evaluator );
             };
 
             FormClosing += delegate {
@@ -77,8 +79,8 @@ namespace SuperImageEvolver {
 
             clonedOriginal = (Bitmap)State.OriginalImage.Clone();
             State.OriginalImageData = clonedOriginal.LockBits( new Rectangle( Point.Empty, State.OriginalImage.Size ),
-                                                       ImageLockMode.ReadOnly,
-                                                       PixelFormat.Format32bppArgb );
+                                                               ImageLockMode.ReadOnly,
+                                                               PixelFormat.Format32bppArgb );
             State.ImageWidth = State.OriginalImage.Width;
             State.ImageHeight = State.OriginalImage.Height;
 
@@ -98,7 +100,7 @@ namespace SuperImageEvolver {
 
         void Run() {
             Random rand = new Random();
-            Bitmap testCanvas = new Bitmap( State.ImageWidth,State.ImageHeight );
+            Bitmap testCanvas = new Bitmap( State.ImageWidth, State.ImageHeight );
 
             while( !stopped ) {
                 Interlocked.Increment( ref State.MutationCounter );
@@ -205,6 +207,7 @@ SinceImproved: {7} / {6}",
             State.MutationLog.Clear();
             LastMutationtCounter = 0;
             State.MutationCounter = 0;
+            State.LastImprovementMutationCount = 0;
             State.BestMatch = State.Initializer.Initialize( new Random(), State );
         }
 
@@ -328,6 +331,7 @@ SinceImproved: {7} / {6}",
                     State.SetEvaluator( new LumaEvaluator( true ) ); break;
             }
             picBestMatch.Invalidate();
+            graphWindow1.Invalidate();
         }
 
 
@@ -457,6 +461,7 @@ SinceImproved: {7} / {6}",
         private void bRestart_Click( object sender, EventArgs e ) {
             if( stopped ) {
                 Reset();
+                State.SetEvaluator( State.Evaluator );
                 UpdateTick();
                 picDiff.Invalidate();
                 picBestMatch.Invalidate();
@@ -496,6 +501,7 @@ SinceImproved: {7} / {6}",
             ModuleSettingsDisplay md = new ModuleSettingsDisplay( State.Evaluator );
             if( md.ShowDialog() == DialogResult.OK ) {
                 State.SetEvaluator( (IEvaluator)md.Module );
+                graphWindow1.Invalidate();
             }
         }
 
@@ -511,7 +517,7 @@ SinceImproved: {7} / {6}",
             foreach( ToolStripMenuItem item in cmBestMatchZoom.DropDownItems ) {
                 item.Checked = false;
             }
-            picBestMatch.Zoom = float.Parse(e.ClickedItem.Tag.ToString());
+            picBestMatch.Zoom = float.Parse( e.ClickedItem.Tag.ToString() );
         }
 
         private void cmDiffZoom_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
@@ -572,15 +578,15 @@ SinceImproved: {7} / {6}",
                         Shape shape = new Shape {
                             Points = new PointF[State.Vertices]
                         };
-                        int r = Int32.Parse(parts[offset]);
-                        int g = Int32.Parse(parts[offset+1]);
-                        int b = Int32.Parse(parts[offset+2]);
-                        int a = (int)(float.Parse(parts[offset+3])*255);
+                        int r = Int32.Parse( parts[offset] );
+                        int g = Int32.Parse( parts[offset + 1] );
+                        int b = Int32.Parse( parts[offset + 2] );
+                        int a = (int)(float.Parse( parts[offset + 3] ) * 255);
                         shape.Color = Color.FromArgb( a, r, g, b );
                         offset += 4;
                         for( int v = 0; v < State.Vertices; v++ ) {
                             float X = float.Parse( parts[offset] );
-                            float Y = float.Parse( parts[offset+1] );
+                            float Y = float.Parse( parts[offset + 1] );
                             shape.Points[v] = new PointF( X, Y );
                             offset += 2;
                         }
