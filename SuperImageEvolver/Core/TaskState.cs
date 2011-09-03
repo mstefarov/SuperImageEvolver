@@ -50,34 +50,54 @@ namespace SuperImageEvolver {
             }
         }
 
-        public void Serialize( Stream stream ) {
-            BinaryWriter writer = new BinaryWriter( stream );
-            writer.Write( FormatVersion );
-            writer.Write( Shapes );
-            writer.Write( Vertices );
-            BestMatch.Serialize( stream );
-            writer.Write( ImprovementCounter );
-            writer.Write( MutationCounter );
-            writer.Write( DateTime.UtcNow.Subtract( TaskStart ).Ticks );
 
-            //ModuleManager.WriteModule( Initializer, stream );
-            //ModuleManager.WriteModule( Mutator, stream );
-            //ModuleManager.WriteModule( Evaluator, stream );
+        public NBTCompound SerializeNBT() {
+            NBTCompound tag = new NBTCompound( "SuperImageEvolver" );
+            tag.Append( "FormatVersion", FormatVersion );
+            tag.Append( "Shapes", Shapes );
+            tag.Append( "Vertices", Vertices );
+            tag.Append( "ImprovementCounter", ImprovementCounter );
+            tag.Append( "MutationCounter", MutationCounter );
+            tag.Append( "ElapsedTime", DateTime.UtcNow.Subtract( TaskStart ).Ticks );
 
+            tag.Append( ProjectOptions.SerializeNBT() );
+
+            tag.Append( "BestMatch", BestMatch.SerializeNBT() );
+            tag.Append( "BestMatchDivergence", BestMatch.Divergence );
+
+            NBTag initializerTag = ModuleManager.WriteModule( "Initializer", Initializer );
+            tag.Append( initializerTag );
+
+            NBTag mutatorTag = ModuleManager.WriteModule( "Mutator", Mutator );
+            tag.Append( mutatorTag );
+
+            NBTag evaluatorTag = ModuleManager.WriteModule( "Evaluator", Evaluator );
+            tag.Append( evaluatorTag );
+
+            byte[] imageData;
             using( MemoryStream ms = new MemoryStream() ) {
                 OriginalImage.Save( ms, ImageFormat.Png );
                 ms.Flush();
-                writer.Write( (int)ms.Length );
-                writer.Write( ms.GetBuffer() );
+                imageData = new byte[ms.Length];
+                Buffer.BlockCopy( ms.GetBuffer(), 0, imageData, 0, imageData.Length );
             }
 
-            writer.Write( MutationCounts.Count );
-            foreach( MutationType mtype in Enum.GetValues(typeof(MutationType)) ) {
-                writer.Write( mtype.ToString() );
-                writer.Write( MutationCounts[mtype] );
-                writer.Write( (int)MutationImprovements[mtype] );
+            tag.Append( "ImageData", imageData );
+
+            List<NBTCompound> statTags = new List<NBTCompound>();
+            foreach( MutationType mtype in Enum.GetValues( typeof( MutationType ) ) ) {
+                NBTCompound stat = new NBTCompound( "MutationTypeStat" );
+                stat.Append( "Type", mtype.ToString() );
+                stat.Append( "Count", MutationCounts[mtype] );
+                stat.Append( "Sum", MutationImprovements[mtype] );
+                statTags.Add( stat );
             }
+            var stats = new NBTList( "MutationStats", NBTType.Compound, statTags.ToArray() );
+            tag.Append( stats );
+
+            return tag;
         }
+
 
         public TaskState() {
             foreach( MutationType mutype in Enum.GetValues( typeof( MutationType ) ) ) {

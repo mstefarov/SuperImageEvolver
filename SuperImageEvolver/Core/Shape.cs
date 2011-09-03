@@ -17,13 +17,15 @@ namespace SuperImageEvolver {
         public Shape PreviousState;
 
 
-        public void Serialize( Stream stream ) {
-            BinaryWriter writer = new BinaryWriter( stream );
-            writer.Write( Color.ToArgb() );
+        public NBTag SerializeNBT() {
+            NBTCompound tag = new NBTCompound("Shape");
+            tag.Append( "Color", Color );
+            NBTList points = new NBTList( "Points", NBTType.PointF, Points.Length );
             for( int p = 0; p < Points.Length; p++ ) {
-                writer.Write( Points[p].X );
-                writer.Write( Points[p].Y );
+                points[p] = new NBTag( NBTType.PointF, null, Points[p], points );
             }
+            tag.Append( points );
+            return tag;
         }
 
         public Shape( Stream stream, int vertices ) {

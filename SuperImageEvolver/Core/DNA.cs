@@ -22,10 +22,13 @@ namespace SuperImageEvolver {
         public Shape[] Shapes;
         public double Divergence;
 
-        public void Serialize( Stream stream ) {
+
+        public NBTag SerializeNBT() {
+            NBTList tag = new NBTList( "Shapes", NBTType.Compound, Shapes.Length );
             for( int i = 0; i < Shapes.Length; i++ ) {
-                Shapes[i].Serialize( stream );
+                tag[i] = Shapes[i].SerializeNBT();
             }
+            return tag;
         }
 
         public DNA( Stream stream, int shapes, int vertices ) {

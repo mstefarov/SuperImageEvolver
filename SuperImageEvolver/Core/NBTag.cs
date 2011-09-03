@@ -38,6 +38,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Drawing;
+using System.Linq;
 
 namespace SuperImageEvolver {
     public enum NBTType : byte {
@@ -91,8 +92,10 @@ namespace SuperImageEvolver {
         #region Shorthand Contructors
 
         public NBTag Append( NBTag tag ) {
+            if( tag == null ) throw new ArgumentNullException( "tag" );
+            if( tag == this ) throw new InvalidOperationException( "Cannot append tag to itself." );
             if( !(this is NBTCompound) ) {
-                return null;
+                throw new InvalidOperationException( "Can only append tags to compound tags." );
             }
             tag.Parent = this;
             this[tag.Name] = tag;
@@ -124,10 +127,12 @@ namespace SuperImageEvolver {
         }
 
         public NBTag Append( string name, byte[] value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             return Append( new NBTag( NBTType.Bytes, name, value, this ) );
         }
 
         public NBTag Append( string name, string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             return Append( new NBTag( NBTType.String, name, value, this ) );
         }
 
@@ -148,7 +153,8 @@ namespace SuperImageEvolver {
         }
 
         public NBTag Append( string name, params NBTag[] tags ) {
-            NBTCompound compound = new NBTCompound { Name = name };
+            if( tags == null ) throw new ArgumentNullException( "tags" );
+            NBTCompound compound = new NBTCompound( name );
             foreach( NBTag tag in tags ) {
                 compound.Tags.Add( tag.Name, tag );
             }
@@ -280,9 +286,7 @@ namespace SuperImageEvolver {
 
                 case NBTType.Compound:
                     NBTag childTag;
-                    NBTCompound compound = new NBTCompound {
-                        Type = NBTType.Compound,
-                        Name = name,
+                    NBTCompound compound = new NBTCompound( name ) {
                         Parent = parent
                     };
                     while( true ) {
@@ -306,38 +310,6 @@ namespace SuperImageEvolver {
         public static string ReadString( BinaryReader reader ) {
             short stringLength = reader.ReadInt16();
             return Encoding.UTF8.GetString( reader.ReadBytes( stringLength ) );
-        }
-
-        public string GetFullName() {
-            string fullName = ToString();
-            NBTag tag = this;
-            while( tag.Parent != null ) {
-                tag = tag.Parent;
-                fullName = tag + "." + fullName;
-            }
-            return fullName;
-        }
-
-        public string GetIndentedName() {
-            string fullName = ToString();
-            NBTag tag = this;
-            while( tag.Parent != null ) {
-                tag = tag.Parent;
-                fullName = "    " + fullName;
-            }
-            return fullName;
-        }
-
-        public override string ToString() {
-            return Type + " " + Name;
-        }
-
-        public string ToString( bool recursive ) {
-            string output = GetIndentedName() + Environment.NewLine;
-            foreach( NBTag tag in this ) {
-                output += tag.ToString( recursive );
-            }
-            return output;
         }
 
         #endregion
@@ -433,7 +405,7 @@ namespace SuperImageEvolver {
 
                 case NBTType.Compound:
                     foreach( NBTag tag in this ) {
-                        tag.WriteTag( writer );
+                        tag.WriteTag( writer, true );
                     }
                     writer.Write( (byte)NBTType.End );
                     return;
@@ -574,6 +546,64 @@ namespace SuperImageEvolver {
             public void Dispose() { }
         }
         #endregion
+
+
+        #region ToString
+        public string GetFullName() {
+            string fullName = ToString();
+            NBTag tag = this;
+            while( tag.Parent != null ) {
+                tag = tag.Parent;
+                fullName = tag + "." + fullName;
+            }
+            return fullName;
+        }
+
+        public string GetIndentedName() {
+            string fullName = ToString();
+            NBTag tag = this;
+            while( tag.Parent != null ) {
+                tag = tag.Parent;
+                fullName = "    " + fullName;
+            }
+            return fullName;
+        }
+
+        public override string ToString() {
+            switch( Type ) {
+                case NBTType.Bytes:
+                    return String.Format( "{0}[{1}] {2}", Type, GetBytes().Length, Name );
+                case NBTType.List:
+                    NBTList list = (NBTList)this;
+                    return String.Format( "{0}<{1}>[{2}] {3}", Type, list.ListType, list.Tags.Length, Name );
+                case NBTType.Compound:
+                    NBTCompound comp = (NBTCompound)this;
+                    return String.Format( "{0}[{1}] {2}", Type, comp.Tags.Count, Name );
+                case NBTType.String:
+                    if( Payload != null ) {
+                        return String.Format( "{0} {1} = \"{2}\"", Type, Name, Payload );
+                    } else {
+                        return String.Format( "{0} {1} = null", Type, Name );
+                    }
+                default:
+                    return String.Format( "{0} {1} = {2}", Type, Name, Payload );
+            }
+        }
+
+        public string ToString( bool recursive ) {
+            string output = GetIndentedName() + Environment.NewLine;
+            NBTList thisList = this as NBTList;
+            if( thisList == null ||
+                thisList.ListType == NBTType.Compound ||
+                thisList.ListType == NBTType.Bytes ||
+                thisList.ListType == NBTType.List ) {
+                foreach( NBTag tag in this ) {
+                    output += tag.ToString( recursive );
+                }
+            }
+            return output;
+        }
+        #endregion
     }
 
 
@@ -588,13 +618,21 @@ namespace SuperImageEvolver {
             Tags = new NBTag[count];
         }
         public NBTList( string name, NBTType type, Array payloads ) {
+            if( payloads == null ) throw new ArgumentNullException( "payloads" );
             Name = name;
             Type = NBTType.List;
             ListType = type;
-            Tags = new NBTag[payloads.Length];
-            int i = 0;
-            foreach( object payload in payloads ) {
-                Tags[i++] = new NBTag( ListType, null, payload, this );
+            if( ListType == NBTType.Compound ) {
+                if( !(payloads is NBTCompound[]) ) throw new ArgumentException( "Expected NBTCompound[]", "payloads" );
+                Tags = (NBTCompound[])payloads.Clone();
+            } else if( ListType == NBTType.List ) {
+                if( !(payloads is NBTList[]) ) throw new ArgumentException( "Expected NBTList[]", "payloads" );
+                Tags = (NBTList[])payloads.Clone();
+            } else {
+                Tags = new NBTag[payloads.Length];
+                for( int i = 0; i < Tags.Length; i++ ) {
+                    Tags[i] = new NBTag( ListType, null, payloads.GetValue( i ), this );
+                }
             }
         }
         public NBTag[] Tags;
@@ -603,8 +641,9 @@ namespace SuperImageEvolver {
 
 
     public sealed class NBTCompound : NBTag {
-        public NBTCompound() {
+        public NBTCompound( string name ) {
             Type = NBTType.Compound;
+            Name = name;
         }
         public readonly Dictionary<string, NBTag> Tags = new Dictionary<string, NBTag>();
     }

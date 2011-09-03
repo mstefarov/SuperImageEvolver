@@ -416,18 +416,14 @@ SinceImproved: {7} / {6}",
         private void bSaveProjectAs_Click( object sender, EventArgs e ) {
             if( saveTaskDialog.ShowDialog() == DialogResult.OK ) {
                 State.ProjectFileName = saveTaskDialog.FileName;
-                using( FileStream fs = File.Create( saveTaskDialog.FileName ) ) {
-                    State.Serialize( fs );
-                }
-                Text = "SuperImageEvolver | " + Path.GetFileName( State.ProjectFileName ) + " | saved " + DateTime.Now;
+                bSaveProject_Click( sender, e );
             }
         }
 
         private void bSaveProject_Click( object sender, EventArgs e ) {
             if( State.ProjectFileName != null ) {
-                using( FileStream fs = File.Create( State.ProjectFileName ) ) {
-                    State.Serialize( fs );
-                }
+                NBTag tag = State.SerializeNBT();
+                tag.WriteTag( State.ProjectFileName );
                 Text = "SuperImageEvolver | " + Path.GetFileName( State.ProjectFileName ) + " | saved " + DateTime.Now;
             } else {
                 bSaveProjectAs_Click( sender, e );
@@ -479,9 +475,6 @@ SinceImproved: {7} / {6}",
 
         #endregion
 
-        private void bCopyStats_Click( object sender, EventArgs e ) {
-            Clipboard.SetText( tMutationStats.Text );
-        }
 
         private void bEditInitializerSetting_Click( object sender, EventArgs e ) {
             ModuleSettingsDisplay md = new ModuleSettingsDisplay( State.Initializer );
@@ -613,6 +606,17 @@ SinceImproved: {7} / {6}",
             if( md.ShowDialog() == DialogResult.OK ) {
                 State.ProjectOptions = (ProjectOptions)md.Module;
                 BackColor = State.ProjectOptions.BackColor;
+            }
+        }
+
+        private void MainForm_FormClosing( object sender, FormClosingEventArgs e ) {
+            DialogResult result = MessageBox.Show( "Any unsaved progress will be lost. Exit now?",
+                                                   "Exiting SuperImageEvolver",
+                                                   MessageBoxButtons.OKCancel,
+                                                   MessageBoxIcon.Warning,
+                                                   MessageBoxDefaultButton.Button2 );
+            if( result != DialogResult.OK ) {
+                e.Cancel = true;
             }
         }
     }

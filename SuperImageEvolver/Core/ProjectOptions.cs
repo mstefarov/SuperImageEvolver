@@ -27,5 +27,14 @@ namespace SuperImageEvolver {
                 BackColor = BackColor
             };
         }
+
+        public NBTag SerializeNBT() {
+            NBTCompound tag = new NBTCompound( "ProjectOptions" );
+            tag.Append( "Matte", Matte );
+            tag.Append( "BackColor", BackColor );
+            tag.Append( "MaxOverlap", MaxOverlap );
+            tag.Append( "MinAlpha", MinAlpha );
+            return tag;
+        }
     }
 }

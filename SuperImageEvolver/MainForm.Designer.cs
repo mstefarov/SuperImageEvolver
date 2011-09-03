@@ -30,6 +30,7 @@
             System.Windows.Forms.ToolStripSeparator separator3;
             System.Windows.Forms.ToolStripSeparator separator5;
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.picOriginal = new System.Windows.Forms.PictureBox();
             this.picBestMatch = new SuperImageEvolver.Canvas();
             this.cmBestMatch = new System.Windows.Forms.ContextMenuStrip( this.components );
             this.cmBestMatchZoom = new System.Windows.Forms.ToolStripMenuItem();
@@ -70,7 +71,6 @@
             this.nPolygons = new System.Windows.Forms.NumericUpDown();
             this.nVertices = new System.Windows.Forms.NumericUpDown();
             this.pStatistics = new System.Windows.Forms.Panel();
-            this.bCopyStats = new System.Windows.Forms.Button();
             this.tMutationStats = new System.Windows.Forms.TextBox();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.bNewProject = new System.Windows.Forms.ToolStripButton();
@@ -92,17 +92,17 @@
             this.bExportDNA = new System.Windows.Forms.ToolStripMenuItem();
             this.bExportImage = new System.Windows.Forms.ToolStripMenuItem();
             this.bExportVectors = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuHelp = new System.Windows.Forms.ToolStripDropDownButton();
-            this.bHelpListModules = new System.Windows.Forms.ToolStripMenuItem();
-            this.picOriginal = new System.Windows.Forms.PictureBox();
             this.menuOptions = new System.Windows.Forms.ToolStripDropDownButton();
             this.bProjectOptions = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuHelp = new System.Windows.Forms.ToolStripDropDownButton();
+            this.bHelpListModules = new System.Windows.Forms.ToolStripMenuItem();
             separator1 = new System.Windows.Forms.ToolStripSeparator();
             separator4 = new System.Windows.Forms.ToolStripSeparator();
             separator2 = new System.Windows.Forms.ToolStripSeparator();
             separator3 = new System.Windows.Forms.ToolStripSeparator();
             separator5 = new System.Windows.Forms.ToolStripSeparator();
             this.flowLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).BeginInit();
             this.cmBestMatch.SuspendLayout();
             this.cmDiff.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -110,7 +110,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nVertices)).BeginInit();
             this.pStatistics.SuspendLayout();
             this.toolStrip.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).BeginInit();
             this.SuspendLayout();
             // 
             // separator1
@@ -157,6 +156,14 @@
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding( 0, 2, 0, 0 );
             this.flowLayoutPanel1.Size = new System.Drawing.Size( 882, 461 );
             this.flowLayoutPanel1.TabIndex = 3;
+            // 
+            // picOriginal
+            // 
+            this.picOriginal.Location = new System.Drawing.Point( 3, 5 );
+            this.picOriginal.Name = "picOriginal";
+            this.picOriginal.Size = new System.Drawing.Size( 35, 38 );
+            this.picOriginal.TabIndex = 2;
+            this.picOriginal.TabStop = false;
             // 
             // picBestMatch
             // 
@@ -580,22 +587,11 @@
             // 
             // pStatistics
             // 
-            this.pStatistics.Controls.Add( this.bCopyStats );
             this.pStatistics.Controls.Add( this.tMutationStats );
             this.pStatistics.Location = new System.Drawing.Point( 342, 5 );
             this.pStatistics.Name = "pStatistics";
             this.pStatistics.Size = new System.Drawing.Size( 200, 215 );
             this.pStatistics.TabIndex = 9;
-            // 
-            // bCopyStats
-            // 
-            this.bCopyStats.Location = new System.Drawing.Point( 122, 187 );
-            this.bCopyStats.Name = "bCopyStats";
-            this.bCopyStats.Size = new System.Drawing.Size( 75, 23 );
-            this.bCopyStats.TabIndex = 8;
-            this.bCopyStats.Text = "Copy Stats";
-            this.bCopyStats.UseVisualStyleBackColor = true;
-            this.bCopyStats.Click += new System.EventHandler( this.bCopyStats_Click );
             // 
             // tMutationStats
             // 
@@ -604,7 +600,7 @@
             this.tMutationStats.Multiline = true;
             this.tMutationStats.Name = "tMutationStats";
             this.tMutationStats.ReadOnly = true;
-            this.tMutationStats.Size = new System.Drawing.Size( 194, 178 );
+            this.tMutationStats.Size = new System.Drawing.Size( 194, 209 );
             this.tMutationStats.TabIndex = 7;
             // 
             // toolStrip
@@ -817,31 +813,6 @@
             this.bExportVectors.Text = "Best Match Vectors";
             this.bExportVectors.Click += new System.EventHandler( this.bExportVectors_Click );
             // 
-            // menuHelp
-            // 
-            this.menuHelp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.menuHelp.DropDownItems.AddRange( new System.Windows.Forms.ToolStripItem[] {
-            this.bHelpListModules} );
-            this.menuHelp.Image = global::SuperImageEvolver.Properties.Resources.information;
-            this.menuHelp.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.menuHelp.Name = "menuHelp";
-            this.menuHelp.Size = new System.Drawing.Size( 29, 22 );
-            // 
-            // bHelpListModules
-            // 
-            this.bHelpListModules.Name = "bHelpListModules";
-            this.bHelpListModules.Size = new System.Drawing.Size( 152, 22 );
-            this.bHelpListModules.Text = "List Modules";
-            this.bHelpListModules.Click += new System.EventHandler( this.bHelpListModules_Click );
-            // 
-            // picOriginal
-            // 
-            this.picOriginal.Location = new System.Drawing.Point( 3, 5 );
-            this.picOriginal.Name = "picOriginal";
-            this.picOriginal.Size = new System.Drawing.Size( 35, 38 );
-            this.picOriginal.TabIndex = 2;
-            this.picOriginal.TabStop = false;
-            // 
             // menuOptions
             // 
             this.menuOptions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -860,6 +831,23 @@
             this.bProjectOptions.Text = "Project Options";
             this.bProjectOptions.Click += new System.EventHandler( this.bProjectOptions_Click );
             // 
+            // menuHelp
+            // 
+            this.menuHelp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.menuHelp.DropDownItems.AddRange( new System.Windows.Forms.ToolStripItem[] {
+            this.bHelpListModules} );
+            this.menuHelp.Image = global::SuperImageEvolver.Properties.Resources.information;
+            this.menuHelp.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.menuHelp.Name = "menuHelp";
+            this.menuHelp.Size = new System.Drawing.Size( 29, 22 );
+            // 
+            // bHelpListModules
+            // 
+            this.bHelpListModules.Name = "bHelpListModules";
+            this.bHelpListModules.Size = new System.Drawing.Size( 141, 22 );
+            this.bHelpListModules.Text = "List Modules";
+            this.bHelpListModules.Click += new System.EventHandler( this.bHelpListModules_Click );
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -871,7 +859,9 @@
             this.ForeColor = System.Drawing.Color.Gray;
             this.Name = "MainForm";
             this.Text = "Super Image Evolver";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.MainForm_FormClosing );
             this.flowLayoutPanel1.ResumeLayout( false );
+            ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).EndInit();
             this.cmBestMatch.ResumeLayout( false );
             this.cmDiff.ResumeLayout( false );
             this.panel1.ResumeLayout( false );
@@ -882,7 +872,6 @@
             this.pStatistics.PerformLayout();
             this.toolStrip.ResumeLayout( false );
             this.toolStrip.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).EndInit();
             this.ResumeLayout( false );
             this.PerformLayout();
 
@@ -908,7 +897,6 @@
         private DiffCanvas picDiff;
         private GraphWindow graphWindow1;
         private System.Windows.Forms.Panel pStatistics;
-        private System.Windows.Forms.Button bCopyStats;
         private System.Windows.Forms.Button bEditMutatorSettings;
         private System.Windows.Forms.Button bEditInitializerSetting;
         private System.Windows.Forms.Button bEditEvaluatorSettings;

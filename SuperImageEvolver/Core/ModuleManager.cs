@@ -135,24 +135,25 @@ namespace SuperImageEvolver {
 
         #region Writing Modules
 
-        public static NBTag WriteModule( IModule module ) {
-            NBTCompound root = new NBTCompound();
+        public static NBTag WriteModule( string tagName, IModule module ) {
+            NBTCompound root = new NBTCompound( tagName );
             IModuleFactory factory = GetFactoryByType( module.GetType() );
             root.Append( "ID", factory.ID );
 
             bool auto = !factory.ModuleType.GetCustomAttributes( typeof( DisableAutoSerializationAttribute ), true ).Any();
             if( auto ) {
-                root.Append( "Properties", WriteModuleProperties( module ) );
+                root.Append( WriteModuleProperties( module ) );
             }
-            NBTag customSettings = root.Append( "Settings", new NBTCompound() );
+            NBTag customSettings = new NBTCompound( "Settings" );
             module.WriteSettings( customSettings );
+            root.Append( customSettings );
             return root;
         }
 
 
         public static NBTag WriteModuleProperties( IModule module ) {
             IModuleFactory factory = GetFactoryByType( module.GetType() );
-            NBTag root = new NBTCompound();
+            NBTag root = new NBTCompound("Properties");
             foreach( PropertyInfo p in factory.ModuleType.GetProperties() ) {
                 object val = p.GetValue( module, null );
                 if( p.PropertyType == typeof( byte ) ) {
