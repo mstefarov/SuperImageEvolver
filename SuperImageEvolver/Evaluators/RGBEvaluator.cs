@@ -46,22 +46,22 @@ namespace SuperImageEvolver {
         public void Initialize( TaskState state ) { }
 
 
-        public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState task, double max ) {
+        public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState state, double max ) {
 
             if( Emphasized ) {
                 if( EmphasisAmount == 2 ) {
-                    maxDivergence = 3L * task.ImageWidth * task.ImageHeight * 255L * 255L;
+                    maxDivergence = 3L * state.ImageWidth * state.ImageHeight * 255L * 255L;
                 } else {
-                    maxDivergence = 3L * task.ImageWidth * task.ImageHeight * Math.Pow( 255, EmphasisAmount );
+                    maxDivergence = 3L * state.ImageWidth * state.ImageHeight * Math.Pow( 255, EmphasisAmount );
                 }
             } else {
-                maxDivergence = 3L * task.ImageWidth * task.ImageHeight * 255L;
+                maxDivergence = 3L * state.ImageWidth * state.ImageHeight * 255L;
             }
 
             double sum = 0;
             double roundedMax = (max * maxDivergence + 1);
             using( Graphics g = Graphics.FromImage( testImage ) ) {
-                g.Clear( Color.White );
+                g.Clear( state.ProjectOptions.Matte );
                 g.SmoothingMode = (Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
 
                 for( int i = 0; i < dna.Shapes.Length; i++ ) {
@@ -76,10 +76,10 @@ namespace SuperImageEvolver {
 
             if( Emphasized ) {
                 if( EmphasisAmount == 2 ) {
-                    for( int i = 0; i < task.ImageHeight; i++ ) {
-                        originalPointer = (byte*)task.OriginalImageData.Scan0 + task.OriginalImageData.Stride * i;
+                    for( int i = 0; i < state.ImageHeight; i++ ) {
+                        originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
                         testPointer = (byte*)testData.Scan0 + testData.Stride * i;
-                        for( int j = 0; j < task.ImageWidth; j++ ) {
+                        for( int j = 0; j < state.ImageWidth; j++ ) {
                             int b = Math.Abs( *originalPointer - *testPointer );
                             int g = Math.Abs( originalPointer[1] - testPointer[1] );
                             int r = Math.Abs( originalPointer[2] - testPointer[2] );
@@ -90,10 +90,10 @@ namespace SuperImageEvolver {
                         if( sum > roundedMax ) break;
                     }
                 } else {
-                    for( int i = 0; i < task.ImageHeight; i++ ) {
-                        originalPointer = (byte*)task.OriginalImageData.Scan0 + task.OriginalImageData.Stride * i;
+                    for( int i = 0; i < state.ImageHeight; i++ ) {
+                        originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
                         testPointer = (byte*)testData.Scan0 + testData.Stride * i;
-                        for( int j = 0; j < task.ImageWidth; j++ ) {
+                        for( int j = 0; j < state.ImageWidth; j++ ) {
                             int b = Math.Abs( *originalPointer - *testPointer );
                             int g = Math.Abs( originalPointer[1] - testPointer[1] );
                             int r = Math.Abs( originalPointer[2] - testPointer[2] );
@@ -105,10 +105,10 @@ namespace SuperImageEvolver {
                     }
                 }
             } else {
-                for( int i = 0; i < task.ImageHeight; i++ ) {
-                    originalPointer = (byte*)task.OriginalImageData.Scan0 + task.OriginalImageData.Stride * i;
+                for( int i = 0; i < state.ImageHeight; i++ ) {
+                    originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
                     testPointer = (byte*)testData.Scan0 + testData.Stride * i;
-                    for( int j = 0; j < task.ImageWidth; j++ ) {
+                    for( int j = 0; j < state.ImageWidth; j++ ) {
                         int b = Math.Abs( *originalPointer - *testPointer );
                         int g = Math.Abs( originalPointer[1] - testPointer[1] );
                         int r = Math.Abs( originalPointer[2] - testPointer[2] );

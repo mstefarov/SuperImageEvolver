@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace SuperImageEvolver {
     public sealed partial class GraphWindow : UserControl {
@@ -38,11 +39,11 @@ namespace SuperImageEvolver {
         }
 
 
-        public void SetData( PointF[] input, bool logXAxis, bool logYAxis, bool normalizeYStart, bool normalizeYEnd, bool normalizeXStart, bool normalizeXEnd ) {
-            if( input.Length < 2 ) {
+        public void SetData( IList<PointF> input, bool logXAxis, bool logYAxis, bool normalizeYStart, bool normalizeYEnd, bool normalizeXStart, bool normalizeXEnd ) {
+            if( input.Count < 2 ) {
                 Points = null;
             }
-            PointF[] output = new PointF[input.Length];
+            PointF[] output = new PointF[input.Count];
 
             float minX = float.MaxValue,
                   maxX = float.MinValue,
@@ -50,7 +51,7 @@ namespace SuperImageEvolver {
                   maxY = float.MinValue;
 
 
-            for( int i = 0; i < input.Length; i++ ) {
+            for( int i = 0; i < input.Count; i++ ) {
                 minX = Math.Min( minX, input[i].X );
                 maxX = Math.Max( maxX, input[i].X );
                 minY = Math.Min( minY, input[i].Y );
@@ -69,7 +70,7 @@ namespace SuperImageEvolver {
 
             double logScaleMultiplier = 1 / Math.Log( LogSteepness + 1 );
 
-            for( int i = 0; i < input.Length; i++ ) {
+            for( int i = 0; i < input.Count; i++ ) {
                 output[i].X = input[i].X * multiplierX + constantX; // normalize
                 if( logXAxis ) {
                     output[i].X = (float)(Math.Log( output[i].X * LogSteepness + 1 ) * logScaleMultiplier); // scale

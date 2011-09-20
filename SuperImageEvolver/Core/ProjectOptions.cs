@@ -9,14 +9,13 @@ namespace SuperImageEvolver {
         public Color Matte { get; set; }
         public Color BackColor { get; set; }
         public int MaxOverlap { get; set; }
-        public int MinAlpha { get; set; }
+        public byte MinAlpha { get; set; }
 
         public ProjectOptions() {
-            Matte = Color.Transparent;
+            Matte = Color.White;
             BackColor = Color.Black;
             MaxOverlap = 8;
             MinAlpha = 1;
-
         }
 
         public object Clone() {
@@ -35,6 +34,13 @@ namespace SuperImageEvolver {
             tag.Append( "MaxOverlap", MaxOverlap );
             tag.Append( "MinAlpha", MinAlpha );
             return tag;
+        }
+
+        public ProjectOptions( NBTag tag ) {
+            Matte = tag["Matte"].GetColor();
+            BackColor = tag["BackColor"].GetColor();
+            MaxOverlap = tag["MaxOverlap"].GetInt();
+            MinAlpha = tag["MinAlpha"].GetByte();
         }
     }
 }

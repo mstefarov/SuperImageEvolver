@@ -107,7 +107,7 @@ namespace SuperImageEvolver {
                 e.Graphics.ScaleTransform( zoom, zoom );
                 DNA tempDNA = state.BestMatch;
                 using( Graphics g = Graphics.FromImage( canvasImage ) ) {
-                    g.Clear( Color.White );
+                    g.Clear( state.ProjectOptions.Matte );
 
                     g.SmoothingMode = (state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
                     for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
@@ -119,7 +119,7 @@ namespace SuperImageEvolver {
                                                             ImageLockMode.ReadOnly,
                                                             PixelFormat.Format32bppArgb );
                 for( int i = 0; i < canvasImage.Height; i++ ) {
-                    byte* originalPointer = (byte*)state.OriginalImageData.Scan0 + state.OriginalImageData.Stride * i;
+                    byte* originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
                     byte* testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                     for( int j = 0; j < state.ImageWidth; j++ ) {
                         if( !showColor ) {

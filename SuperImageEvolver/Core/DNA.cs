@@ -23,12 +23,24 @@ namespace SuperImageEvolver {
         public double Divergence;
 
 
-        public NBTag SerializeNBT() {
+        public DNA( NBTag tag ) {
+            Divergence = tag["Divergence"].GetDouble();
+            var shapesTag = (NBTList)tag["Shapes"];
+            Shapes = new Shape[shapesTag.Tags.Length];
+            for( int i = 0; i < Shapes.Length; i++ ) {
+                Shapes[i] = new Shape( shapesTag[i] );
+            }
+        }
+
+        public NBTag SerializeNBT( string tagName ) {
+            NBTCompound compound = new NBTCompound( tagName );
+            compound.Append( "Divergence", Divergence );
             NBTList tag = new NBTList( "Shapes", NBTType.Compound, Shapes.Length );
             for( int i = 0; i < Shapes.Length; i++ ) {
                 tag[i] = Shapes[i].SerializeNBT();
             }
-            return tag;
+            compound.Append( tag );
+            return compound;
         }
 
         public DNA( Stream stream, int shapes, int vertices ) {

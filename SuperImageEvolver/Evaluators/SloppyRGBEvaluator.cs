@@ -43,7 +43,7 @@ namespace SuperImageEvolver {
             using( Graphics g = Graphics.FromImage( halfResImage ) ) {
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 g.SmoothingMode = SmoothingMode.HighQuality;
-                g.DrawImage( state.OriginalImage, 0, 0, halfResImage.Width, halfResImage.Height );
+                g.DrawImage( state.WorkingImageCopy, 0, 0, halfResImage.Width, halfResImage.Height );
             }
             halfResData = halfResImage.LockBits( new Rectangle( Point.Empty, halfResImage.Size ),
                                                  ImageLockMode.ReadOnly,
@@ -51,21 +51,21 @@ namespace SuperImageEvolver {
         }
 
 
-        public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState task, double max ) {
+        public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState state, double max ) {
             if( Emphasized ) {
                 if( EmphasisAmount == 2 ) {
-                    maxDivergence = 3L * task.ImageWidth / 2L * task.ImageHeight / 2L * 255L * 255L;
+                    maxDivergence = 3L * state.ImageWidth / 2L * state.ImageHeight / 2L * 255L * 255L;
                 } else {
-                    maxDivergence = (long)(3L * task.ImageWidth / 2L * task.ImageHeight / 2L * Math.Pow( 255, EmphasisAmount ));
+                    maxDivergence = (long)(3L * state.ImageWidth / 2L * state.ImageHeight / 2L * Math.Pow( 255, EmphasisAmount ));
                 }
             } else {
-                maxDivergence = 3L * task.ImageWidth / 2L * task.ImageHeight / 2L * 255L;
+                maxDivergence = 3L * state.ImageWidth / 2L * state.ImageHeight / 2L * 255L;
             }
 
             long sum = 0;
             long roundedMax = (long)(max * maxDivergence + 1);
             using( Graphics g = Graphics.FromImage( testImage ) ) {
-                g.Clear( Color.White );
+                g.Clear( state.ProjectOptions.Matte );
                 g.Transform = new Matrix( .5f, 0, 0, .5f, 0, 0 );
                 g.SmoothingMode = (Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
                 for( int i = 0; i < dna.Shapes.Length; i++ ) {
@@ -76,10 +76,10 @@ namespace SuperImageEvolver {
             BitmapData testData = testImage.LockBits( new Rectangle( Point.Empty, testImage.Size ),
                                                       ImageLockMode.ReadOnly,
                                                       PixelFormat.Format32bppArgb );
-            for( int i = 0; i < task.ImageHeight / 2; i++ ) {
+            for( int i = 0; i < state.ImageHeight / 2; i++ ) {
                 byte* originalPointer = (byte*)halfResData.Scan0 + halfResData.Stride * i;
                 byte* testPointer = (byte*)testData.Scan0 + testData.Stride * i;
-                for( int j = 0; j < task.ImageWidth / 2; j++ ) {
+                for( int j = 0; j < state.ImageWidth / 2; j++ ) {
                     int b = Math.Abs( *originalPointer - *testPointer );
                     int g = Math.Abs( originalPointer[1] - testPointer[1] );
                     int r = Math.Abs( originalPointer[2] - testPointer[2] );

@@ -17,8 +17,6 @@ namespace SuperImageEvolver {
 
         readonly Thread[] threads = new Thread[Environment.ProcessorCount];
 
-        Bitmap clonedOriginal;
-
 
         public MainForm( string[] args ) {
             InitializeComponent();
@@ -29,22 +27,8 @@ namespace SuperImageEvolver {
                 Bitmap image;
                 if( args.Length == 1 ) {
                     image = (Bitmap)Image.FromFile( args[0] );
-                } else if( File.Exists( "original.png" ) ) {
-                    image = (Bitmap)Image.FromFile( "original.png" );
-                } else {
-                    OpenFileDialog fd = new OpenFileDialog {
-                        Filter = "Images|*.jpg;*.png;*.bmp;*.gif;*.tiff;*.tga"
-                    };
-                    if( fd.ShowDialog() == DialogResult.OK ) {
-                        image = (Bitmap)Image.FromFile( fd.FileName );
-                    } else {
-                        Application.Exit();
-                        return;
-                    }
                 }
 
-                State = new TaskState();
-                SetImage( image );
                 /*
                 cInitializer.Items.Clear();
                 foreach( var preset in ModuleManager.GetPresets( ModuleFunction.Initializer ) ) {
@@ -65,7 +49,6 @@ namespace SuperImageEvolver {
                 cMutator.SelectedIndex = 1;
                 cEvaluator.SelectedIndex = 2;
                 Reset();
-                State.SetEvaluator( State.Evaluator );
             };
 
             FormClosing += delegate {
@@ -77,16 +60,31 @@ namespace SuperImageEvolver {
         void SetImage( Bitmap image ) {
             State.OriginalImage = image;
 
-            clonedOriginal = (Bitmap)State.OriginalImage.Clone();
-            State.OriginalImageData = clonedOriginal.LockBits( new Rectangle( Point.Empty, State.OriginalImage.Size ),
-                                                               ImageLockMode.ReadOnly,
-                                                               PixelFormat.Format32bppArgb );
+            if( State.WorkingImageCopy != null ) {
+                State.WorkingImageCopy.Dispose();
+            }
+            State.WorkingImageCopy = new Bitmap( image.Width, image.Height );
+            using( Graphics g = Graphics.FromImage( State.WorkingImageCopy ) ) {
+                g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+                g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                g.Clear( State.ProjectOptions.Matte );
+                g.DrawImageUnscaled( image, Point.Empty );
+            }
+
+            if( State.WorkingImageData != null ) {
+                State.WorkingImageCopyClone.UnlockBits( State.WorkingImageData );
+                State.WorkingImageCopyClone.Dispose();
+            }
+            State.WorkingImageCopyClone = (Bitmap)State.WorkingImageCopy.Clone();
+            State.WorkingImageData = State.WorkingImageCopyClone.LockBits( new Rectangle( Point.Empty, State.OriginalImage.Size ),
+                                                                           ImageLockMode.ReadOnly,
+                                                                           PixelFormat.Format32bppArgb );
             State.ImageWidth = State.OriginalImage.Width;
             State.ImageHeight = State.OriginalImage.Height;
 
-            picOriginal.Width = State.ImageWidth;
-            picOriginal.Height = State.ImageHeight;
-            picOriginal.Image = State.OriginalImage;
+            picOriginal.Width = State.WorkingImageCopy.Width;
+            picOriginal.Height = State.WorkingImageCopy.Height;
+            picOriginal.Image = State.WorkingImageCopy;
 
             picBestMatch.State = State;
             picBestMatch.Invalidate();
@@ -97,6 +95,25 @@ namespace SuperImageEvolver {
             picDiff.Invalidate();
         }
 
+
+        object autosaveLock = new object();
+        DateTime autosaveNext;
+        TimeSpan autosaveInterval = TimeSpan.FromSeconds( 30 );
+
+
+        void AutoSave() {
+            if( State.ProjectFileName != null && DateTime.UtcNow > autosaveNext ) {
+                lock( autosaveLock ) {
+                    if( DateTime.UtcNow > autosaveNext ) {
+                        State.SerializeNBT().WriteTag( State.ProjectFileName + ".autosave.sie" );
+                        autosaveNext = DateTime.UtcNow.Add( autosaveInterval );
+                        Invoke( (Action)delegate {
+                            Text = "SuperImageEvolver | " + Path.GetFileName( State.ProjectFileName ) + " | autosaved " + DateTime.Now;
+                        } );
+                    }
+                }
+            }
+        }
 
         void Run() {
             Random rand = new Random();
@@ -117,21 +134,20 @@ namespace SuperImageEvolver {
                             State.MutationCounts[mutation.LastMutation]++;
                             State.MutationImprovements[mutation.LastMutation] += improvement;
 
-                            State.MutationLog.Add( new Mutation( State.BestMatch, mutation ) );
+                            State.MutationDataLog.Add( new PointF{
+                                X = (float)DateTime.UtcNow.Subtract( State.TaskStart ).TotalSeconds,
+                                Y = (float)mutation.Divergence
+                            });
                             State.BestMatch = mutation;
                             State.LastImprovementTime = DateTime.UtcNow;
                             State.LastImprovementMutationCount = State.MutationCounter;
                             picBestMatch.Invalidate();
                             picDiff.Invalidate();
-                            PointF[] points = new PointF[State.MutationLog.Count];
-                            for( int i = 0; i < points.Length; i++ ) {
-                                points[i].X = (float)State.MutationLog[i].Timestamp.Subtract( State.TaskStart ).TotalSeconds;
-                                points[i].Y = (float)State.MutationLog[i].NewDNA.Divergence;
-                            }
-                            graphWindow1.SetData( points, true, true, false, false, true, true );
+                            graphWindow1.SetData( State.MutationDataLog, true, true, false, false, true, true );
                         }
                     }
                 }
+                AutoSave();
             }
         }
 
@@ -204,7 +220,7 @@ SinceImproved: {7} / {6}",
             State.Shapes = (int)nPolygons.Value;
             State.Vertices = (int)nVertices.Value;
             State.ImprovementCounter = 0;
-            State.MutationLog.Clear();
+            State.MutationDataLog.Clear();
             LastMutationtCounter = 0;
             State.MutationCounter = 0;
             State.LastImprovementMutationCount = 0;
@@ -432,18 +448,16 @@ SinceImproved: {7} / {6}",
 
 
         private void bOpenProject_Click( object sender, EventArgs e ) {
-            if( !stopped ) Stop();
             OpenFileDialog fd = new OpenFileDialog {
                 Filter = "SIE - SuperImageEvolver task|*.sie",
                 Title = "Open Existing Project"
             };
             if( fd.ShowDialog() == DialogResult.OK ) {
-                using( FileStream fs = File.OpenRead( fd.FileName ) ) {
-                    State = new TaskState( fs );
-                }
+                if( !stopped ) Stop();
+                NBTag taskData = NBTag.ReadFile( fd.FileName );
+                State = new TaskState( taskData );
                 State.ProjectFileName = fd.FileName;
                 SetImage( State.OriginalImage );
-                Start( false );
             }
         }
 
@@ -602,10 +616,16 @@ SinceImproved: {7} / {6}",
 
         private void bProjectOptions_Click( object sender, EventArgs e ) {
             if( State == null ) return;
-            ModuleSettingsDisplay md = new ModuleSettingsDisplay( State.ProjectOptions );
+            ProjectOptions clonedOption = (ProjectOptions)State.ProjectOptions.Clone();
+            ModuleSettingsDisplay md = new ModuleSettingsDisplay( clonedOption );
             if( md.ShowDialog() == DialogResult.OK ) {
+                bool oldStopped = stopped;
+                if( !oldStopped ) Stop();
                 State.ProjectOptions = (ProjectOptions)md.Module;
                 BackColor = State.ProjectOptions.BackColor;
+                SetImage( State.OriginalImage );
+                graphWindow1.Invalidate();
+                if( !oldStopped ) Start( false );
             }
         }
 

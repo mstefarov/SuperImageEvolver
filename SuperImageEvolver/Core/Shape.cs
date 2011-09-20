@@ -17,6 +17,15 @@ namespace SuperImageEvolver {
         public Shape PreviousState;
 
 
+        public Shape( NBTag tag ) {
+            Color = tag["Color"].GetColor();
+            var pointsTag = (NBTList)tag["Points"];
+            Points = new PointF[pointsTag.Tags.Length];
+            for( int i = 0; i < Points.Length; i++ ) {
+                Points[i] = pointsTag[i].GetPointF();
+            }
+        }
+
         public NBTag SerializeNBT() {
             NBTCompound tag = new NBTCompound("Shape");
             tag.Append( "Color", Color );

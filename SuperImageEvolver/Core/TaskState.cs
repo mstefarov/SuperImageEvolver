@@ -16,10 +16,12 @@ namespace SuperImageEvolver {
         public int ImprovementCounter, MutationCounter;
 
         public Bitmap OriginalImage;
-        public BitmapData OriginalImageData;
+        public Bitmap WorkingImageCopy;
+        public Bitmap WorkingImageCopyClone;
+        public BitmapData WorkingImageData;
         public string ProjectFileName;
 
-        public readonly List<Mutation> MutationLog = new List<Mutation>();
+        public readonly List<PointF> MutationDataLog = new List<PointF>();
 
         public IInitializer Initializer = new SegmentedInitializer(Color.Black);
         public IMutator Mutator = new HardMutator();
@@ -62,8 +64,7 @@ namespace SuperImageEvolver {
 
             tag.Append( ProjectOptions.SerializeNBT() );
 
-            tag.Append( "BestMatch", BestMatch.SerializeNBT() );
-            tag.Append( "BestMatchDivergence", BestMatch.Divergence );
+            tag.Append( BestMatch.SerializeNBT("BestMatch") );
 
             NBTag initializerTag = ModuleManager.WriteModule( "Initializer", Initializer );
             tag.Append( initializerTag );
@@ -76,7 +77,9 @@ namespace SuperImageEvolver {
 
             byte[] imageData;
             using( MemoryStream ms = new MemoryStream() ) {
-                OriginalImage.Save( ms, ImageFormat.Png );
+                lock( OriginalImage ) {
+                    OriginalImage.Save( ms, ImageFormat.Png );
+                }
                 ms.Flush();
                 imageData = new byte[ms.Length];
                 Buffer.BlockCopy( ms.GetBuffer(), 0, imageData, 0, imageData.Length );
@@ -98,6 +101,35 @@ namespace SuperImageEvolver {
             return tag;
         }
 
+        public TaskState( NBTag tag ) {
+            if( FormatVersion != tag["FormatVersion"].GetInt() ) throw new FormatException( "Incompatible format." );
+            Shapes = tag["Shapes"].GetInt();
+            Vertices = tag["Vertices"].GetInt();
+            ImprovementCounter = tag["ImprovementCounter"].GetInt();
+            MutationCounter = tag["MutationCounter"].GetInt();
+            TaskStart = DateTime.UtcNow.Subtract( TimeSpan.FromTicks( tag["ElapsedTime"].GetLong() ) );
+
+            ProjectOptions = new ProjectOptions( tag["ProjectOptions"] );
+
+            BestMatch = new DNA( tag["BestMatch"] );
+
+            Initializer = (IInitializer)ModuleManager.ReadModule( tag["Initializer"] );
+            Mutator = (IMutator)ModuleManager.ReadModule( tag["Mutator"] );
+            Evaluator = (IEvaluator)ModuleManager.ReadModule( tag["Evaluator"] );
+
+            byte[] imageBytes = tag["ImageData"].GetBytes();
+            using( MemoryStream ms = new MemoryStream( imageBytes ) ) {
+                OriginalImage = new Bitmap( ms );
+            }
+
+            var statsTag = (NBTList)tag["MutationStats"];
+            foreach( NBTag stat in statsTag ) {
+                MutationType mutationType = (MutationType)Enum.Parse( typeof( MutationType ), stat["Type"].GetString() );
+                MutationCounts[mutationType] = stat["Count"].GetInt();
+                MutationImprovements[mutationType] = stat["Sum"].GetDouble();
+            }
+        }
+
 
         public TaskState() {
             foreach( MutationType mutype in Enum.GetValues( typeof( MutationType ) ) ) {
@@ -106,35 +138,6 @@ namespace SuperImageEvolver {
             }
         }
 
-        public TaskState( Stream stream ) : this() {
-            BinaryReader reader = new BinaryReader( stream );
-            if( reader.ReadInt32() != FormatVersion ) throw new FormatException();
-            Shapes = reader.ReadInt32();
-            Vertices = reader.ReadInt32();
-            BestMatch = new DNA( stream, Shapes, Vertices );
-            ImprovementCounter = reader.ReadInt32();
-            MutationCounter = reader.ReadInt32();
-            TaskStart = DateTime.UtcNow.Subtract( TimeSpan.FromTicks( reader.ReadInt64() ) );
-
-            Initializer = (IInitializer)ModuleManager.ReadModule( stream );
-            Mutator = (IMutator)ModuleManager.ReadModule( stream );
-            Evaluator = (IEvaluator)ModuleManager.ReadModule( stream );
-
-            int imageLength = reader.ReadInt32();
-            using( MemoryStream ms = new MemoryStream( reader.ReadBytes( imageLength ) ) ) {
-                OriginalImage = new Bitmap( Image.FromStream( ms ) );
-            }
-
-            int statCount = reader.ReadInt32();
-            for( int i = 0; i < statCount; i++ ) {
-                string statName = reader.ReadString();
-                try {
-                    MutationType mtype = (MutationType)Enum.Parse( typeof( MutationType ), statName );
-                    MutationCounts[mtype] = reader.ReadInt32();
-                    MutationImprovements[mtype] = reader.ReadDouble();
-                } catch( ArgumentException ) { }
-            }
-        }
 
         public XDocument SerializeSVG() {
             XDocument doc = new XDocument();

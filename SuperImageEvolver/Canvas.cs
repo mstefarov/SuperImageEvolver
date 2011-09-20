@@ -81,8 +81,8 @@ namespace SuperImageEvolver {
 
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g = e.Graphics;
-            g.Clear( Color.White );
             if( state != null && state.BestMatch != null ) {
+                g.Clear( state.ProjectOptions.Matte );
                 e.Graphics.ScaleTransform( zoom, zoom );
                 LastChangePen.Width = 2 / zoom;
                 DNA tempDNA = state.BestMatch;
@@ -103,6 +103,7 @@ namespace SuperImageEvolver {
                     }
                 }
             } else {
+                g.Clear( Color.White );
                 SizeF align = g.MeasureString( PlaceholderText, Font );
                 g.DrawString( PlaceholderText, Font, Brushes.Black, Width / 2 - align.Width / 2, Height / 2 - align.Height / 2 );
             }
