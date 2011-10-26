@@ -108,7 +108,7 @@ namespace SuperImageEvolver {
                         State.SerializeNBT().WriteTag( State.ProjectFileName + ".autosave.sie" );
                         autosaveNext = DateTime.UtcNow.Add( autosaveInterval );
                         Invoke( (Action)delegate {
-                            Text = "SuperImageEvolver | " + Path.GetFileName( State.ProjectFileName ) + " | autosaved " + DateTime.Now;
+                            Text = Path.GetFileName( State.ProjectFileName ) + " | SuperImageEvolver | autosaved " + DateTime.Now;
                         } );
                     }
                 }
@@ -187,16 +187,17 @@ SinceImproved: {7} / {6}",
                    State.MutationCounter - State.LastImprovementMutationCount );
                 StringBuilder sb = new StringBuilder( Environment.NewLine );
                 sb.Append( Environment.NewLine );
+                double totalImprovements = State.MutationImprovements.Values.Sum();
                 foreach( MutationType type in Enum.GetValues( typeof( MutationType ) ) ) {
                     double rate = 0;
                     if( State.MutationCounts[type] != 0 ) {
                         rate = State.MutationImprovements[type] / State.MutationCounts[type];
                     }
-                    sb.AppendFormat( "{0} - {1}*{2:0.0000} ({3:0.0000})",
+                    sb.AppendFormat( "{0} - {1}*{2:0.0000} ({3:0.0}%)",
                                      type,
                                      State.MutationCounts[type],
                                      rate * 100,
-                                     State.MutationImprovements[type] * 100 );
+                                     (State.MutationImprovements[type] / totalImprovements) * 100 );
                     sb.Append( Environment.NewLine );
                 }
                 tMutationStats.Text += sb.ToString();
@@ -425,7 +426,7 @@ SinceImproved: {7} / {6}",
 
 
         readonly SaveFileDialog saveTaskDialog = new SaveFileDialog {
-            Filter = "SIE - SuperImageEvolver task|*.sie",
+            Filter = "SuperImageEvolver project|*.sie",
             Title = "Save Project As..."
         };
 
@@ -440,7 +441,7 @@ SinceImproved: {7} / {6}",
             if( State.ProjectFileName != null ) {
                 NBTag tag = State.SerializeNBT();
                 tag.WriteTag( State.ProjectFileName );
-                Text = "SuperImageEvolver | " + Path.GetFileName( State.ProjectFileName ) + " | saved " + DateTime.Now;
+                Text = Path.GetFileName( State.ProjectFileName ) + " | SuperImageEvolver | saved " + DateTime.Now;
             } else {
                 bSaveProjectAs_Click( sender, e );
             }
@@ -449,14 +450,19 @@ SinceImproved: {7} / {6}",
 
         private void bOpenProject_Click( object sender, EventArgs e ) {
             OpenFileDialog fd = new OpenFileDialog {
-                Filter = "SIE - SuperImageEvolver task|*.sie",
+                Filter = "SuperImageEvolver project|*.sie",
                 Title = "Open Existing Project"
             };
             if( fd.ShowDialog() == DialogResult.OK ) {
                 if( !stopped ) Stop();
                 NBTag taskData = NBTag.ReadFile( fd.FileName );
                 State = new TaskState( taskData );
-                State.ProjectFileName = fd.FileName;
+                if( fd.FileName.EndsWith( ".autosave.sie" ) ) {
+                    State.ProjectFileName = fd.FileName.Substring( 0, fd.FileName.Length - 13 );
+                } else {
+                    State.ProjectFileName = fd.FileName;
+                }
+                Text = Path.GetFileName( State.ProjectFileName ) + " | SuperImageEvolver";
                 SetImage( State.OriginalImage );
             }
         }
@@ -491,23 +497,23 @@ SinceImproved: {7} / {6}",
 
 
         private void bEditInitializerSetting_Click( object sender, EventArgs e ) {
-            ModuleSettingsDisplay md = new ModuleSettingsDisplay( State.Initializer );
+            var md = new ModuleSettingsDisplay<IInitializer>( State.Initializer );
             if( md.ShowDialog() == DialogResult.OK ) {
-                State.Initializer = (IInitializer)md.Module;
+                State.Initializer = md.Module;
             }
         }
 
         private void bEditMutatorSettings_Click( object sender, EventArgs e ) {
-            ModuleSettingsDisplay md = new ModuleSettingsDisplay( State.Mutator );
+            var md = new ModuleSettingsDisplay<IMutator>( State.Mutator );
             if( md.ShowDialog() == DialogResult.OK ) {
-                State.Mutator = (IMutator)md.Module;
+                State.Mutator = md.Module;
             }
         }
 
         private void bEditEvaluatorSettings_Click( object sender, EventArgs e ) {
-            ModuleSettingsDisplay md = new ModuleSettingsDisplay( State.Evaluator );
+            var md = new ModuleSettingsDisplay<IEvaluator>( State.Evaluator );
             if( md.ShowDialog() == DialogResult.OK ) {
-                State.SetEvaluator( (IEvaluator)md.Module );
+                State.SetEvaluator( md.Module );
                 graphWindow1.Invalidate();
             }
         }
@@ -616,12 +622,11 @@ SinceImproved: {7} / {6}",
 
         private void bProjectOptions_Click( object sender, EventArgs e ) {
             if( State == null ) return;
-            ProjectOptions clonedOption = (ProjectOptions)State.ProjectOptions.Clone();
-            ModuleSettingsDisplay md = new ModuleSettingsDisplay( clonedOption );
+            var md = new ModuleSettingsDisplay<ProjectOptions>( State.ProjectOptions );
             if( md.ShowDialog() == DialogResult.OK ) {
                 bool oldStopped = stopped;
                 if( !oldStopped ) Stop();
-                State.ProjectOptions = (ProjectOptions)md.Module;
+                State.ProjectOptions = md.Module;
                 BackColor = State.ProjectOptions.BackColor;
                 SetImage( State.OriginalImage );
                 graphWindow1.Invalidate();

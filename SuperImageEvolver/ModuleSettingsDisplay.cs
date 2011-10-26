@@ -2,17 +2,17 @@
 using System.Windows.Forms;
 
 namespace SuperImageEvolver {
-    public sealed partial class ModuleSettingsDisplay : Form {
-        public ICloneable Module {
+    public partial class ModuleSettingsDisplay<T> : Form where T : ICloneable {
+        public T Module {
             get;
             private set;
         }
 
-        public ModuleSettingsDisplay( ICloneable module ) {
+        public ModuleSettingsDisplay( T module ) {
             if( module == null ) throw new ArgumentNullException( "module" );
             InitializeComponent();
             Text = module.GetType().Name;
-            Module = (ICloneable)module.Clone();
+            Module = (T)module.Clone();
             pgGrid.SelectedObject = Module;
         }
     }

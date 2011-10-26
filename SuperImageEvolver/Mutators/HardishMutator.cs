@@ -51,33 +51,59 @@ namespace SuperImageEvolver {
                 case 0:
                     shape.Color = Color.FromArgb( Math.Max( task.ProjectOptions.MinAlpha, Math.Min( 255, shape.Color.A + colorDelta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
                     dna.LastMutation = MutationType.AdjustColor;
+                    if( rand.Next( 10 ) == 0 ) {
+                        MutateMultiplePoints( shape, rand, dna, task );
+                        dna.LastMutation = MutationType.ReplaceShape;
+                    }
                     break;
+
                 case 1:
                     shape.Color = Color.FromArgb( shape.Color.A, Math.Max( 0, Math.Min( 255, shape.Color.R + colorDelta ) ), shape.Color.G, shape.Color.B );
                     dna.LastMutation = MutationType.AdjustColor;
+                    if( rand.Next( 10 ) == 0 ) {
+                        MutateMultiplePoints( shape, rand, dna, task );
+                        dna.LastMutation = MutationType.ReplaceShape;
+                    }
                     break;
+
                 case 2:
                     shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, Math.Max( 0, Math.Min( 255, shape.Color.G + colorDelta ) ), shape.Color.B );
                     dna.LastMutation = MutationType.AdjustColor;
+                    if( rand.Next( 10 ) == 0 ) {
+                        MutateMultiplePoints( shape, rand, dna, task );
+                        dna.LastMutation = MutationType.ReplaceShape;
+                    }
                     break;
+
                 case 3:
                     shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, shape.Color.G, Math.Max( 0, Math.Min( 255, shape.Color.B + colorDelta ) ) );
                     dna.LastMutation = MutationType.AdjustColor;
+                    if( rand.Next( 10 ) == 0 ) {
+                        MutateMultiplePoints( shape, rand, dna, task );
+                        dna.LastMutation = MutationType.ReplaceShape;
+                    }
                     break;
 
                 default:
-                    int index = rand.Next( shape.Points.Length );
-                    shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
-                    if( rand.Next( 2 ) == 0 ) {
-                        index = (index + 1) % shape.Points.Length;
-                        shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
-                        if( rand.Next( 2 ) == 0 ) {
-                            index = (index + 1) % shape.Points.Length;
-                            shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
-                        }
-                    }
-                    dna.LastMutation = MutationType.AdjustPoints;
+                    MutateMultiplePoints( shape, rand, dna, task );
                     break;
+            }
+        }
+
+
+        void MutateMultiplePoints( Shape shape, Random rand, DNA dna, TaskState task ) {
+            int index = rand.Next( shape.Points.Length );
+            shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
+            if( rand.Next( 2 ) == 0 ) {
+                index = (index + 1) % shape.Points.Length;
+                shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
+                if( rand.Next( 2 ) == 0 ) {
+                    index = (index + 1) % shape.Points.Length;
+                    shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
+                }
+                dna.LastMutation = MutationType.AdjustPoints;
+            } else {
+                dna.LastMutation = MutationType.AdjustPoint;
             }
         }
 
