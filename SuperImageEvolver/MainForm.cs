@@ -463,6 +463,8 @@ SinceImproved: {7} / {6}",
                     State.ProjectFileName = fd.FileName;
                 }
                 Text = Path.GetFileName( State.ProjectFileName ) + " | SuperImageEvolver";
+                nVertices.Value = State.Vertices;
+                nPolygons.Value = State.Shapes;
                 SetImage( State.OriginalImage );
             }
         }
