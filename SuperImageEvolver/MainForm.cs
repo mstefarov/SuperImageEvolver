@@ -130,14 +130,15 @@ namespace SuperImageEvolver {
                         mutation.Divergence = State.Evaluator.CalculateDivergence( testCanvas, mutation, State, State.BestMatch.Divergence );
                         improvement = State.BestMatch.Divergence - mutation.Divergence;
                         if( improvement > 0 ) {
+                            State.HasChangedSinceSave = true;
                             State.ImprovementCounter++;
                             State.MutationCounts[mutation.LastMutation]++;
                             State.MutationImprovements[mutation.LastMutation] += improvement;
 
-                            State.MutationDataLog.Add( new PointF{
+                            State.MutationDataLog.Add( new PointF {
                                 X = (float)DateTime.UtcNow.Subtract( State.TaskStart ).TotalSeconds,
                                 Y = (float)mutation.Divergence
-                            });
+                            } );
                             State.BestMatch = mutation;
                             State.LastImprovementTime = DateTime.UtcNow;
                             State.LastImprovementMutationCount = State.MutationCounter;
@@ -226,7 +227,9 @@ SinceImproved: {7} / {6}",
             State.MutationCounter = 0;
             State.LastImprovementMutationCount = 0;
             State.BestMatch = State.Initializer.Initialize( new Random(), State );
+            State.HasChangedSinceSave = true;
         }
+
 
         void Start( bool reset ) {
             cInitializer.Enabled = false;
@@ -272,6 +275,7 @@ SinceImproved: {7} / {6}",
 
 
         private void cInitializer_SelectedIndexChanged( object sender, EventArgs e ) {
+            State.HasChangedSinceSave = true;
             switch( cInitializer.SelectedIndex ) {
                 case 0:
                     State.Initializer = new SolidColorInitializer( Color.Black ); break;
@@ -284,6 +288,7 @@ SinceImproved: {7} / {6}",
 
 
         private void cMutator_SelectedIndexChanged( object sender, EventArgs e ) {
+            State.HasChangedSinceSave = true;
             switch( cMutator.SelectedIndex ) {
                 case 0:
                     State.Mutator = new HarderMutator(); break;
@@ -335,6 +340,7 @@ SinceImproved: {7} / {6}",
 
 
         private void cEvaluator_SelectedIndexChanged( object sender, EventArgs e ) {
+            State.HasChangedSinceSave = true;
             switch( cEvaluator.SelectedIndex ) {
                 case 0:
                     State.SetEvaluator( new SloppyRGBEvaluator() ); break;
@@ -425,26 +431,13 @@ SinceImproved: {7} / {6}",
         }
 
 
-        readonly SaveFileDialog saveTaskDialog = new SaveFileDialog {
-            Filter = "SuperImageEvolver project|*.sie",
-            Title = "Save Project As..."
-        };
-
         private void bSaveProjectAs_Click( object sender, EventArgs e ) {
-            if( saveTaskDialog.ShowDialog() == DialogResult.OK ) {
-                State.ProjectFileName = saveTaskDialog.FileName;
-                bSaveProject_Click( sender, e );
-            }
+            SaveProjectAs();
         }
 
+
         private void bSaveProject_Click( object sender, EventArgs e ) {
-            if( State.ProjectFileName != null ) {
-                NBTag tag = State.SerializeNBT();
-                tag.WriteTag( State.ProjectFileName );
-                Text = Path.GetFileName( State.ProjectFileName ) + " | SuperImageEvolver | saved " + DateTime.Now;
-            } else {
-                bSaveProjectAs_Click( sender, e );
-            }
+            SaveProject();
         }
 
 
@@ -497,11 +490,32 @@ SinceImproved: {7} / {6}",
 
         #endregion
 
+        void SaveProject() {
+            if( State.ProjectFileName != null ) {
+                NBTag tag = State.SerializeNBT();
+                tag.WriteTag( State.ProjectFileName );
+                Text = Path.GetFileName( State.ProjectFileName ) + " | SuperImageEvolver | saved " + DateTime.Now;
+            } else {
+                SaveProjectAs();
+            }
+        }
+
+        void SaveProjectAs() {
+            SaveFileDialog saveTaskDialog = new SaveFileDialog {
+                Filter = "SuperImageEvolver project|*.sie",
+                Title = "Save Project As..."
+            };
+            if( saveTaskDialog.ShowDialog() == DialogResult.OK ) {
+                State.ProjectFileName = saveTaskDialog.FileName;
+                SaveProject();
+            }
+        }
 
         private void bEditInitializerSetting_Click( object sender, EventArgs e ) {
             var md = new ModuleSettingsDisplay<IInitializer>( State.Initializer );
             if( md.ShowDialog() == DialogResult.OK ) {
                 State.Initializer = md.Module;
+                State.HasChangedSinceSave = true;
             }
         }
 
@@ -509,6 +523,7 @@ SinceImproved: {7} / {6}",
             var md = new ModuleSettingsDisplay<IMutator>( State.Mutator );
             if( md.ShowDialog() == DialogResult.OK ) {
                 State.Mutator = md.Module;
+                State.HasChangedSinceSave = true;
             }
         }
 
@@ -517,6 +532,7 @@ SinceImproved: {7} / {6}",
             if( md.ShowDialog() == DialogResult.OK ) {
                 State.SetEvaluator( md.Module );
                 graphWindow1.Invalidate();
+                State.HasChangedSinceSave = true;
             }
         }
 
@@ -626,6 +642,7 @@ SinceImproved: {7} / {6}",
             if( State == null ) return;
             var md = new ModuleSettingsDisplay<ProjectOptions>( State.ProjectOptions );
             if( md.ShowDialog() == DialogResult.OK ) {
+                State.HasChangedSinceSave = true;
                 bool oldStopped = stopped;
                 if( !oldStopped ) Stop();
                 State.ProjectOptions = md.Module;
@@ -637,13 +654,22 @@ SinceImproved: {7} / {6}",
         }
 
         private void MainForm_FormClosing( object sender, FormClosingEventArgs e ) {
-            DialogResult result = MessageBox.Show( "Any unsaved progress will be lost. Exit now?",
-                                                   "Exiting SuperImageEvolver",
-                                                   MessageBoxButtons.OKCancel,
-                                                   MessageBoxIcon.Warning,
-                                                   MessageBoxDefaultButton.Button2 );
-            if( result != DialogResult.OK ) {
-                e.Cancel = true;
+            if( State != null && State.OriginalImage!= null && State.HasChangedSinceSave ) {
+                DialogResult result = MessageBox.Show( "Save changes to before exiting?",
+                                                       "Exiting SuperImageEvolver",
+                                                       MessageBoxButtons.YesNoCancel,
+                                                       MessageBoxIcon.Warning,
+                                                       MessageBoxDefaultButton.Button3 );
+                switch( result ) {
+                    case DialogResult.Yes:
+                        SaveProject();
+                        break;
+                    case DialogResult.No:
+                        break;
+                    case DialogResult.Cancel:
+                        e.Cancel = true;
+                        break;
+                }
             }
         }
     }

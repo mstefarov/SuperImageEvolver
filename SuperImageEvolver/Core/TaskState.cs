@@ -32,6 +32,8 @@ namespace SuperImageEvolver {
         public long LastImprovementMutationCount;
         public Point ClickLocation;
 
+        public bool HasChangedSinceSave = true;
+
         public const int FormatVersion = 1;
 
         public readonly object ImprovementLock = new object();
@@ -54,6 +56,7 @@ namespace SuperImageEvolver {
 
 
         public NBTCompound SerializeNBT() {
+            HasChangedSinceSave = false;
             NBTCompound tag = new NBTCompound( "SuperImageEvolver" );
             tag.Append( "FormatVersion", FormatVersion );
             tag.Append( "Shapes", Shapes );
@@ -100,6 +103,7 @@ namespace SuperImageEvolver {
 
             return tag;
         }
+
 
         public TaskState( NBTag tag ) {
             if( FormatVersion != tag["FormatVersion"].GetInt() ) throw new FormatException( "Incompatible format." );
