@@ -25,9 +25,6 @@ namespace SuperImageEvolver {
 
             Shown += delegate {
                 Bitmap image;
-                if( args.Length == 1 ) {
-                    image = (Bitmap)Image.FromFile( args[0] );
-                }
 
                 /*
                 cInitializer.Items.Clear();
@@ -49,6 +46,14 @@ namespace SuperImageEvolver {
                 cMutator.SelectedIndex = 1;
                 cEvaluator.SelectedIndex = 2;
                 Reset();
+
+                if( args.Length == 1 ) {
+                    if( args[0].EndsWith( ".sie" ) ) {
+                        OpenProject( args[0] );
+                    } else {
+                        image = (Bitmap)Image.FromFile( args[0] );
+                    }
+                }
             };
 
             FormClosing += delegate {
@@ -358,8 +363,7 @@ SinceImproved: {7} / {6}",
         }
 
 
-        #region Menu
-
+        #region Menus
 
         private void bHelpListModules_Click( object sender, EventArgs e ) {
             StringBuilder sb = new StringBuilder();
@@ -376,13 +380,16 @@ SinceImproved: {7} / {6}",
             picOriginal.Visible = bViewOriginalImage.Checked;
         }
 
+
         private void bViewBestMatchImage_Click( object sender, EventArgs e ) {
             picBestMatch.Visible = bViewBestMatchImage.Checked;
         }
 
+
         private void bViewDifferenceImage_Click( object sender, EventArgs e ) {
             picDiff.Visible = bViewDifferenceImage.Checked;
         }
+
 
         private void bViewStatistics_Click( object sender, EventArgs e ) {
             pStatistics.Visible = bViewStatistics.Checked;
@@ -447,18 +454,7 @@ SinceImproved: {7} / {6}",
                 Title = "Open Existing Project"
             };
             if( fd.ShowDialog() == DialogResult.OK ) {
-                if( !stopped ) Stop();
-                NBTag taskData = NBTag.ReadFile( fd.FileName );
-                State = new TaskState( taskData );
-                if( fd.FileName.EndsWith( ".autosave.sie" ) ) {
-                    State.ProjectFileName = fd.FileName.Substring( 0, fd.FileName.Length - 13 );
-                } else {
-                    State.ProjectFileName = fd.FileName;
-                }
-                Text = Path.GetFileName( State.ProjectFileName ) + " | SuperImageEvolver";
-                nVertices.Value = State.Vertices;
-                nPolygons.Value = State.Shapes;
-                SetImage( State.OriginalImage );
+                OpenProject(fd.FileName);
             }
         }
 
@@ -488,28 +484,6 @@ SinceImproved: {7} / {6}",
             }
         }
 
-        #endregion
-
-        void SaveProject() {
-            if( State.ProjectFileName != null ) {
-                NBTag tag = State.SerializeNBT();
-                tag.WriteTag( State.ProjectFileName );
-                Text = Path.GetFileName( State.ProjectFileName ) + " | SuperImageEvolver | saved " + DateTime.Now;
-            } else {
-                SaveProjectAs();
-            }
-        }
-
-        void SaveProjectAs() {
-            SaveFileDialog saveTaskDialog = new SaveFileDialog {
-                Filter = "SuperImageEvolver project|*.sie",
-                Title = "Save Project As..."
-            };
-            if( saveTaskDialog.ShowDialog() == DialogResult.OK ) {
-                State.ProjectFileName = saveTaskDialog.FileName;
-                SaveProject();
-            }
-        }
 
         private void bEditInitializerSetting_Click( object sender, EventArgs e ) {
             var md = new ModuleSettingsDisplay<IInitializer>( State.Initializer );
@@ -650,6 +624,78 @@ SinceImproved: {7} / {6}",
                 SetImage( State.OriginalImage );
                 graphWindow1.Invalidate();
                 if( !oldStopped ) Start( false );
+            }
+        }
+
+        #endregion
+
+
+
+        void OpenProject( string filename ) {
+            if( !stopped ) Stop();
+            NBTag taskData = NBTag.ReadFile( filename );
+            State = new TaskState( taskData );
+            if( filename.EndsWith( ".autosave.sie" ) ) {
+                State.ProjectFileName = filename.Substring( 0, filename.Length - 13 );
+            } else {
+                State.ProjectFileName = filename;
+            }
+            Text = Path.GetFileName( State.ProjectFileName ) + " | SuperImageEvolver";
+            nVertices.Value = State.Vertices;
+            nPolygons.Value = State.Shapes;
+            SetImage( State.OriginalImage );
+
+            if( taskData.Contains( "Presentation" ) ) {
+                NBTag presentationTag = taskData["Presentation"];
+                picOriginal.Visible = presentationTag.GetBool( "OriginalVisible", picOriginal.Visible );
+                picBestMatch.Visible = presentationTag.GetBool( "BestMatchVisible", picBestMatch.Visible );
+                picBestMatch.Zoom = presentationTag.GetFloat( "BestMatchZoom", picBestMatch.Zoom );
+                picBestMatch.Wireframe = presentationTag.GetBool( "BestMatchWireframe", picBestMatch.Wireframe );
+                picBestMatch.ShowLastChange = presentationTag.GetBool( "BestMatchShowLastChange", picBestMatch.ShowLastChange );
+                picDiff.Visible = presentationTag.GetBool( "DiffVisible", picDiff.Visible );
+                picDiff.Invert = presentationTag.GetBool( "DiffInvert", picDiff.Invert );
+                picDiff.Exaggerate = presentationTag.GetBool( "DiffExaggerate", picDiff.Exaggerate );
+                picDiff.ShowColor = presentationTag.GetBool( "DiffShowColor", picDiff.ShowColor );
+                picDiff.Zoom = presentationTag.GetFloat( "DiffZoom", picDiff.Zoom );
+                picDiff.ShowLastChange = presentationTag.GetBool( "DiffShowLastChange", picDiff.ShowLastChange );
+            }
+            State.HasChangedSinceSave = false;
+        }
+
+
+        void SaveProject() {
+            if( State.ProjectFileName != null ) {
+                NBTag presentationTag = new NBTCompound( "Presentation" );
+                presentationTag.Append( "OriginalVisible", picOriginal.Visible );
+                presentationTag.Append( "BestMatchVisible", picBestMatch.Visible );
+                presentationTag.Append( "BestMatchZoom", picBestMatch.Zoom );
+                presentationTag.Append( "BestMatchWireframe", picBestMatch.Wireframe );
+                presentationTag.Append( "BestMatchShowLastChange", picBestMatch.ShowLastChange );
+                presentationTag.Append( "DiffVisible", picDiff.Visible );
+                presentationTag.Append( "DiffInvert", picDiff.Invert );
+                presentationTag.Append( "DiffExaggerate", picDiff.Exaggerate );
+                presentationTag.Append( "DiffShowColor", picDiff.ShowColor );
+                presentationTag.Append( "DiffZoom", picDiff.Zoom );
+                presentationTag.Append( "DiffShowLastChange", picDiff.ShowLastChange );
+
+                NBTag tag = State.SerializeNBT();
+                tag.Append( presentationTag );
+                tag.WriteTag( State.ProjectFileName );
+                Text = Path.GetFileName( State.ProjectFileName ) + " | SuperImageEvolver | saved " + DateTime.Now;
+            } else {
+                SaveProjectAs();
+            }
+        }
+
+
+        void SaveProjectAs() {
+            SaveFileDialog saveTaskDialog = new SaveFileDialog {
+                Filter = "SuperImageEvolver project|*.sie",
+                Title = "Save Project As..."
+            };
+            if( saveTaskDialog.ShowDialog() == DialogResult.OK ) {
+                State.ProjectFileName = saveTaskDialog.FileName;
+                SaveProject();
             }
         }
 
