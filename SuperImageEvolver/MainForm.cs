@@ -24,8 +24,6 @@ namespace SuperImageEvolver {
             ModuleManager.LoadFactories( Assembly.GetExecutingAssembly() );
 
             Shown += delegate {
-                Bitmap image;
-
                 /*
                 cInitializer.Items.Clear();
                 foreach( var preset in ModuleManager.GetPresets( ModuleFunction.Initializer ) ) {
@@ -45,14 +43,23 @@ namespace SuperImageEvolver {
                 cInitializer.SelectedIndex = 1;
                 cMutator.SelectedIndex = 1;
                 cEvaluator.SelectedIndex = 2;
-                Reset();
 
                 if( args.Length == 1 ) {
                     if( args[0].EndsWith( ".sie" ) ) {
                         OpenProject( args[0] );
                     } else {
-                        image = (Bitmap)Image.FromFile( args[0] );
+                        SetImage( (Bitmap)Image.FromFile( args[0] ) );
                     }
+                    Reset();
+                    State.SetEvaluator( State.Evaluator );
+                    UpdateTick();
+                    picDiff.Invalidate();
+                    picBestMatch.Invalidate();
+                } else if( args.Length > 1 ) {
+                    MessageBox.Show( "Drag either a project file (.sie) or an image to open it." );
+                } else {
+                    Reset();
+                    tMutationStats.Text = "No project loaded";
                 }
             };
 
@@ -101,9 +108,9 @@ namespace SuperImageEvolver {
         }
 
 
-        object autosaveLock = new object();
+        readonly object autosaveLock = new object();
         DateTime autosaveNext;
-        TimeSpan autosaveInterval = TimeSpan.FromSeconds( 30 );
+        readonly TimeSpan autosaveInterval = TimeSpan.FromSeconds( 30 );
 
 
         void AutoSave() {
@@ -157,7 +164,7 @@ namespace SuperImageEvolver {
             }
         }
 
-        int LastMutationtCounter;
+        int lastMutationtCounter;
         DateTime lastUpdate;
 
         void UpdateStatus() {
@@ -172,25 +179,25 @@ namespace SuperImageEvolver {
 
         void UpdateTick() {
             try {
-                int mutationDelta = State.MutationCounter - LastMutationtCounter;
-                LastMutationtCounter = State.MutationCounter;
-                double timeDelta = (DateTime.UtcNow - lastUpdate).TotalSeconds;
+                int mutationDelta = State.MutationCounter - lastMutationtCounter;
+                lastMutationtCounter = State.MutationCounter;
+                double timeDelta = ( DateTime.UtcNow - lastUpdate ).TotalSeconds;
                 lastUpdate = DateTime.UtcNow;
 
                 tMutationStats.Text = String.Format(
-@"Fitness: {0:0.00000}%
+                    @"Fitness: {0:0.00000}%
 Improvements: {1} ({2:0.00}/s)
 Mutations: {3} ({4:0}/s)
 Elapsed: {5}
 SinceImproved: {7} / {6}",
-                   100 - State.BestMatch.Divergence * 100,
-                   State.ImprovementCounter,
-                   State.ImprovementCounter / DateTime.UtcNow.Subtract( State.TaskStart ).TotalSeconds,
-                   State.MutationCounter,
-                   mutationDelta / timeDelta,
-                   DateTime.UtcNow.Subtract( State.TaskStart ).ToCompactString(),
-                   DateTime.UtcNow.Subtract( State.LastImprovementTime ).ToCompactString(),
-                   State.MutationCounter - State.LastImprovementMutationCount );
+                    State.BestMatch == null ? 0 : 100 - State.BestMatch.Divergence * 100,
+                    State.ImprovementCounter,
+                    State.ImprovementCounter / DateTime.UtcNow.Subtract( State.TaskStart ).TotalSeconds,
+                    State.MutationCounter,
+                    mutationDelta / timeDelta,
+                    DateTime.UtcNow.Subtract( State.TaskStart ).ToCompactString(),
+                    DateTime.UtcNow.Subtract( State.LastImprovementTime ).ToCompactString(),
+                    State.MutationCounter - State.LastImprovementMutationCount );
                 StringBuilder sb = new StringBuilder( Environment.NewLine );
                 sb.Append( Environment.NewLine );
                 double totalImprovements = State.MutationImprovements.Values.Sum();
@@ -203,13 +210,13 @@ SinceImproved: {7} / {6}",
                                      type,
                                      State.MutationCounts[type],
                                      rate * 100,
-                                     (State.MutationImprovements[type] / totalImprovements) * 100 );
+                                     ( State.MutationImprovements[type] / totalImprovements ) * 100 );
                     sb.Append( Environment.NewLine );
                 }
                 tMutationStats.Text += sb.ToString();
                 graphWindow1.Invalidate();
 
-            } catch( ObjectDisposedException ) { }
+            } catch( ObjectDisposedException ) {}
         }
 
 
@@ -228,7 +235,7 @@ SinceImproved: {7} / {6}",
             State.Vertices = (int)nVertices.Value;
             State.ImprovementCounter = 0;
             State.MutationDataLog.Clear();
-            LastMutationtCounter = 0;
+            lastMutationtCounter = 0;
             State.MutationCounter = 0;
             State.LastImprovementMutationCount = 0;
             State.BestMatch = State.Initializer.Initialize( new Random(), State );
@@ -243,7 +250,7 @@ SinceImproved: {7} / {6}",
             if( reset ) {
                 Reset();
             } else {
-                LastMutationtCounter = State.MutationCounter;
+                lastMutationtCounter = State.MutationCounter;
             }
 
             State.SetEvaluator( State.Evaluator );
@@ -432,8 +439,11 @@ SinceImproved: {7} / {6}",
                 Bitmap image = (Bitmap)Image.FromFile( fd.FileName );
                 State = new TaskState();
                 SetImage( image );
-            } else {
-                return;
+                Reset();
+                State.SetEvaluator( State.Evaluator );
+                UpdateTick();
+                picDiff.Invalidate();
+                picBestMatch.Invalidate();
             }
         }
 
@@ -518,19 +528,146 @@ SinceImproved: {7} / {6}",
             picBestMatch.ShowLastChange = cmBestMatchShowLastChange.Checked;
         }
 
-        private void zoomToolStripMenuItem_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
-            foreach( ToolStripMenuItem item in cmBestMatchZoom.DropDownItems ) {
-                item.Checked = false;
+
+        private void cmBestMatchZoom_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
+            if( e.ClickedItem is ToolStripSeparator ) return;
+            if( e.ClickedItem == cmBestMatchZoomSync ) {
+                cmBestMatchZoomSync.Checked = !cmBestMatchZoomSync.Checked;
+                cmDiffZoomSync.Checked = cmBestMatchZoomSync.Checked;
+                cmOriginalZoomSync.Checked = cmBestMatchZoomSync.Checked;
+            } else {
+                ApplyBestMatchZoom( e.ClickedItem );
             }
-            picBestMatch.Zoom = float.Parse( e.ClickedItem.Tag.ToString() );
+            if( cmBestMatchZoomSync.Checked ) {
+                if( cmBestMatchZoomSync.Checked ) {
+                    if( cmBestMatchZoom50.Checked ) {
+                        ApplyDiffZoom( cmDiffZoom50 );
+                        ApplyOriginalZoom( cmOriginalZoom50 );
+                    } else if( cmBestMatchZoom75.Checked ) {
+                        ApplyDiffZoom( cmDiffZoom75 );
+                        ApplyOriginalZoom( cmOriginalZoom75 );
+                    } else if( cmBestMatchZoom100.Checked ) {
+                        ApplyDiffZoom( cmDiffZoom100 );
+                        ApplyOriginalZoom( cmOriginalZoom100 );
+                    } else if( cmBestMatchZoom125.Checked ) {
+                        ApplyDiffZoom( cmDiffZoom125 );
+                        ApplyOriginalZoom( cmOriginalZoom125 );
+                    } else if( cmBestMatchZoom150.Checked ) {
+                        ApplyDiffZoom( cmDiffZoom150 );
+                        ApplyOriginalZoom( cmOriginalZoom150 );
+                    } else if( cmBestMatchZoom200.Checked ) {
+                        ApplyDiffZoom( cmDiffZoom200 );
+                        ApplyOriginalZoom( cmOriginalZoom200 );
+                    }
+                }
+            }
+        }
+
+        void ApplyBestMatchZoom( ToolStripItem item ) {
+            cmBestMatchZoom50.Checked = false;
+            cmBestMatchZoom75.Checked = false;
+            cmBestMatchZoom100.Checked = false;
+            cmBestMatchZoom125.Checked = false;
+            cmBestMatchZoom150.Checked = false;
+            cmBestMatchZoom200.Checked = false;
+            ( (ToolStripMenuItem)item ).Checked = true;
+            picBestMatch.Zoom = float.Parse( item.Tag.ToString() );
         }
 
         private void cmDiffZoom_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
-            foreach( ToolStripMenuItem item in cmDiffZoom.DropDownItems ) {
-                item.Checked = false;
+            if( e.ClickedItem is ToolStripSeparator ) return;
+            if( e.ClickedItem == cmDiffZoomSync ) {
+                cmDiffZoomSync.Checked = !cmDiffZoomSync.Checked;
+                cmBestMatchZoomSync.Checked = cmDiffZoomSync.Checked;
+                cmOriginalZoomSync.Checked = cmDiffZoomSync.Checked;
+            } else {
+                ApplyDiffZoom( e.ClickedItem );
             }
-            picDiff.Zoom = float.Parse( e.ClickedItem.Tag.ToString() );
+            if( cmDiffZoomSync.Checked ) {
+                if( cmDiffZoomSync.Checked ) {
+                    if( cmDiffZoom50.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom50 );
+                        ApplyOriginalZoom( cmOriginalZoom50 );
+                    } else if( cmDiffZoom75.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom75 );
+                        ApplyOriginalZoom( cmOriginalZoom75 );
+                    } else if( cmDiffZoom100.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom100 );
+                        ApplyOriginalZoom( cmOriginalZoom100 );
+                    } else if( cmDiffZoom125.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom125 );
+                        ApplyOriginalZoom( cmOriginalZoom125 );
+                    } else if( cmDiffZoom150.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom150 );
+                        ApplyOriginalZoom( cmOriginalZoom150 );
+                    } else if( cmDiffZoom200.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom200 );
+                        ApplyOriginalZoom( cmOriginalZoom200 );
+                    }
+                }
+            }
         }
+
+        void ApplyDiffZoom( ToolStripItem item ) {
+            cmDiffZoom50.Checked = false;
+            cmDiffZoom75.Checked = false;
+            cmDiffZoom100.Checked = false;
+            cmDiffZoom125.Checked = false;
+            cmDiffZoom150.Checked = false;
+            cmDiffZoom200.Checked = false;
+            ( (ToolStripMenuItem)item ).Checked = true;
+            picDiff.Zoom = float.Parse( item.Tag.ToString() );
+        }
+
+        private void cmOriginalZoom_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
+            if( e.ClickedItem is ToolStripSeparator ) return;
+            if( e.ClickedItem == cmOriginalZoomSync ) {
+                cmOriginalZoomSync.Checked = !cmOriginalZoomSync.Checked;
+                cmBestMatchZoomSync.Checked = cmOriginalZoom.Checked;
+                cmDiffZoomSync.Checked = cmOriginalZoom.Checked;
+            } else {
+                ApplyOriginalZoom( e.ClickedItem );
+            }
+            if( cmOriginalZoomSync.Checked ) {
+                if( cmOriginalZoomSync.Checked ) {
+                    if( cmOriginalZoom50.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom50 );
+                        ApplyDiffZoom( cmDiffZoom50 );
+                    } else if( cmOriginalZoom75.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom75 );
+                        ApplyDiffZoom( cmDiffZoom75 );
+                    } else if( cmOriginalZoom100.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom100 );
+                        ApplyDiffZoom( cmDiffZoom100 );
+                    } else if( cmOriginalZoom125.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom125 );
+                        ApplyDiffZoom( cmDiffZoom125 );
+                    } else if( cmOriginalZoom150.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom150 );
+                        ApplyDiffZoom( cmDiffZoom150 );
+                    } else if( cmOriginalZoom200.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom200 );
+                        ApplyDiffZoom( cmDiffZoom200 );
+                    }
+                }
+            }
+        }
+
+        void ApplyOriginalZoom( ToolStripItem item ) {
+            cmOriginalZoom50.Checked = false;
+            cmOriginalZoom75.Checked = false;
+            cmOriginalZoom100.Checked = false;
+            cmOriginalZoom125.Checked = false;
+            cmOriginalZoom150.Checked = false;
+            cmOriginalZoom200.Checked = false;
+            ( (ToolStripMenuItem)item ).Checked = true;
+            float zoom = float.Parse( item.Tag.ToString() );
+            if( picOriginal.Image != null ) {
+                picOriginal.Size = new Size( (int)Math.Round( picOriginal.Image.Width * zoom ),
+                                             (int)Math.Round( picOriginal.Image.Height * zoom ) );
+            }
+        }
+
 
         private void cmDiffExaggerate_CheckedChanged( object sender, EventArgs e ) {
             picDiff.Exaggerate = cmDiffExaggerate.Checked;
@@ -599,6 +736,7 @@ SinceImproved: {7} / {6}",
                     }
                     State.BestMatch = importedDNA;
                     State.SetEvaluator( State.Evaluator );
+                    UpdateTick();
                     picBestMatch.Invalidate();
                     picDiff.Invalidate();
 
@@ -660,6 +798,7 @@ SinceImproved: {7} / {6}",
                 picDiff.ShowLastChange = presentationTag.GetBool( "DiffShowLastChange", picDiff.ShowLastChange );
             }
             State.HasChangedSinceSave = false;
+            UpdateTick();
         }
 
 

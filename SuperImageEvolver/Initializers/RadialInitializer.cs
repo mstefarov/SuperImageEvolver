@@ -47,10 +47,10 @@ namespace SuperImageEvolver {
                     shape.Points[j].X = (float)(center.X + Math.Cos( t ) * radius);
                     shape.Points[j].Y = (float)(center.Y + Math.Sin( t ) * radius);
                 }
-                dna.Shapes[i] = shape;
-                if( shape.GetBoundaries().Width == 0 || shape.GetBoundaries().Height == 0 ) {
+                if( shape.GetBoundaries().Width < 1 || shape.GetBoundaries().Height < 1 ) {
                     continue;
                 }
+                dna.Shapes[i] = shape;
             }
             return dna;
         }

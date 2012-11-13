@@ -75,7 +75,7 @@ namespace SuperImageEvolver {
 
 
         static readonly Pen LastChangePen = new Pen( Color.White, 2 ) {
-            EndCap = LineCap.Round
+            EndCap = LineCap.NoAnchor // TODO
         };
 
 

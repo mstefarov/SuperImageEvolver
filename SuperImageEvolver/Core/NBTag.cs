@@ -38,7 +38,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Drawing;
-using System.Linq;
 
 namespace SuperImageEvolver {
     public enum NBTType : byte {
@@ -285,12 +284,11 @@ namespace SuperImageEvolver {
 
 
                 case NBTType.Compound:
-                    NBTag childTag;
                     NBTCompound compound = new NBTCompound( name ) {
                         Parent = parent
                     };
                     while( true ) {
-                        childTag = ReadTag( reader, (NBTType)reader.ReadByte(), null, compound );
+                        NBTag childTag = ReadTag( reader, (NBTType)reader.ReadByte(), null, compound );
                         if( childTag.Type == NBTType.End ) break;
                         if( childTag.Name == null )
                             continue;

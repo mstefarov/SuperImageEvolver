@@ -31,7 +31,6 @@
             System.Windows.Forms.ToolStripSeparator separator5;
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.picOriginal = new System.Windows.Forms.PictureBox();
-            this.picBestMatch = new SuperImageEvolver.Canvas();
             this.cmBestMatch = new System.Windows.Forms.ContextMenuStrip( this.components );
             this.cmBestMatchZoom = new System.Windows.Forms.ToolStripMenuItem();
             this.cmBestMatchZoom50 = new System.Windows.Forms.ToolStripMenuItem();
@@ -40,9 +39,10 @@
             this.cmBestMatchZoom125 = new System.Windows.Forms.ToolStripMenuItem();
             this.cmBestMatchZoom150 = new System.Windows.Forms.ToolStripMenuItem();
             this.cmBestMatchZoom200 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmBestMatchZoomSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.cmBestMatchZoomSync = new System.Windows.Forms.ToolStripMenuItem();
             this.cmBestMatchWireframe = new System.Windows.Forms.ToolStripMenuItem();
             this.cmBestMatchShowLastChange = new System.Windows.Forms.ToolStripMenuItem();
-            this.picDiff = new SuperImageEvolver.DiffCanvas();
             this.cmDiff = new System.Windows.Forms.ContextMenuStrip( this.components );
             this.cmDiffZoom = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDiffZoom50 = new System.Windows.Forms.ToolStripMenuItem();
@@ -51,6 +51,8 @@
             this.cmDiffZoom125 = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDiffZoom150 = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDiffZoom200 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmDiffZoomSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.cmDiffZoomSync = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDiffInvert = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDiffShowColor = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDiffExaggerate = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,7 +67,6 @@
             this.lInitializer = new System.Windows.Forms.Label();
             this.cMutator = new System.Windows.Forms.ComboBox();
             this.cInitializer = new System.Windows.Forms.ComboBox();
-            this.graphWindow1 = new SuperImageEvolver.GraphWindow();
             this.lPoints = new System.Windows.Forms.Label();
             this.lShapes = new System.Windows.Forms.Label();
             this.nPolygons = new System.Windows.Forms.NumericUpDown();
@@ -96,20 +97,34 @@
             this.bProjectOptions = new System.Windows.Forms.ToolStripMenuItem();
             this.menuHelp = new System.Windows.Forms.ToolStripDropDownButton();
             this.bHelpListModules = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmOriginal = new System.Windows.Forms.ContextMenuStrip( this.components );
+            this.cmOriginalZoom = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmOriginalZoom50 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmOriginalZoom75 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmOriginalZoom100 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmOriginalZoom125 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmOriginalZoom150 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmOriginalZoom200 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmOriginalZoomSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.cmOriginalZoomSync = new System.Windows.Forms.ToolStripMenuItem();
+            this.picBestMatch = new SuperImageEvolver.Canvas();
+            this.picDiff = new SuperImageEvolver.DiffCanvas();
+            this.graphWindow1 = new SuperImageEvolver.GraphWindow();
             separator1 = new System.Windows.Forms.ToolStripSeparator();
             separator4 = new System.Windows.Forms.ToolStripSeparator();
             separator2 = new System.Windows.Forms.ToolStripSeparator();
             separator3 = new System.Windows.Forms.ToolStripSeparator();
             separator5 = new System.Windows.Forms.ToolStripSeparator();
             this.flowLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.picOriginal ) ).BeginInit();
             this.cmBestMatch.SuspendLayout();
             this.cmDiff.SuspendLayout();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nPolygons)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nVertices)).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nPolygons ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nVertices ) ).BeginInit();
             this.pStatistics.SuspendLayout();
             this.toolStrip.SuspendLayout();
+            this.cmOriginal.SuspendLayout();
             this.SuspendLayout();
             // 
             // separator1
@@ -141,9 +156,9 @@
             // 
             // flowLayoutPanel1
             // 
-            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.flowLayoutPanel1.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+                        | System.Windows.Forms.AnchorStyles.Left )
+                        | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.flowLayoutPanel1.AutoScroll = true;
             this.flowLayoutPanel1.Controls.Add( this.picOriginal );
             this.flowLayoutPanel1.Controls.Add( this.picBestMatch );
@@ -159,21 +174,13 @@
             // 
             // picOriginal
             // 
+            this.picOriginal.ContextMenuStrip = this.cmOriginal;
             this.picOriginal.Location = new System.Drawing.Point( 3, 5 );
             this.picOriginal.Name = "picOriginal";
             this.picOriginal.Size = new System.Drawing.Size( 35, 38 );
+            this.picOriginal.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picOriginal.TabIndex = 2;
             this.picOriginal.TabStop = false;
-            // 
-            // picBestMatch
-            // 
-            this.picBestMatch.ContextMenuStrip = this.cmBestMatch;
-            this.picBestMatch.Location = new System.Drawing.Point( 44, 5 );
-            this.picBestMatch.Name = "picBestMatch";
-            this.picBestMatch.Size = new System.Drawing.Size( 39, 38 );
-            this.picBestMatch.State = null;
-            this.picBestMatch.TabIndex = 0;
-            this.picBestMatch.Zoom = 1F;
             // 
             // cmBestMatch
             // 
@@ -182,7 +189,7 @@
             this.cmBestMatchWireframe,
             this.cmBestMatchShowLastChange} );
             this.cmBestMatch.Name = "cmBestMatch";
-            this.cmBestMatch.Size = new System.Drawing.Size( 172, 70 );
+            this.cmBestMatch.Size = new System.Drawing.Size( 172, 92 );
             // 
             // cmBestMatchZoom
             // 
@@ -192,61 +199,68 @@
             this.cmBestMatchZoom100,
             this.cmBestMatchZoom125,
             this.cmBestMatchZoom150,
-            this.cmBestMatchZoom200} );
+            this.cmBestMatchZoom200,
+            this.cmBestMatchZoomSeparator,
+            this.cmBestMatchZoomSync} );
             this.cmBestMatchZoom.Name = "cmBestMatchZoom";
             this.cmBestMatchZoom.Size = new System.Drawing.Size( 171, 22 );
             this.cmBestMatchZoom.Text = "Zoom";
-            this.cmBestMatchZoom.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler( this.zoomToolStripMenuItem_DropDownItemClicked );
+            this.cmBestMatchZoom.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler( this.cmBestMatchZoom_DropDownItemClicked );
             // 
             // cmBestMatchZoom50
             // 
-            this.cmBestMatchZoom50.CheckOnClick = true;
             this.cmBestMatchZoom50.Name = "cmBestMatchZoom50";
-            this.cmBestMatchZoom50.Size = new System.Drawing.Size( 102, 22 );
+            this.cmBestMatchZoom50.Size = new System.Drawing.Size( 152, 22 );
             this.cmBestMatchZoom50.Tag = ".5";
             this.cmBestMatchZoom50.Text = "50%";
             // 
             // cmBestMatchZoom75
             // 
-            this.cmBestMatchZoom75.CheckOnClick = true;
             this.cmBestMatchZoom75.Name = "cmBestMatchZoom75";
-            this.cmBestMatchZoom75.Size = new System.Drawing.Size( 102, 22 );
+            this.cmBestMatchZoom75.Size = new System.Drawing.Size( 152, 22 );
             this.cmBestMatchZoom75.Tag = ".75";
             this.cmBestMatchZoom75.Text = "75%";
             // 
             // cmBestMatchZoom100
             // 
             this.cmBestMatchZoom100.Checked = true;
-            this.cmBestMatchZoom100.CheckOnClick = true;
             this.cmBestMatchZoom100.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cmBestMatchZoom100.Name = "cmBestMatchZoom100";
-            this.cmBestMatchZoom100.Size = new System.Drawing.Size( 102, 22 );
+            this.cmBestMatchZoom100.Size = new System.Drawing.Size( 152, 22 );
             this.cmBestMatchZoom100.Tag = "1";
             this.cmBestMatchZoom100.Text = "100%";
             // 
             // cmBestMatchZoom125
             // 
-            this.cmBestMatchZoom125.CheckOnClick = true;
             this.cmBestMatchZoom125.Name = "cmBestMatchZoom125";
-            this.cmBestMatchZoom125.Size = new System.Drawing.Size( 102, 22 );
+            this.cmBestMatchZoom125.Size = new System.Drawing.Size( 152, 22 );
             this.cmBestMatchZoom125.Tag = "1.25";
             this.cmBestMatchZoom125.Text = "125%";
             // 
             // cmBestMatchZoom150
             // 
-            this.cmBestMatchZoom150.CheckOnClick = true;
             this.cmBestMatchZoom150.Name = "cmBestMatchZoom150";
-            this.cmBestMatchZoom150.Size = new System.Drawing.Size( 102, 22 );
+            this.cmBestMatchZoom150.Size = new System.Drawing.Size( 152, 22 );
             this.cmBestMatchZoom150.Tag = "1.5";
             this.cmBestMatchZoom150.Text = "150%";
             // 
             // cmBestMatchZoom200
             // 
-            this.cmBestMatchZoom200.CheckOnClick = true;
             this.cmBestMatchZoom200.Name = "cmBestMatchZoom200";
-            this.cmBestMatchZoom200.Size = new System.Drawing.Size( 102, 22 );
+            this.cmBestMatchZoom200.Size = new System.Drawing.Size( 152, 22 );
             this.cmBestMatchZoom200.Tag = "2";
             this.cmBestMatchZoom200.Text = "200%";
+            // 
+            // cmBestMatchZoomSeparator
+            // 
+            this.cmBestMatchZoomSeparator.Name = "cmBestMatchZoomSeparator";
+            this.cmBestMatchZoomSeparator.Size = new System.Drawing.Size( 149, 6 );
+            // 
+            // cmBestMatchZoomSync
+            // 
+            this.cmBestMatchZoomSync.Name = "cmBestMatchZoomSync";
+            this.cmBestMatchZoomSync.Size = new System.Drawing.Size( 152, 22 );
+            this.cmBestMatchZoomSync.Text = "Sync all views";
             // 
             // cmBestMatchWireframe
             // 
@@ -263,16 +277,6 @@
             this.cmBestMatchShowLastChange.Size = new System.Drawing.Size( 171, 22 );
             this.cmBestMatchShowLastChange.Text = "Show Last Change";
             this.cmBestMatchShowLastChange.CheckedChanged += new System.EventHandler( this.showLastChangeToolStripMenuItem_CheckedChanged );
-            // 
-            // picDiff
-            // 
-            this.picDiff.ContextMenuStrip = this.cmDiff;
-            this.picDiff.Location = new System.Drawing.Point( 89, 5 );
-            this.picDiff.Name = "picDiff";
-            this.picDiff.Size = new System.Drawing.Size( 38, 38 );
-            this.picDiff.State = null;
-            this.picDiff.TabIndex = 8;
-            this.picDiff.Zoom = 1F;
             // 
             // cmDiff
             // 
@@ -293,7 +297,9 @@
             this.cmDiffZoom100,
             this.cmDiffZoom125,
             this.cmDiffZoom150,
-            this.cmDiffZoom200} );
+            this.cmDiffZoom200,
+            this.cmDiffZoomSeparator,
+            this.cmDiffZoomSync} );
             this.cmDiffZoom.Name = "cmDiffZoom";
             this.cmDiffZoom.Size = new System.Drawing.Size( 171, 22 );
             this.cmDiffZoom.Text = "Zoom";
@@ -301,53 +307,58 @@
             // 
             // cmDiffZoom50
             // 
-            this.cmDiffZoom50.CheckOnClick = true;
             this.cmDiffZoom50.Name = "cmDiffZoom50";
-            this.cmDiffZoom50.Size = new System.Drawing.Size( 102, 22 );
+            this.cmDiffZoom50.Size = new System.Drawing.Size( 146, 22 );
             this.cmDiffZoom50.Tag = ".5";
             this.cmDiffZoom50.Text = "50%";
             // 
             // cmDiffZoom75
             // 
-            this.cmDiffZoom75.CheckOnClick = true;
             this.cmDiffZoom75.Name = "cmDiffZoom75";
-            this.cmDiffZoom75.Size = new System.Drawing.Size( 102, 22 );
+            this.cmDiffZoom75.Size = new System.Drawing.Size( 146, 22 );
             this.cmDiffZoom75.Tag = ".75";
             this.cmDiffZoom75.Text = "75%";
             // 
             // cmDiffZoom100
             // 
             this.cmDiffZoom100.Checked = true;
-            this.cmDiffZoom100.CheckOnClick = true;
             this.cmDiffZoom100.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cmDiffZoom100.Name = "cmDiffZoom100";
-            this.cmDiffZoom100.Size = new System.Drawing.Size( 102, 22 );
+            this.cmDiffZoom100.Size = new System.Drawing.Size( 146, 22 );
             this.cmDiffZoom100.Tag = "1";
             this.cmDiffZoom100.Text = "100%";
             // 
             // cmDiffZoom125
             // 
-            this.cmDiffZoom125.CheckOnClick = true;
             this.cmDiffZoom125.Name = "cmDiffZoom125";
-            this.cmDiffZoom125.Size = new System.Drawing.Size( 102, 22 );
+            this.cmDiffZoom125.Size = new System.Drawing.Size( 146, 22 );
             this.cmDiffZoom125.Tag = "1.25";
             this.cmDiffZoom125.Text = "125%";
             // 
             // cmDiffZoom150
             // 
-            this.cmDiffZoom150.CheckOnClick = true;
             this.cmDiffZoom150.Name = "cmDiffZoom150";
-            this.cmDiffZoom150.Size = new System.Drawing.Size( 102, 22 );
+            this.cmDiffZoom150.Size = new System.Drawing.Size( 146, 22 );
             this.cmDiffZoom150.Tag = "1.5";
             this.cmDiffZoom150.Text = "150%";
             // 
             // cmDiffZoom200
             // 
-            this.cmDiffZoom200.CheckOnClick = true;
             this.cmDiffZoom200.Name = "cmDiffZoom200";
-            this.cmDiffZoom200.Size = new System.Drawing.Size( 102, 22 );
+            this.cmDiffZoom200.Size = new System.Drawing.Size( 146, 22 );
             this.cmDiffZoom200.Tag = "2";
             this.cmDiffZoom200.Text = "200%";
+            // 
+            // cmDiffZoomSeparator
+            // 
+            this.cmDiffZoomSeparator.Name = "cmDiffZoomSeparator";
+            this.cmDiffZoomSeparator.Size = new System.Drawing.Size( 143, 6 );
+            // 
+            // cmDiffZoomSync
+            // 
+            this.cmDiffZoomSync.Name = "cmDiffZoomSync";
+            this.cmDiffZoomSync.Size = new System.Drawing.Size( 146, 22 );
+            this.cmDiffZoomSync.Text = "Sync all views";
             // 
             // cmDiffInvert
             // 
@@ -515,14 +526,6 @@
             this.cInitializer.TabIndex = 8;
             this.cInitializer.SelectedIndexChanged += new System.EventHandler( this.cInitializer_SelectedIndexChanged );
             // 
-            // graphWindow1
-            // 
-            this.graphWindow1.BackColor = System.Drawing.Color.White;
-            this.graphWindow1.Location = new System.Drawing.Point( 3, 3 );
-            this.graphWindow1.Name = "graphWindow1";
-            this.graphWindow1.Size = new System.Drawing.Size( 197, 98 );
-            this.graphWindow1.TabIndex = 9;
-            // 
             // lPoints
             // 
             this.lPoints.AutoSize = true;
@@ -595,7 +598,7 @@
             // 
             // tMutationStats
             // 
-            this.tMutationStats.Font = new System.Drawing.Font( "Consolas", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.tMutationStats.Font = new System.Drawing.Font( "Consolas", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.tMutationStats.Location = new System.Drawing.Point( 3, 3 );
             this.tMutationStats.Multiline = true;
             this.tMutationStats.Name = "tMutationStats";
@@ -848,6 +851,112 @@
             this.bHelpListModules.Text = "List Modules";
             this.bHelpListModules.Click += new System.EventHandler( this.bHelpListModules_Click );
             // 
+            // cmOriginal
+            // 
+            this.cmOriginal.Items.AddRange( new System.Windows.Forms.ToolStripItem[] {
+            this.cmOriginalZoom} );
+            this.cmOriginal.Name = "cmOriginal";
+            this.cmOriginal.Size = new System.Drawing.Size( 107, 26 );
+            // 
+            // cmOriginalZoom
+            // 
+            this.cmOriginalZoom.DropDownItems.AddRange( new System.Windows.Forms.ToolStripItem[] {
+            this.cmOriginalZoom50,
+            this.cmOriginalZoom75,
+            this.cmOriginalZoom100,
+            this.cmOriginalZoom125,
+            this.cmOriginalZoom150,
+            this.cmOriginalZoom200,
+            this.cmOriginalZoomSeparator,
+            this.cmOriginalZoomSync} );
+            this.cmOriginalZoom.Name = "cmOriginalZoom";
+            this.cmOriginalZoom.Size = new System.Drawing.Size( 106, 22 );
+            this.cmOriginalZoom.Text = "Zoom";
+            this.cmOriginalZoom.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler( this.cmOriginalZoom_DropDownItemClicked );
+            // 
+            // cmOriginalZoom50
+            // 
+            this.cmOriginalZoom50.Name = "cmOriginalZoom50";
+            this.cmOriginalZoom50.Size = new System.Drawing.Size( 146, 22 );
+            this.cmOriginalZoom50.Tag = ".5";
+            this.cmOriginalZoom50.Text = "50%";
+            // 
+            // cmOriginalZoom75
+            // 
+            this.cmOriginalZoom75.Name = "cmOriginalZoom75";
+            this.cmOriginalZoom75.Size = new System.Drawing.Size( 146, 22 );
+            this.cmOriginalZoom75.Tag = ".75";
+            this.cmOriginalZoom75.Text = "75%";
+            // 
+            // cmOriginalZoom100
+            // 
+            this.cmOriginalZoom100.Checked = true;
+            this.cmOriginalZoom100.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cmOriginalZoom100.Name = "cmOriginalZoom100";
+            this.cmOriginalZoom100.Size = new System.Drawing.Size( 146, 22 );
+            this.cmOriginalZoom100.Tag = "1";
+            this.cmOriginalZoom100.Text = "100%";
+            // 
+            // cmOriginalZoom125
+            // 
+            this.cmOriginalZoom125.Name = "cmOriginalZoom125";
+            this.cmOriginalZoom125.Size = new System.Drawing.Size( 146, 22 );
+            this.cmOriginalZoom125.Tag = "1.25";
+            this.cmOriginalZoom125.Text = "125%";
+            // 
+            // cmOriginalZoom150
+            // 
+            this.cmOriginalZoom150.Name = "cmOriginalZoom150";
+            this.cmOriginalZoom150.Size = new System.Drawing.Size( 146, 22 );
+            this.cmOriginalZoom150.Tag = "1.5";
+            this.cmOriginalZoom150.Text = "150%";
+            // 
+            // cmOriginalZoom200
+            // 
+            this.cmOriginalZoom200.Name = "cmOriginalZoom200";
+            this.cmOriginalZoom200.Size = new System.Drawing.Size( 146, 22 );
+            this.cmOriginalZoom200.Tag = "2";
+            this.cmOriginalZoom200.Text = "200%";
+            // 
+            // cmOriginalZoomSeparator
+            // 
+            this.cmOriginalZoomSeparator.Name = "cmOriginalZoomSeparator";
+            this.cmOriginalZoomSeparator.Size = new System.Drawing.Size( 143, 6 );
+            // 
+            // cmOriginalZoomSync
+            // 
+            this.cmOriginalZoomSync.Name = "cmOriginalZoomSync";
+            this.cmOriginalZoomSync.Size = new System.Drawing.Size( 146, 22 );
+            this.cmOriginalZoomSync.Text = "Sync all views";
+            // 
+            // picBestMatch
+            // 
+            this.picBestMatch.ContextMenuStrip = this.cmBestMatch;
+            this.picBestMatch.Location = new System.Drawing.Point( 44, 5 );
+            this.picBestMatch.Name = "picBestMatch";
+            this.picBestMatch.Size = new System.Drawing.Size( 39, 38 );
+            this.picBestMatch.State = null;
+            this.picBestMatch.TabIndex = 0;
+            this.picBestMatch.Zoom = 1F;
+            // 
+            // picDiff
+            // 
+            this.picDiff.ContextMenuStrip = this.cmDiff;
+            this.picDiff.Location = new System.Drawing.Point( 89, 5 );
+            this.picDiff.Name = "picDiff";
+            this.picDiff.Size = new System.Drawing.Size( 38, 38 );
+            this.picDiff.State = null;
+            this.picDiff.TabIndex = 8;
+            this.picDiff.Zoom = 1F;
+            // 
+            // graphWindow1
+            // 
+            this.graphWindow1.BackColor = System.Drawing.Color.White;
+            this.graphWindow1.Location = new System.Drawing.Point( 3, 3 );
+            this.graphWindow1.Name = "graphWindow1";
+            this.graphWindow1.Size = new System.Drawing.Size( 197, 98 );
+            this.graphWindow1.TabIndex = 9;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -861,17 +970,18 @@
             this.Text = "Super Image Evolver";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.MainForm_FormClosing );
             this.flowLayoutPanel1.ResumeLayout( false );
-            ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.picOriginal ) ).EndInit();
             this.cmBestMatch.ResumeLayout( false );
             this.cmDiff.ResumeLayout( false );
             this.panel1.ResumeLayout( false );
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nPolygons)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nVertices)).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nPolygons ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nVertices ) ).EndInit();
             this.pStatistics.ResumeLayout( false );
             this.pStatistics.PerformLayout();
             this.toolStrip.ResumeLayout( false );
             this.toolStrip.PerformLayout();
+            this.cmOriginal.ResumeLayout( false );
             this.ResumeLayout( false );
             this.PerformLayout();
 
@@ -946,6 +1056,20 @@
         private System.Windows.Forms.ToolStripMenuItem cmDiffShowLastChange;
         private System.Windows.Forms.ToolStripDropDownButton menuOptions;
         private System.Windows.Forms.ToolStripMenuItem bProjectOptions;
+        private System.Windows.Forms.ToolStripSeparator cmBestMatchZoomSeparator;
+        private System.Windows.Forms.ToolStripMenuItem cmBestMatchZoomSync;
+        private System.Windows.Forms.ContextMenuStrip cmOriginal;
+        private System.Windows.Forms.ToolStripSeparator cmDiffZoomSeparator;
+        private System.Windows.Forms.ToolStripMenuItem cmDiffZoomSync;
+        private System.Windows.Forms.ToolStripMenuItem cmOriginalZoom;
+        private System.Windows.Forms.ToolStripMenuItem cmOriginalZoom50;
+        private System.Windows.Forms.ToolStripMenuItem cmOriginalZoom75;
+        private System.Windows.Forms.ToolStripMenuItem cmOriginalZoom100;
+        private System.Windows.Forms.ToolStripMenuItem cmOriginalZoom125;
+        private System.Windows.Forms.ToolStripMenuItem cmOriginalZoom150;
+        private System.Windows.Forms.ToolStripMenuItem cmOriginalZoom200;
+        private System.Windows.Forms.ToolStripSeparator cmOriginalZoomSeparator;
+        private System.Windows.Forms.ToolStripMenuItem cmOriginalZoomSync;
     }
 }
 
