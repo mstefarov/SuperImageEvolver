@@ -48,13 +48,8 @@ namespace SuperImageEvolver {
                     if( args[0].EndsWith( ".sie" ) ) {
                         OpenProject( args[0] );
                     } else {
-                        SetImage( (Bitmap)Image.FromFile( args[0] ) );
+                        CreateProject( args[0] );
                     }
-                    Reset();
-                    State.SetEvaluator( State.Evaluator );
-                    UpdateTick();
-                    picDiff.Invalidate();
-                    picBestMatch.Invalidate();
                 } else if( args.Length > 1 ) {
                     MessageBox.Show( "Drag either a project file (.sie) or an image to open it." );
                 } else {
@@ -68,6 +63,18 @@ namespace SuperImageEvolver {
             };
         }
 
+
+        float OriginalZoom {
+            get { return originalZoom; }
+            set {
+                originalZoom = value;
+                if( picOriginal.Image != null ) {
+                    picOriginal.Width = (int)Math.Round( picOriginal.Image.Width * originalZoom );
+                    picOriginal.Height = (int)Math.Round( picOriginal.Image.Height * originalZoom );
+                }
+            }
+        }
+        float originalZoom = 1;
 
         void SetImage( Bitmap image ) {
             State.OriginalImage = image;
@@ -88,21 +95,20 @@ namespace SuperImageEvolver {
                 State.WorkingImageCopyClone.Dispose();
             }
             State.WorkingImageCopyClone = (Bitmap)State.WorkingImageCopy.Clone();
-            State.WorkingImageData = State.WorkingImageCopyClone.LockBits( new Rectangle( Point.Empty, State.OriginalImage.Size ),
-                                                                           ImageLockMode.ReadOnly,
-                                                                           PixelFormat.Format32bppArgb );
+            State.WorkingImageData =
+                State.WorkingImageCopyClone.LockBits( new Rectangle( Point.Empty, State.OriginalImage.Size ),
+                                                      ImageLockMode.ReadOnly,
+                                                      PixelFormat.Format32bppArgb );
             State.ImageWidth = State.OriginalImage.Width;
             State.ImageHeight = State.OriginalImage.Height;
 
-            picOriginal.Width = State.WorkingImageCopy.Width;
-            picOriginal.Height = State.WorkingImageCopy.Height;
             picOriginal.Image = State.WorkingImageCopy;
+            OriginalZoom = OriginalZoom; // force resize
 
             picBestMatch.State = State;
             picBestMatch.Invalidate();
 
-            picDiff.Width = State.ImageWidth;
-            picDiff.Height = State.ImageHeight;
+            picDiff.Zoom = picDiff.Zoom; // force resize
             picDiff.Init( State );
             picDiff.Invalidate();
         }
@@ -173,7 +179,7 @@ namespace SuperImageEvolver {
                     Invoke( (Action)UpdateTick );
                 } catch( ObjectDisposedException ) { }
 
-                Thread.Sleep( 500 );
+                Thread.Sleep( State.ProjectOptions.RefreshRate );
             }
         }
 
@@ -436,14 +442,7 @@ SinceImproved: {7} / {6}",
                 Title = "Creating Project from an Image"
             };
             if( fd.ShowDialog() == DialogResult.OK ) {
-                Bitmap image = (Bitmap)Image.FromFile( fd.FileName );
-                State = new TaskState();
-                SetImage( image );
-                Reset();
-                State.SetEvaluator( State.Evaluator );
-                UpdateTick();
-                picDiff.Invalidate();
-                picBestMatch.Invalidate();
+                CreateProject( fd.FileName );
             }
         }
 
@@ -661,11 +660,7 @@ SinceImproved: {7} / {6}",
             cmOriginalZoom150.Checked = false;
             cmOriginalZoom200.Checked = false;
             ( (ToolStripMenuItem)item ).Checked = true;
-            float zoom = float.Parse( item.Tag.ToString() );
-            if( picOriginal.Image != null ) {
-                picOriginal.Size = new Size( (int)Math.Round( picOriginal.Image.Width * zoom ),
-                                             (int)Math.Round( picOriginal.Image.Height * zoom ) );
-            }
+            OriginalZoom = float.Parse( item.Tag.ToString() );
         }
 
 
@@ -768,11 +763,29 @@ SinceImproved: {7} / {6}",
         #endregion
 
 
+        void CreateProject( string fileName ) {
+            Bitmap image = (Bitmap)Image.FromFile( fileName );
+            State = new TaskState();
+            SetImage( image );
+            Reset();
+            State.SetEvaluator( State.Evaluator );
+            UpdateTick();
+            picDiff.Invalidate();
+            picBestMatch.Invalidate();
+
+            bStart.Enabled = true;
+            bRestart.Enabled = true;
+            bSaveProject.Enabled = true;
+            bSaveProjectAs.Enabled = true;
+            menuExport.Enabled = true;
+        }
+
 
         void OpenProject( string filename ) {
             if( !stopped ) Stop();
             NBTag taskData = NBTag.ReadFile( filename );
             State = new TaskState( taskData );
+            BackColor = State.ProjectOptions.BackColor;
             if( filename.EndsWith( ".autosave.sie" ) ) {
                 State.ProjectFileName = filename.Substring( 0, filename.Length - 13 );
             } else {
@@ -786,6 +799,7 @@ SinceImproved: {7} / {6}",
             if( taskData.Contains( "Presentation" ) ) {
                 NBTag presentationTag = taskData["Presentation"];
                 picOriginal.Visible = presentationTag.GetBool( "OriginalVisible", picOriginal.Visible );
+                OriginalZoom = presentationTag.GetFloat( "OriginalZoom", OriginalZoom );
                 picBestMatch.Visible = presentationTag.GetBool( "BestMatchVisible", picBestMatch.Visible );
                 picBestMatch.Zoom = presentationTag.GetFloat( "BestMatchZoom", picBestMatch.Zoom );
                 picBestMatch.Wireframe = presentationTag.GetBool( "BestMatchWireframe", picBestMatch.Wireframe );
@@ -797,8 +811,17 @@ SinceImproved: {7} / {6}",
                 picDiff.Zoom = presentationTag.GetFloat( "DiffZoom", picDiff.Zoom );
                 picDiff.ShowLastChange = presentationTag.GetBool( "DiffShowLastChange", picDiff.ShowLastChange );
             }
-            State.HasChangedSinceSave = false;
+            State.SetEvaluator( State.Evaluator );
             UpdateTick();
+            picDiff.Invalidate();
+            picBestMatch.Invalidate();
+            State.HasChangedSinceSave = false;
+
+            bStart.Enabled = true;
+            bRestart.Enabled = true;
+            bSaveProject.Enabled = true;
+            bSaveProjectAs.Enabled = true;
+            menuExport.Enabled = true;
         }
 
 
@@ -806,6 +829,7 @@ SinceImproved: {7} / {6}",
             if( State.ProjectFileName != null ) {
                 NBTag presentationTag = new NBTCompound( "Presentation" );
                 presentationTag.Append( "OriginalVisible", picOriginal.Visible );
+                presentationTag.Append( "OriginalZoom", OriginalZoom );
                 presentationTag.Append( "BestMatchVisible", picBestMatch.Visible );
                 presentationTag.Append( "BestMatchZoom", picBestMatch.Zoom );
                 presentationTag.Append( "BestMatchWireframe", picBestMatch.Wireframe );
