@@ -208,7 +208,7 @@ namespace SuperImageEvolver {
 
 
         public NBTag Remove() {
-            if( Parent != null && Parent is NBTCompound ) {
+            if( Parent is NBTCompound ) {
                 Parent.Remove( Name );
                 return this;
             } else {

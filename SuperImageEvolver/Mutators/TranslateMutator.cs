@@ -112,8 +112,7 @@ namespace SuperImageEvolver {
         }
 
 
-
-        void MoveShape( Random rand, Shape shape, TaskState task ) {
+        static void MoveShape( Random rand, Shape shape, TaskState task ) {
             RectangleF rect = shape.GetBoundaries();
             int maxOverlap = task.ProjectOptions.MaxOverlap;
             PointF delta = new PointF {

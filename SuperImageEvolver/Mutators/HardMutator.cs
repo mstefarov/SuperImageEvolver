@@ -116,7 +116,7 @@ namespace SuperImageEvolver {
         }
 
 
-        PointF MutatePoint( Random rand, DNA dna, PointF point, TaskState task ) {
+        static PointF MutatePoint( Random rand, DNA dna, PointF point, TaskState task ) {
             int maxOverlap = task.ProjectOptions.MaxOverlap;
             switch( rand.Next( 5 ) ) {
                 case 0:
@@ -139,7 +139,7 @@ namespace SuperImageEvolver {
         }
 
 
-        void RandomizeShape( Random rand, Shape shape, TaskState task ) {
+        static void RandomizeShape( Random rand, Shape shape, TaskState task ) {
             int maxOverlap = task.ProjectOptions.MaxOverlap;
             shape.PreviousState = shape.Clone() as Shape;
             shape.Color = Color.FromArgb( rand.Next( task.ProjectOptions.MinAlpha, 256 ), rand.Next( 256 ),
