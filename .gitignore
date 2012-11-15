@@ -1,0 +1,6 @@
+_ReSharper*/
+SuperImageEvolver/bin/
+SuperImageEvolver/obj/
+*.suo
+*.user
+*.userprefs
