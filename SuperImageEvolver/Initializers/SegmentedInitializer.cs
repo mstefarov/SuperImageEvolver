@@ -2,19 +2,31 @@
 using System.Drawing;
 
 namespace SuperImageEvolver {
-
     public class SegmentedInitializerFactory : IModuleFactory {
-        public Type ModuleType { get { return typeof( SegmentedInitializer ); } }
-        public string ID { get { return "std.SegmentedInitializer.1"; } }
-        public ModuleFunction Function { get { return ModuleFunction.Initializer; } }
+        public Type ModuleType {
+            get { return typeof( SegmentedInitializer ); }
+        }
+
+        public string ID {
+            get { return "std.SegmentedInitializer.1"; }
+        }
+
+        public ModuleFunction Function {
+            get { return ModuleFunction.Initializer; }
+        }
+
         public ModulePreset[] Presets {
             get {
-                return new[]{
-                    new ModulePreset("Segmented", ()=>(new SegmentedInitializer(Color.Black)), this )
+                return new[] {
+                    new ModulePreset( "Segmented", () => ( new SegmentedInitializer( Color.Black ) ), this )
                 };
             }
         }
-        public IModule GetInstance() { return new SegmentedInitializer( Color.Black ); }
+
+
+        public IModule GetInstance() {
+            return new SegmentedInitializer( Color.Black );
+        }
     }
 
 
@@ -23,11 +35,13 @@ namespace SuperImageEvolver {
         public int MaxOverlap { get; set; }
         public byte StartingAlpha { get; set; }
 
+
         public SegmentedInitializer( Color color ) {
             Color = color;
             MaxOverlap = 6;
             StartingAlpha = 1;
         }
+
 
         public DNA Initialize( Random rand, TaskState task ) {
             DNA dna = new DNA {
@@ -57,8 +71,12 @@ namespace SuperImageEvolver {
                             Points = new PointF[task.Vertices]
                         };
                         for( int j = 0; j < shape.Points.Length; j++ ) {
-                            shape.Points[j] = new PointF( rand.NextFloat( task.ImageWidth / 3f * x - MaxOverlap, task.ImageWidth / 3f * (x + 1) + MaxOverlap ),
-                                                          rand.NextFloat( task.ImageHeight / 3f * y - MaxOverlap, task.ImageHeight / 3f * (y + 1) + MaxOverlap ) );
+                            shape.Points[j] =
+                                new PointF(
+                                    rand.NextFloat( task.ImageWidth / 3f * x - MaxOverlap,
+                                                    task.ImageWidth / 3f * ( x + 1 ) + MaxOverlap ),
+                                    rand.NextFloat( task.ImageHeight / 3f * y - MaxOverlap,
+                                                    task.ImageHeight / 3f * ( y + 1 ) + MaxOverlap ) );
                         }
                         dna.Shapes[shapeCounter] = shape;
                         shapeCounter++;
@@ -68,14 +86,16 @@ namespace SuperImageEvolver {
             return dna;
         }
 
+
         object ICloneable.Clone() {
             return new SegmentedInitializer( Color ) {
                 MaxOverlap = MaxOverlap
             };
         }
 
-        void IModule.ReadSettings( NBTag tag ) { }
 
-        void IModule.WriteSettings( NBTag tag ) { }
+        void IModule.ReadSettings( NBTag tag ) {}
+
+        void IModule.WriteSettings( NBTag tag ) {}
     }
 }

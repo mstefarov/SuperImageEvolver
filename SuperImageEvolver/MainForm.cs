@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -7,8 +8,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using System.Collections.Generic;
-
 
 namespace SuperImageEvolver {
     public sealed partial class MainForm : Form {
@@ -74,7 +73,9 @@ namespace SuperImageEvolver {
                 }
             }
         }
+
         float originalZoom = 1;
+
 
         void SetImage( Bitmap image ) {
             State.OriginalImage = image;
@@ -126,12 +127,14 @@ namespace SuperImageEvolver {
                         State.SerializeNBT().WriteTag( State.ProjectFileName + ".autosave.sie" );
                         autosaveNext = DateTime.UtcNow.Add( autosaveInterval );
                         Invoke( (Action)delegate {
-                            Text = Path.GetFileName( State.ProjectFileName ) + " | SuperImageEvolver | autosaved " + DateTime.Now;
+                            Text = Path.GetFileName( State.ProjectFileName ) + " | SuperImageEvolver | autosaved " +
+                                   DateTime.Now;
                         } );
                     }
                 }
             }
         }
+
 
         void Run() {
             Random rand = new Random();
@@ -140,12 +143,14 @@ namespace SuperImageEvolver {
             while( !stopped ) {
                 Interlocked.Increment( ref State.MutationCounter );
                 DNA mutation = State.Mutator.Mutate( rand, State.BestMatch, State );
-                mutation.Divergence = State.Evaluator.CalculateDivergence( testCanvas, mutation, State, State.BestMatch.Divergence );
+                mutation.Divergence = State.Evaluator.CalculateDivergence( testCanvas, mutation, State,
+                                                                           State.BestMatch.Divergence );
 
                 double improvement = State.BestMatch.Divergence - mutation.Divergence;
                 if( improvement > 0 ) {
                     lock( State.ImprovementLock ) {
-                        mutation.Divergence = State.Evaluator.CalculateDivergence( testCanvas, mutation, State, State.BestMatch.Divergence );
+                        mutation.Divergence = State.Evaluator.CalculateDivergence( testCanvas, mutation, State,
+                                                                                   State.BestMatch.Divergence );
                         improvement = State.BestMatch.Divergence - mutation.Divergence;
                         if( improvement > 0 ) {
                             State.HasChangedSinceSave = true;
@@ -170,18 +175,21 @@ namespace SuperImageEvolver {
             }
         }
 
+
         int lastMutationtCounter;
         DateTime lastUpdate;
+
 
         void UpdateStatus() {
             while( !stopped ) {
                 try {
                     Invoke( (Action)UpdateTick );
-                } catch( ObjectDisposedException ) { }
+                } catch( ObjectDisposedException ) {}
 
                 Thread.Sleep( State.ProjectOptions.RefreshRate );
             }
         }
+
 
         void UpdateTick() {
             try {
@@ -227,6 +235,7 @@ SinceImproved: {7} / {6}",
 
 
         Thread updateThread;
+
 
         void Reset() {
             foreach( MutationType type in Enum.GetValues( typeof( MutationType ) ) ) {
@@ -292,84 +301,106 @@ SinceImproved: {7} / {6}",
         }
 
 
-        private void cInitializer_SelectedIndexChanged( object sender, EventArgs e ) {
+        void cInitializer_SelectedIndexChanged( object sender, EventArgs e ) {
             State.HasChangedSinceSave = true;
             switch( cInitializer.SelectedIndex ) {
                 case 0:
-                    State.Initializer = new SolidColorInitializer( Color.Black ); break;
+                    State.Initializer = new SolidColorInitializer( Color.Black );
+                    break;
                 case 1:
-                    State.Initializer = new SegmentedInitializer( Color.Black ); break;
+                    State.Initializer = new SegmentedInitializer( Color.Black );
+                    break;
                 case 2:
-                    State.Initializer = new RadialInitializer( Color.Black ); break;
+                    State.Initializer = new RadialInitializer( Color.Black );
+                    break;
             }
         }
 
 
-        private void cMutator_SelectedIndexChanged( object sender, EventArgs e ) {
+        void cMutator_SelectedIndexChanged( object sender, EventArgs e ) {
             State.HasChangedSinceSave = true;
             switch( cMutator.SelectedIndex ) {
                 case 0:
-                    State.Mutator = new HarderMutator(); break;
+                    State.Mutator = new HarderMutator();
+                    break;
                 case 1:
-                    State.Mutator = new HardMutator(); break;
+                    State.Mutator = new HardMutator();
+                    break;
                 case 2:
-                    State.Mutator = new MediumMutator(); break;
+                    State.Mutator = new MediumMutator();
+                    break;
                 case 3:
-                    State.Mutator = new SoftMutator( 8, 12 ); break;
+                    State.Mutator = new SoftMutator( 8, 12 );
+                    break;
                 case 4:
-                    State.Mutator = new SoftMutator( 1, 2 ); break;
+                    State.Mutator = new SoftMutator( 1, 2 );
+                    break;
                 case 5:
                     State.Mutator = new TranslateMutator {
                         PreserveAspectRatio = true
-                    }; break;
+                    };
+                    break;
                 case 6:
-                    State.Mutator = new TranslateMutator(); break;
+                    State.Mutator = new TranslateMutator();
+                    break;
                 case 7:
                     State.Mutator = new TranslateMutator {
                         PreserveAspectRatio = true,
                         EnableRotation = true
-                    }; break;
+                    };
+                    break;
                 case 8:
                     State.Mutator = new TranslateMutator {
                         EnableRotation = true
-                    }; break;
+                    };
+                    break;
                 case 9:
                     State.Mutator = new SoftTranslateMutator {
                         PreserveAspectRatio = true
-                    }; break;
+                    };
+                    break;
                 case 10:
-                    State.Mutator = new SoftTranslateMutator(); break;
+                    State.Mutator = new SoftTranslateMutator();
+                    break;
                 case 11:
                     State.Mutator = new SoftTranslateMutator {
                         PreserveAspectRatio = true,
                         EnableRotation = true
-                    }; break;
+                    };
+                    break;
                 case 12:
                     State.Mutator = new SoftTranslateMutator {
                         EnableRotation = true
-                    }; break;
+                    };
+                    break;
                 case 13:
                     State.Mutator = new HardishMutator {
                         MaxColorDelta = 16,
                         MaxPosDelta = 64
-                    }; break;
+                    };
+                    break;
             }
         }
 
 
-        private void cEvaluator_SelectedIndexChanged( object sender, EventArgs e ) {
+        void cEvaluator_SelectedIndexChanged( object sender, EventArgs e ) {
             State.HasChangedSinceSave = true;
             switch( cEvaluator.SelectedIndex ) {
                 case 0:
-                    State.SetEvaluator( new SloppyRGBEvaluator() ); break;
+                    State.SetEvaluator( new SloppyRGBEvaluator() );
+                    break;
                 case 1:
-                    State.SetEvaluator( new RGBEvaluator( false ) ); break;
+                    State.SetEvaluator( new RGBEvaluator( false ) );
+                    break;
                 case 2:
-                    State.SetEvaluator( new RGBEvaluator( true ) ); break;
+                    State.SetEvaluator( new RGBEvaluator( true ) );
+                    break;
                 case 3:
-                    State.SetEvaluator( new LumaEvaluator( false ) ); break;
+                    State.SetEvaluator( new LumaEvaluator( false ) );
+                    break;
                 case 4:
-                    State.SetEvaluator( new LumaEvaluator( true ) ); break;
+                    State.SetEvaluator( new LumaEvaluator( true ) );
+                    break;
             }
             picBestMatch.Invalidate();
             graphWindow1.Invalidate();
@@ -378,7 +409,7 @@ SinceImproved: {7} / {6}",
 
         #region Menus
 
-        private void bHelpListModules_Click( object sender, EventArgs e ) {
+        void bHelpListModules_Click( object sender, EventArgs e ) {
             StringBuilder sb = new StringBuilder();
             IModuleFactory[] factories = ModuleManager.ListAllModules().OrderBy( fac => fac.Function ).ToArray();
             foreach( IModuleFactory factory in factories ) {
@@ -389,22 +420,22 @@ SinceImproved: {7} / {6}",
         }
 
 
-        private void bViewOriginalImage_Click( object sender, EventArgs e ) {
+        void bViewOriginalImage_Click( object sender, EventArgs e ) {
             picOriginal.Visible = bViewOriginalImage.Checked;
         }
 
 
-        private void bViewBestMatchImage_Click( object sender, EventArgs e ) {
+        void bViewBestMatchImage_Click( object sender, EventArgs e ) {
             picBestMatch.Visible = bViewBestMatchImage.Checked;
         }
 
 
-        private void bViewDifferenceImage_Click( object sender, EventArgs e ) {
+        void bViewDifferenceImage_Click( object sender, EventArgs e ) {
             picDiff.Visible = bViewDifferenceImage.Checked;
         }
 
 
-        private void bViewStatistics_Click( object sender, EventArgs e ) {
+        void bViewStatistics_Click( object sender, EventArgs e ) {
             pStatistics.Visible = bViewStatistics.Checked;
         }
 
@@ -414,7 +445,8 @@ SinceImproved: {7} / {6}",
             Title = "Saving best match image (raster)..."
         };
 
-        private void bExportImage_Click( object sender, EventArgs e ) {
+
+        void bExportImage_Click( object sender, EventArgs e ) {
             if( exportImageDialog.ShowDialog() == DialogResult.OK ) {
                 Bitmap exportBitmap = new Bitmap( picBestMatch.Width, picBestMatch.Height );
                 picBestMatch.DrawToBitmap( exportBitmap, new Rectangle( Point.Empty, picBestMatch.Size ) );
@@ -428,14 +460,15 @@ SinceImproved: {7} / {6}",
             Title = "Saving best match image (SVG)..."
         };
 
-        private void bExportVectors_Click( object sender, EventArgs e ) {
+
+        void bExportVectors_Click( object sender, EventArgs e ) {
             if( exportSVGDialog.ShowDialog() == DialogResult.OK ) {
                 State.SerializeSVG().Save( exportSVGDialog.FileName );
             }
         }
 
 
-        private void bNewProject_Click( object sender, EventArgs e ) {
+        void bNewProject_Click( object sender, EventArgs e ) {
             if( !stopped ) Stop();
             OpenFileDialog fd = new OpenFileDialog {
                 Filter = "Images|*.jpg;*.png;*.bmp;*.gif;*.tiff;*.tga",
@@ -447,34 +480,35 @@ SinceImproved: {7} / {6}",
         }
 
 
-        private void bSaveProjectAs_Click( object sender, EventArgs e ) {
+        void bSaveProjectAs_Click( object sender, EventArgs e ) {
             SaveProjectAs();
         }
 
 
-        private void bSaveProject_Click( object sender, EventArgs e ) {
+        void bSaveProject_Click( object sender, EventArgs e ) {
             SaveProject();
         }
 
 
-        private void bOpenProject_Click( object sender, EventArgs e ) {
+        void bOpenProject_Click( object sender, EventArgs e ) {
             OpenFileDialog fd = new OpenFileDialog {
                 Filter = "SuperImageEvolver project|*.sie",
                 Title = "Open Existing Project"
             };
             if( fd.ShowDialog() == DialogResult.OK ) {
-                OpenProject(fd.FileName);
+                OpenProject( fd.FileName );
             }
         }
 
 
-        private void bStart_Click( object sender, EventArgs e ) {
+        void bStart_Click( object sender, EventArgs e ) {
             if( stopped ) {
                 Start( State.BestMatch == null );
             }
         }
 
-        private void bRestart_Click( object sender, EventArgs e ) {
+
+        void bRestart_Click( object sender, EventArgs e ) {
             if( stopped ) {
                 Reset();
                 State.SetEvaluator( State.Evaluator );
@@ -487,14 +521,15 @@ SinceImproved: {7} / {6}",
             }
         }
 
-        private void bStop_Click( object sender, EventArgs e ) {
+
+        void bStop_Click( object sender, EventArgs e ) {
             if( !stopped ) {
                 Stop();
             }
         }
 
 
-        private void bEditInitializerSetting_Click( object sender, EventArgs e ) {
+        void bEditInitializerSetting_Click( object sender, EventArgs e ) {
             var md = new ModuleSettingsDisplay<IInitializer>( State.Initializer );
             if( md.ShowDialog() == DialogResult.OK ) {
                 State.Initializer = md.Module;
@@ -502,7 +537,8 @@ SinceImproved: {7} / {6}",
             }
         }
 
-        private void bEditMutatorSettings_Click( object sender, EventArgs e ) {
+
+        void bEditMutatorSettings_Click( object sender, EventArgs e ) {
             var md = new ModuleSettingsDisplay<IMutator>( State.Mutator );
             if( md.ShowDialog() == DialogResult.OK ) {
                 State.Mutator = md.Module;
@@ -510,7 +546,8 @@ SinceImproved: {7} / {6}",
             }
         }
 
-        private void bEditEvaluatorSettings_Click( object sender, EventArgs e ) {
+
+        void bEditEvaluatorSettings_Click( object sender, EventArgs e ) {
             var md = new ModuleSettingsDisplay<IEvaluator>( State.Evaluator );
             if( md.ShowDialog() == DialogResult.OK ) {
                 State.SetEvaluator( md.Module );
@@ -519,16 +556,18 @@ SinceImproved: {7} / {6}",
             }
         }
 
-        private void showWireframeToolStripMenuItem_CheckedChanged( object sender, EventArgs e ) {
+
+        void showWireframeToolStripMenuItem_CheckedChanged( object sender, EventArgs e ) {
             picBestMatch.Wireframe = cmBestMatchWireframe.Checked;
         }
 
-        private void showLastChangeToolStripMenuItem_CheckedChanged( object sender, EventArgs e ) {
+
+        void showLastChangeToolStripMenuItem_CheckedChanged( object sender, EventArgs e ) {
             picBestMatch.ShowLastChange = cmBestMatchShowLastChange.Checked;
         }
 
 
-        private void cmBestMatchZoom_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
+        void cmBestMatchZoom_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
             if( e.ClickedItem is ToolStripSeparator ) return;
             if( e.ClickedItem == cmBestMatchZoomSync ) {
                 cmBestMatchZoomSync.Checked = !cmBestMatchZoomSync.Checked;
@@ -562,6 +601,7 @@ SinceImproved: {7} / {6}",
             }
         }
 
+
         void ApplyBestMatchZoom( ToolStripItem item ) {
             cmBestMatchZoom50.Checked = false;
             cmBestMatchZoom75.Checked = false;
@@ -573,7 +613,8 @@ SinceImproved: {7} / {6}",
             picBestMatch.Zoom = float.Parse( item.Tag.ToString() );
         }
 
-        private void cmDiffZoom_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
+
+        void cmDiffZoom_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
             if( e.ClickedItem is ToolStripSeparator ) return;
             if( e.ClickedItem == cmDiffZoomSync ) {
                 cmDiffZoomSync.Checked = !cmDiffZoomSync.Checked;
@@ -607,6 +648,7 @@ SinceImproved: {7} / {6}",
             }
         }
 
+
         void ApplyDiffZoom( ToolStripItem item ) {
             cmDiffZoom50.Checked = false;
             cmDiffZoom75.Checked = false;
@@ -618,7 +660,8 @@ SinceImproved: {7} / {6}",
             picDiff.Zoom = float.Parse( item.Tag.ToString() );
         }
 
-        private void cmOriginalZoom_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
+
+        void cmOriginalZoom_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
             if( e.ClickedItem is ToolStripSeparator ) return;
             if( e.ClickedItem == cmOriginalZoomSync ) {
                 cmOriginalZoomSync.Checked = !cmOriginalZoomSync.Checked;
@@ -652,6 +695,7 @@ SinceImproved: {7} / {6}",
             }
         }
 
+
         void ApplyOriginalZoom( ToolStripItem item ) {
             cmOriginalZoom50.Checked = false;
             cmOriginalZoom75.Checked = false;
@@ -664,19 +708,22 @@ SinceImproved: {7} / {6}",
         }
 
 
-        private void cmDiffExaggerate_CheckedChanged( object sender, EventArgs e ) {
+        void cmDiffExaggerate_CheckedChanged( object sender, EventArgs e ) {
             picDiff.Exaggerate = cmDiffExaggerate.Checked;
         }
 
-        private void cmDiffInvert_CheckedChanged( object sender, EventArgs e ) {
+
+        void cmDiffInvert_CheckedChanged( object sender, EventArgs e ) {
             picDiff.Invert = cmDiffInvert.Checked;
         }
 
-        private void cmDiffShowColor_CheckedChanged( object sender, EventArgs e ) {
+
+        void cmDiffShowColor_CheckedChanged( object sender, EventArgs e ) {
             picDiff.ShowColor = cmDiffShowColor.Checked;
         }
 
-        private void bExportDNA_Click( object sender, EventArgs e ) {
+
+        void bExportDNA_Click( object sender, EventArgs e ) {
             if( State == null || State.BestMatch == null ) return;
             List<string> parts = new List<string> {
                 State.Vertices.ToString(),
@@ -686,17 +733,18 @@ SinceImproved: {7} / {6}",
                 parts.Add( shape.Color.R.ToString() );
                 parts.Add( shape.Color.G.ToString() );
                 parts.Add( shape.Color.B.ToString() );
-                parts.Add( (shape.Color.A / 255f).ToString() );
+                parts.Add( ( shape.Color.A / 255f ).ToString() );
                 foreach( PointF point in shape.Points ) {
-                    parts.Add( ((int)Math.Round( point.X )).ToString() );
-                    parts.Add( ((int)Math.Round( point.Y )).ToString() );
+                    parts.Add( ( (int)Math.Round( point.X ) ).ToString() );
+                    parts.Add( ( (int)Math.Round( point.Y ) ).ToString() );
                 }
             }
             Clipboard.SetText( String.Join( " ", parts.ToArray() ) );
             MessageBox.Show( "DNA Copied to clipboard." );
         }
 
-        private void bImportDNA_Click( object sender, EventArgs e ) {
+
+        void bImportDNA_Click( object sender, EventArgs e ) {
             DNAImportWindow win = new DNAImportWindow();
             if( win.ShowDialog() == DialogResult.OK ) {
                 Reset();
@@ -718,7 +766,7 @@ SinceImproved: {7} / {6}",
                         int r = Int32.Parse( parts[offset] );
                         int g = Int32.Parse( parts[offset + 1] );
                         int b = Int32.Parse( parts[offset + 2] );
-                        int a = (int)(float.Parse( parts[offset + 3] ) * 255);
+                        int a = (int)( float.Parse( parts[offset + 3] ) * 255 );
                         shape.Color = Color.FromArgb( a, r, g, b );
                         offset += 4;
                         for( int v = 0; v < State.Vertices; v++ ) {
@@ -741,11 +789,13 @@ SinceImproved: {7} / {6}",
             }
         }
 
-        private void cmDiffShowLastChange_Click( object sender, EventArgs e ) {
+
+        void cmDiffShowLastChange_Click( object sender, EventArgs e ) {
             picDiff.ShowLastChange = cmDiffShowLastChange.Checked;
         }
 
-        private void bProjectOptions_Click( object sender, EventArgs e ) {
+
+        void bProjectOptions_Click( object sender, EventArgs e ) {
             if( State == null ) return;
             var md = new ModuleSettingsDisplay<ProjectOptions>( State.ProjectOptions );
             if( md.ShowDialog() == DialogResult.OK ) {
@@ -803,7 +853,8 @@ SinceImproved: {7} / {6}",
                 picBestMatch.Visible = presentationTag.GetBool( "BestMatchVisible", picBestMatch.Visible );
                 picBestMatch.Zoom = presentationTag.GetFloat( "BestMatchZoom", picBestMatch.Zoom );
                 picBestMatch.Wireframe = presentationTag.GetBool( "BestMatchWireframe", picBestMatch.Wireframe );
-                picBestMatch.ShowLastChange = presentationTag.GetBool( "BestMatchShowLastChange", picBestMatch.ShowLastChange );
+                picBestMatch.ShowLastChange = presentationTag.GetBool( "BestMatchShowLastChange",
+                                                                       picBestMatch.ShowLastChange );
                 picDiff.Visible = presentationTag.GetBool( "DiffVisible", picDiff.Visible );
                 picDiff.Invert = presentationTag.GetBool( "DiffInvert", picDiff.Invert );
                 picDiff.Exaggerate = presentationTag.GetBool( "DiffExaggerate", picDiff.Exaggerate );
@@ -862,8 +913,9 @@ SinceImproved: {7} / {6}",
             }
         }
 
-        private void MainForm_FormClosing( object sender, FormClosingEventArgs e ) {
-            if( State != null && State.OriginalImage!= null && State.HasChangedSinceSave ) {
+
+        void MainForm_FormClosing( object sender, FormClosingEventArgs e ) {
+            if( State != null && State.OriginalImage != null && State.HasChangedSinceSave ) {
                 DialogResult result = MessageBox.Show( "Save changes to before exiting?",
                                                        "Exiting SuperImageEvolver",
                                                        MessageBoxButtons.YesNoCancel,

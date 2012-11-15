@@ -1,21 +1,32 @@
 ﻿using System;
 using System.Drawing;
 
-
 namespace SuperImageEvolver {
-
     public class HardMutatorFactory : IModuleFactory {
-        public Type ModuleType { get { return typeof( HardMutator ); } }
-        public string ID { get { return "std.HardMutator.1"; } }
-        public ModuleFunction Function { get { return ModuleFunction.Mutator; } }
+        public Type ModuleType {
+            get { return typeof( HardMutator ); }
+        }
+
+        public string ID {
+            get { return "std.HardMutator.1"; }
+        }
+
+        public ModuleFunction Function {
+            get { return ModuleFunction.Mutator; }
+        }
+
         public ModulePreset[] Presets {
             get {
-                return new[]{
-                    new ModulePreset("Hard", ()=>new HardMutator(), this )
+                return new[] {
+                    new ModulePreset( "Hard", () => new HardMutator(), this )
                 };
             }
         }
-        public IModule GetInstance() { return new HardMutator(); }
+
+
+        public IModule GetInstance() {
+            return new HardMutator();
+        }
     }
 
 
@@ -40,11 +51,13 @@ namespace SuperImageEvolver {
             return newDNA;
         }
 
+
         void MutateShape( Random rand, DNA dna, Shape shape, TaskState task ) {
             shape.PreviousState = shape.Clone() as Shape;
             switch( rand.Next( 10 ) ) {
                 case 0:
-                    shape.Color = Color.FromArgb( (byte)rand.Next( task.ProjectOptions.MinAlpha, 256 ), shape.Color.R, shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( (byte)rand.Next( task.ProjectOptions.MinAlpha, 256 ), shape.Color.R,
+                                                  shape.Color.G, shape.Color.B );
                     dna.LastMutation = MutationType.ReplaceColor;
                     if( rand.Next( 10 ) == 0 ) {
                         MutateMultiplePoints( shape, rand, dna, task );
@@ -85,14 +98,15 @@ namespace SuperImageEvolver {
             }
         }
 
+
         void MutateMultiplePoints( Shape shape, Random rand, DNA dna, TaskState task ) {
             int index = rand.Next( shape.Points.Length );
             shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
             if( rand.Next( 2 ) == 0 ) {
-                index = (index + 1) % shape.Points.Length;
+                index = ( index + 1 ) % shape.Points.Length;
                 shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
                 if( rand.Next( 2 ) == 0 ) {
-                    index = (index + 1) % shape.Points.Length;
+                    index = ( index + 1 ) % shape.Points.Length;
                     shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
                 }
                 dna.LastMutation = MutationType.ReplacePoints;
@@ -100,6 +114,7 @@ namespace SuperImageEvolver {
                 dna.LastMutation = MutationType.ReplacePoint;
             }
         }
+
 
         PointF MutatePoint( Random rand, DNA dna, PointF point, TaskState task ) {
             int maxOverlap = task.ProjectOptions.MaxOverlap;
@@ -123,10 +138,12 @@ namespace SuperImageEvolver {
             return point;
         }
 
+
         void RandomizeShape( Random rand, Shape shape, TaskState task ) {
             int maxOverlap = task.ProjectOptions.MaxOverlap;
             shape.PreviousState = shape.Clone() as Shape;
-            shape.Color = Color.FromArgb( rand.Next( task.ProjectOptions.MinAlpha, 256 ), rand.Next( 256 ), rand.Next( 256 ), rand.Next( 256 ) );
+            shape.Color = Color.FromArgb( rand.Next( task.ProjectOptions.MinAlpha, 256 ), rand.Next( 256 ),
+                                          rand.Next( 256 ), rand.Next( 256 ) );
             for( int i = 0; i < shape.Points.Length; i++ ) {
                 shape.Points[i] = new PointF( rand.NextFloat( -maxOverlap, task.ImageWidth + maxOverlap ),
                                               rand.NextFloat( -maxOverlap, task.ImageHeight + maxOverlap ) );
@@ -138,8 +155,9 @@ namespace SuperImageEvolver {
             return this;
         }
 
-        void IModule.ReadSettings( NBTag tag ) { }
 
-        void IModule.WriteSettings( NBTag tag ) { }
+        void IModule.ReadSettings( NBTag tag ) {}
+
+        void IModule.WriteSettings( NBTag tag ) {}
     }
 }

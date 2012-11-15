@@ -1,25 +1,34 @@
 ﻿using System;
 using System.Drawing;
 
-
 namespace SuperImageEvolver {
-
     public class TranslateMutatorFactory : IModuleFactory {
-        public Type ModuleType { get { return typeof( TranslateMutator ); } }
-        public string ID { get { return "std.TranslateMutator.1"; } }
-        public ModuleFunction Function { get { return ModuleFunction.Mutator; } }
+        public Type ModuleType {
+            get { return typeof( TranslateMutator ); }
+        }
+
+        public string ID {
+            get { return "std.TranslateMutator.1"; }
+        }
+
+        public ModuleFunction Function {
+            get { return ModuleFunction.Mutator; }
+        }
+
         public ModulePreset[] Presets {
             get {
-                return new[]{
-                    new ModulePreset("Translate", ()=>(new TranslateMutator{
-                        PreserveAspectRatio=true
-                    }), this ),
-                    new ModulePreset("Translate/Skew", ()=>(new TranslateMutator{
-                        PreserveAspectRatio=false
-                    }), this )
+                return new[] {
+                    new ModulePreset( "Translate", () => ( new TranslateMutator {
+                        PreserveAspectRatio = true
+                    } ), this ),
+                    new ModulePreset( "Translate/Skew", () => ( new TranslateMutator {
+                        PreserveAspectRatio = false
+                    } ), this )
                 };
             }
         }
+
+
         public IModule GetInstance() {
             return new TranslateMutator {
                 PreserveAspectRatio = true
@@ -29,15 +38,15 @@ namespace SuperImageEvolver {
 
 
     sealed class TranslateMutator : IMutator {
-
         public bool PreserveAspectRatio { get; set; }
         public bool EnableRotation { get; set; }
+
 
         public DNA Mutate( Random rand, DNA oldDNA, TaskState task ) {
             DNA newDNA = new DNA( oldDNA );
 
             Shape shape = newDNA.Shapes[rand.Next( newDNA.Shapes.Length )];
-            int choice = rand.Next( (EnableRotation? 16 : 12) );
+            int choice = rand.Next( ( EnableRotation ? 16 : 12 ) );
             switch( choice ) {
                 case 0:
                 case 1:
@@ -122,8 +131,8 @@ namespace SuperImageEvolver {
             RectangleF rect = shape.GetBoundaries();
             int maxOverlap = task.ProjectOptions.MaxOverlap;
 
-            int maxWidth = (int)(Math.Min( rect.X, task.ImageWidth - rect.Right ) + rect.Width) + maxOverlap * 2;
-            int maxHeight = (int)(Math.Min( rect.Y, task.ImageHeight - rect.Bottom ) + rect.Height) + maxOverlap * 2;
+            int maxWidth = (int)( Math.Min( rect.X, task.ImageWidth - rect.Right ) + rect.Width ) + maxOverlap * 2;
+            int maxHeight = (int)( Math.Min( rect.Y, task.ImageHeight - rect.Bottom ) + rect.Height ) + maxOverlap * 2;
 
             double newWidthRatio = rand.Next( 3, maxWidth + 1 ) / rect.Width;
             double newHeightRatio = rand.Next( 3, maxHeight + 1 ) / rect.Height;
@@ -139,8 +148,8 @@ namespace SuperImageEvolver {
             };
 
             for( int i = 0; i < shape.Points.Length; i++ ) {
-                shape.Points[i].X = (float)(rectCenter.X + (shape.Points[i].X - rectCenter.X) * newWidthRatio);
-                shape.Points[i].Y = (float)(rectCenter.Y + (shape.Points[i].Y - rectCenter.Y) * newHeightRatio);
+                shape.Points[i].X = (float)( rectCenter.X + ( shape.Points[i].X - rectCenter.X ) * newWidthRatio );
+                shape.Points[i].Y = (float)( rectCenter.Y + ( shape.Points[i].Y - rectCenter.Y ) * newHeightRatio );
             }
         }
 
@@ -149,7 +158,8 @@ namespace SuperImageEvolver {
             shape.PreviousState = shape.Clone() as Shape;
             switch( rand.Next( 4 ) ) {
                 case 0:
-                    shape.Color = Color.FromArgb( rand.NextByte( task.ProjectOptions.MinAlpha, 256 ), shape.Color.R, shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( rand.NextByte( task.ProjectOptions.MinAlpha, 256 ), shape.Color.R,
+                                                  shape.Color.G, shape.Color.B );
                     break;
                 case 1:
                     shape.Color = Color.FromArgb( shape.Color.A, rand.NextByte(), shape.Color.G, shape.Color.B );
@@ -176,11 +186,13 @@ namespace SuperImageEvolver {
             for( int i = 0; i < shape.Points.Length; i++ ) {
                 float alignedX = shape.Points[i].X - rectCenter.X;
                 float alignedY = shape.Points[i].Y - rectCenter.Y;
-                shape.Points[i].X = (float)(rectCenter.X + alignedX * Math.Cos( rotation ) - alignedY * Math.Sin( rotation ));
-                shape.Points[i].Y = (float)(rectCenter.Y + alignedX * Math.Sin( rotation ) + alignedY * Math.Cos( rotation ));
+                shape.Points[i].X =
+                    (float)( rectCenter.X + alignedX * Math.Cos( rotation ) - alignedY * Math.Sin( rotation ) );
+                shape.Points[i].Y =
+                    (float)( rectCenter.Y + alignedX * Math.Sin( rotation ) + alignedY * Math.Cos( rotation ) );
             }
         }
-        
+
 
         object ICloneable.Clone() {
             return new TranslateMutator {
@@ -189,8 +201,9 @@ namespace SuperImageEvolver {
             };
         }
 
-        void IModule.ReadSettings( NBTag tag ) { }
 
-        void IModule.WriteSettings( NBTag tag ) { }
+        void IModule.ReadSettings( NBTag tag ) {}
+
+        void IModule.WriteSettings( NBTag tag ) {}
     }
 }

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 
-
 namespace SuperImageEvolver {
     public sealed class DNA : ICloneable {
-        public DNA() { }
+        public DNA() {}
+
 
         public DNA( DNA other ) {
             Shapes = new Shape[other.Shapes.Length];
@@ -14,9 +14,12 @@ namespace SuperImageEvolver {
             Divergence = other.Divergence;
         }
 
+
         public object Clone() {
             return new DNA( this );
         }
+
+
         public MutationType LastMutation;
 
         public Shape[] Shapes;
@@ -32,6 +35,7 @@ namespace SuperImageEvolver {
             }
         }
 
+
         public NBTag SerializeNBT( string tagName ) {
             NBTCompound compound = new NBTCompound( tagName );
             compound.Append( "Divergence", Divergence );
@@ -43,29 +47,11 @@ namespace SuperImageEvolver {
             return compound;
         }
 
+
         public DNA( Stream stream, int shapes, int vertices ) {
             Shapes = new Shape[shapes];
             for( int i = 0; i < Shapes.Length; i++ ) {
                 Shapes[i] = new Shape( stream, vertices );
-            }
-        }
-    }
-
-
-    public sealed class Mutation {
-        public Mutation( DNA previousDna, DNA newDna ) {
-            PreviousDNA = previousDna;
-            NewDNA = newDna;
-            Timestamp = DateTime.UtcNow;
-        }
-
-        public DNA PreviousDNA { get; set; }
-        public DNA NewDNA { get; set; }
-        public DateTime Timestamp { get; set; }
-
-        public double DivergenceDelta {
-            get {
-                return PreviousDNA.Divergence - NewDNA.Divergence;
             }
         }
     }

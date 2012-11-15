@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Collections.Generic;
 
 namespace SuperImageEvolver {
     public sealed partial class GraphWindow : UserControl {
@@ -18,11 +18,12 @@ namespace SuperImageEvolver {
 
         readonly Pen pen = new Pen( Color.Black, 2 );
 
+
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g = e.Graphics;
             g.Clear( Color.White );
             for( int i = 1; i < 10; i++ ) {
-                float level = (float)(Math.Log( i / 10f * LogSteepness + 1 ) / Math.Log( LogSteepness + 1 )) * Height;
+                float level = (float)( Math.Log( i / 10f * LogSteepness + 1 ) / Math.Log( LogSteepness + 1 ) ) * Height;
                 g.DrawLine( Pens.Silver, 0, level, Width, level );
             }
             if( Points != null && Points.Length > 1 ) {
@@ -33,13 +34,15 @@ namespace SuperImageEvolver {
                 }
             }
             if( MainForm.State != null && MainForm.State.BestMatch != null ) {
-                g.DrawString( (1 - MainForm.State.BestMatch.Divergence).ToString( "0.0000%" ), font, Brushes.Black, PointF.Empty );
+                g.DrawString( ( 1 - MainForm.State.BestMatch.Divergence ).ToString( "0.0000%" ), font, Brushes.Black,
+                              PointF.Empty );
             }
             base.OnPaint( e );
         }
 
 
-        public void SetData( IList<PointF> input, bool logXAxis, bool logYAxis, bool normalizeYStart, bool normalizeYEnd, bool normalizeXStart, bool normalizeXEnd ) {
+        public void SetData( IList<PointF> input, bool logXAxis, bool logYAxis, bool normalizeYStart, bool normalizeYEnd,
+                             bool normalizeXStart, bool normalizeXEnd ) {
             if( input.Count < 2 ) {
                 Points = null;
             }
@@ -63,26 +66,26 @@ namespace SuperImageEvolver {
             if( !normalizeXEnd ) maxX = 1;
             if( !normalizeYEnd ) maxY = 1;
 
-            float multiplierX = 1 / (maxX - minX);
-            float constantX = -minX / (maxX - minX);
-            float multiplierY = 1 / (maxY - minY);
-            float constantY = -minY / (maxY - minY);
+            float multiplierX = 1 / ( maxX - minX );
+            float constantX = -minX / ( maxX - minX );
+            float multiplierY = 1 / ( maxY - minY );
+            float constantY = -minY / ( maxY - minY );
 
             double logScaleMultiplier = 1 / Math.Log( LogSteepness + 1 );
 
             for( int i = 0; i < input.Count; i++ ) {
                 output[i].X = input[i].X * multiplierX + constantX; // normalize
                 if( logXAxis ) {
-                    output[i].X = (float)(Math.Log( output[i].X * LogSteepness + 1 ) * logScaleMultiplier); // scale
+                    output[i].X = (float)( Math.Log( output[i].X * LogSteepness + 1 ) * logScaleMultiplier ); // scale
                 }
-                output[i].X = (Width - 1) * output[i].X;
+                output[i].X = ( Width - 1 ) * output[i].X;
 
 
                 output[i].Y = input[i].Y * multiplierY + constantY; // normalize
                 if( logYAxis ) {
-                    output[i].Y = (float)(Math.Log( output[i].Y * LogSteepness + 1 ) * logScaleMultiplier); // scale
+                    output[i].Y = (float)( Math.Log( output[i].Y * LogSteepness + 1 ) * logScaleMultiplier ); // scale
                 }
-                output[i].Y = (Height - 1) * output[i].Y;
+                output[i].Y = ( Height - 1 ) * output[i].Y;
             }
 
             Points = output;

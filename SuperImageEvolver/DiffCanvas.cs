@@ -1,10 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-using System.ComponentModel;
-
 
 namespace SuperImageEvolver {
     sealed unsafe partial class DiffCanvas : UserControl {
@@ -26,30 +25,43 @@ namespace SuperImageEvolver {
         #region Properties
 
         bool invert;
+
         [DefaultValue( false )]
         public bool Invert {
             get { return invert; }
-            set { invert = value; Invalidate(); }
+            set {
+                invert = value;
+                Invalidate();
+            }
         }
 
 
         bool showColor = true;
+
         [DefaultValue( true )]
         public bool ShowColor {
             get { return showColor; }
-            set { showColor = value; Invalidate(); }
+            set {
+                showColor = value;
+                Invalidate();
+            }
         }
 
 
         bool exaggerate = true;
+
         [DefaultValue( true )]
         public bool Exaggerate {
             get { return exaggerate; }
-            set { exaggerate = value; Invalidate(); }
+            set {
+                exaggerate = value;
+                Invalidate();
+            }
         }
 
 
         float zoom = 1;
+
         [DefaultValue( 1 )]
         public float Zoom {
             get { return zoom; }
@@ -67,15 +79,20 @@ namespace SuperImageEvolver {
 
 
         bool showLastChange;
+
         [DefaultValue( false )]
         public bool ShowLastChange {
             get { return showLastChange; }
-            set { showLastChange = value; Invalidate(); }
+            set {
+                showLastChange = value;
+                Invalidate();
+            }
         }
 
 
 
         TaskState state;
+
         public TaskState State {
             get { return state; }
             set {
@@ -101,6 +118,7 @@ namespace SuperImageEvolver {
             EndCap = LineCap.Round
         };
 
+
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g2 = e.Graphics;
             if( state != null && state.BestMatch != null ) {
@@ -109,9 +127,10 @@ namespace SuperImageEvolver {
                 using( Graphics g = Graphics.FromImage( canvasImage ) ) {
                     g.Clear( state.ProjectOptions.Matte );
 
-                    g.SmoothingMode = (state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
+                    g.SmoothingMode = ( state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed );
                     for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
-                        g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ), tempDNA.Shapes[i].Points, FillMode.Alternate );
+                        g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ), tempDNA.Shapes[i].Points,
+                                       FillMode.Alternate );
                     }
                 }
 
@@ -136,10 +155,11 @@ namespace SuperImageEvolver {
                             byte val = (byte)(deltaLuma/3);// + (deltaU + deltaV)/2);
 
                             */
-                            int originalLumi = (Math.Min( Math.Min( originalPointer[2], originalPointer[1] ), *originalPointer ) +
-                                                Math.Max( Math.Max( originalPointer[2], originalPointer[1] ), *originalPointer )) / 2;
-                            int testLumi = (Math.Min( Math.Min( testPointer[2], testPointer[1] ), *testPointer ) +
-                                            Math.Max( Math.Max( testPointer[2], testPointer[1] ), *testPointer )) / 2;
+                            int originalLumi =
+                                ( Math.Min( Math.Min( originalPointer[2], originalPointer[1] ), *originalPointer ) +
+                                  Math.Max( Math.Max( originalPointer[2], originalPointer[1] ), *originalPointer ) ) / 2;
+                            int testLumi = ( Math.Min( Math.Min( testPointer[2], testPointer[1] ), *testPointer ) +
+                                             Math.Max( Math.Max( testPointer[2], testPointer[1] ), *testPointer ) ) / 2;
 
                             /*
                             val = (byte)Math.Abs( originalLumi - testLumi );
@@ -155,32 +175,50 @@ namespace SuperImageEvolver {
                             */
 
                             if( exaggerate ) {
-                                val = (byte)Math.Max( 0, Math.Min( 255, 127 - Math.Sign( originalLumi - testLumi ) * Math.Sqrt( Math.Abs( originalLumi - testLumi ) / 255d ) * 255d ) );
+                                val =
+                                    (byte)
+                                    Math.Max( 0,
+                                              Math.Min( 255,
+                                                        127 -
+                                                        Math.Sign( originalLumi - testLumi ) *
+                                                        Math.Sqrt( Math.Abs( originalLumi - testLumi ) / 255d ) * 255d ) );
                             } else {
-                                val = (byte)Math.Max( 0, Math.Min( 255, 127 - (originalLumi - testLumi) ) );
+                                val = (byte)Math.Max( 0, Math.Min( 255, 127 - ( originalLumi - testLumi ) ) );
                             }
 
-                            if( invert ) val = (byte)(255 - val);
+                            if( invert ) val = (byte)( 255 - val );
                             testPointer[2] = val;
                             testPointer[1] = val;
                             *testPointer = val;
 
                         } else if( invert ) {
                             if( exaggerate ) {
-                                testPointer[2] = (byte)(255 - (int)(255 * Math.Sqrt( Math.Abs( originalPointer[2] - testPointer[2] ) / 255d )));
-                                testPointer[1] = (byte)(255 - (int)(255 * Math.Sqrt( Math.Abs( originalPointer[1] - testPointer[1] ) / 255d )));
-                                *testPointer = (byte)(255 - (int)(255 * Math.Sqrt( Math.Abs( *originalPointer - *testPointer ) / 255d )));
+                                testPointer[2] =
+                                    (byte)
+                                    ( 255 -
+                                      (int)( 255 * Math.Sqrt( Math.Abs( originalPointer[2] - testPointer[2] ) / 255d ) ) );
+                                testPointer[1] =
+                                    (byte)
+                                    ( 255 -
+                                      (int)( 255 * Math.Sqrt( Math.Abs( originalPointer[1] - testPointer[1] ) / 255d ) ) );
+                                *testPointer =
+                                    (byte)
+                                    ( 255 -
+                                      (int)( 255 * Math.Sqrt( Math.Abs( *originalPointer - *testPointer ) / 255d ) ) );
                             } else {
-                                testPointer[2] = (byte)(255 - Math.Abs( originalPointer[2] - testPointer[2] ));
-                                testPointer[1] = (byte)(255 - Math.Abs( originalPointer[1] - testPointer[1] ));
-                                *testPointer = (byte)(255 - Math.Abs( *originalPointer - *testPointer ));
+                                testPointer[2] = (byte)( 255 - Math.Abs( originalPointer[2] - testPointer[2] ) );
+                                testPointer[1] = (byte)( 255 - Math.Abs( originalPointer[1] - testPointer[1] ) );
+                                *testPointer = (byte)( 255 - Math.Abs( *originalPointer - *testPointer ) );
                             }
 
                         } else {
                             if( exaggerate ) {
-                                testPointer[2] = (byte)(255 * Math.Sqrt( Math.Abs( originalPointer[2] - testPointer[2] ) / 255d ));
-                                testPointer[1] = (byte)(255 * Math.Sqrt( Math.Abs( originalPointer[1] - testPointer[1] ) / 255d ));
-                                *testPointer = (byte)(255 * Math.Sqrt( Math.Abs( *originalPointer - *testPointer ) / 255d ));
+                                testPointer[2] =
+                                    (byte)( 255 * Math.Sqrt( Math.Abs( originalPointer[2] - testPointer[2] ) / 255d ) );
+                                testPointer[1] =
+                                    (byte)( 255 * Math.Sqrt( Math.Abs( originalPointer[1] - testPointer[1] ) / 255d ) );
+                                *testPointer =
+                                    (byte)( 255 * Math.Sqrt( Math.Abs( *originalPointer - *testPointer ) / 255d ) );
                             } else {
                                 testPointer[2] = (byte)Math.Abs( originalPointer[2] - testPointer[2] );
                                 testPointer[1] = (byte)Math.Abs( originalPointer[1] - testPointer[1] );
@@ -198,7 +236,7 @@ namespace SuperImageEvolver {
                 g2.DrawImageUnscaled( canvasImage, 0, 0 );
 
                 if( showLastChange ) {
-                    g2.SmoothingMode = (state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
+                    g2.SmoothingMode = ( state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed );
                     for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                         if( tempDNA.Shapes[i].PreviousState != null ) {
                             g2.DrawPolygon( LastChangePen, tempDNA.Shapes[i].Points );
@@ -209,7 +247,9 @@ namespace SuperImageEvolver {
 
             } else {
                 SizeF align = g2.MeasureString( PlaceholderText, Font );
-                g2.DrawString( PlaceholderText, Font, Brushes.White, Width / 2 - align.Width / 2, Height / 2 - align.Height / 2 );
+                g2.DrawString( PlaceholderText, Font, Brushes.White,
+                               Width / 2 - align.Width / 2,
+                               Height / 2 - align.Height / 2 );
             }
             base.OnPaint( e );
         }

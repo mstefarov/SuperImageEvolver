@@ -1,24 +1,35 @@
 ﻿using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
-
+using System.Drawing.Imaging;
 
 namespace SuperImageEvolver {
-
     public class RGBEvaluatorFactory : IModuleFactory {
-        public Type ModuleType { get { return typeof( RGBEvaluator ); } }
-        public string ID { get { return "std.RGBEvaluator.1"; } }
-        public ModuleFunction Function { get { return ModuleFunction.Evaluator; } }
+        public Type ModuleType {
+            get { return typeof( RGBEvaluator ); }
+        }
+
+        public string ID {
+            get { return "std.RGBEvaluator.1"; }
+        }
+
+        public ModuleFunction Function {
+            get { return ModuleFunction.Evaluator; }
+        }
+
         public ModulePreset[] Presets {
             get {
-                return new[]{
-                    new ModulePreset("RGB (Fast)", ()=>(new RGBEvaluator(false)), this ),
-                    new ModulePreset("RGB (Smooth)", ()=>(new RGBEvaluator(true)), this )
+                return new[] {
+                    new ModulePreset( "RGB (Fast)", () => ( new RGBEvaluator( false ) ), this ),
+                    new ModulePreset( "RGB (Smooth)", () => ( new RGBEvaluator( true ) ), this )
                 };
             }
         }
-        public IModule GetInstance() { return new RGBEvaluator(); }
+
+
+        public IModule GetInstance() {
+            return new RGBEvaluator();
+        }
     }
 
 
@@ -37,13 +48,14 @@ namespace SuperImageEvolver {
             EmphasisAmount = 2;
         }
 
+
         public RGBEvaluator( bool smooth )
             : this() {
             Smooth = smooth;
         }
 
 
-        public void Initialize( TaskState state ) { }
+        public void Initialize( TaskState state ) {}
 
 
         public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState state, double max ) {
@@ -59,10 +71,10 @@ namespace SuperImageEvolver {
             }
 
             double sum = 0;
-            double roundedMax = (max * maxDivergence + 1);
+            double roundedMax = ( max * maxDivergence + 1 );
             using( Graphics g = Graphics.FromImage( testImage ) ) {
                 g.Clear( state.ProjectOptions.Matte );
-                g.SmoothingMode = (Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
+                g.SmoothingMode = ( Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed );
 
                 for( int i = 0; i < dna.Shapes.Length; i++ ) {
                     g.FillPolygon( new SolidBrush( dna.Shapes[i].Color ), dna.Shapes[i].Points, FillMode.Alternate );
@@ -97,7 +109,8 @@ namespace SuperImageEvolver {
                             int b = Math.Abs( *originalPointer - *testPointer );
                             int g = Math.Abs( originalPointer[1] - testPointer[1] );
                             int r = Math.Abs( originalPointer[2] - testPointer[2] );
-                            sum += Math.Pow( r, EmphasisAmount ) + Math.Pow( g, EmphasisAmount ) + Math.Pow( b, EmphasisAmount );
+                            sum += Math.Pow( r, EmphasisAmount ) + Math.Pow( g, EmphasisAmount ) +
+                                   Math.Pow( b, EmphasisAmount );
                             originalPointer += 4;
                             testPointer += 4;
                         }
@@ -138,9 +151,8 @@ namespace SuperImageEvolver {
         }
 
 
-        void IModule.ReadSettings( NBTag tag ) { }
+        void IModule.ReadSettings( NBTag tag ) {}
 
-        void IModule.WriteSettings( NBTag tag ) { }
-
+        void IModule.WriteSettings( NBTag tag ) {}
     }
 }

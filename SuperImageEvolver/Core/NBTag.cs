@@ -34,10 +34,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
-using System.Drawing;
 
 namespace SuperImageEvolver {
     public enum NBTType : byte {
@@ -67,9 +67,10 @@ namespace SuperImageEvolver {
         object Payload { get; set; }
         NBTag Parent { get; set; }
 
+
         #region Constructors
 
-        protected NBTag() { }
+        protected NBTag() {}
 
 
         public NBTag( NBTType type, NBTag parent ) {
@@ -93,7 +94,7 @@ namespace SuperImageEvolver {
         public NBTag Append( NBTag tag ) {
             if( tag == null ) throw new ArgumentNullException( "tag" );
             if( tag == this ) throw new InvalidOperationException( "Cannot append tag to itself." );
-            if( !(this is NBTCompound) ) {
+            if( !( this is NBTCompound ) ) {
                 throw new InvalidOperationException( "Can only append tags to compound tags." );
             }
             tag.Parent = this;
@@ -101,55 +102,68 @@ namespace SuperImageEvolver {
             return tag;
         }
 
+
         public NBTag Append( string name, byte value ) {
             return Append( new NBTag( NBTType.Byte, name, value, this ) );
         }
+
 
         public NBTag Append( string name, short value ) {
             return Append( new NBTag( NBTType.Short, name, value, this ) );
         }
 
+
         public NBTag Append( string name, int value ) {
             return Append( new NBTag( NBTType.Int, name, value, this ) );
         }
+
 
         public NBTag Append( string name, long value ) {
             return Append( new NBTag( NBTType.Long, name, value, this ) );
         }
 
+
         public NBTag Append( string name, float value ) {
             return Append( new NBTag( NBTType.Float, name, value, this ) );
         }
 
+
         public NBTag Append( string name, double value ) {
             return Append( new NBTag( NBTType.Double, name, value, this ) );
         }
+
 
         public NBTag Append( string name, byte[] value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             return Append( new NBTag( NBTType.Bytes, name, value, this ) );
         }
 
+
         public NBTag Append( string name, string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             return Append( new NBTag( NBTType.String, name, value, this ) );
         }
 
+
         public NBTag Append( string name, bool value ) {
             return Append( new NBTag( NBTType.Bool, name, value, this ) );
         }
+
 
         public NBTag Append( string name, Color value ) {
             return Append( new NBTag( NBTType.Color, name, value, this ) );
         }
 
+
         public NBTag Append( string name, Point value ) {
             return Append( new NBTag( NBTType.Point, name, value, this ) );
         }
 
+
         public NBTag Append( string name, PointF value ) {
             return Append( new NBTag( NBTType.PointF, name, value, this ) );
         }
+
 
         public NBTag Append( string name, params NBTag[] tags ) {
             if( tags == null ) throw new ArgumentNullException( "tags" );
@@ -159,6 +173,7 @@ namespace SuperImageEvolver {
             }
             return Append( compound );
         }
+
 
         public NBTag Append( params NBTag[] tags ) {
             foreach( NBTag tag in tags ) {
@@ -174,21 +189,23 @@ namespace SuperImageEvolver {
 
         public bool Contains( string name ) {
             if( this is NBTCompound ) {
-                return ((NBTCompound)this).Tags.ContainsKey( name );
+                return ( (NBTCompound)this ).Tags.ContainsKey( name );
             } else {
                 return false;
             }
         }
 
+
         public NBTag Remove( string name ) {
             if( this is NBTCompound ) {
-                NBTag tag = (this)[name];
-                ((NBTCompound)this).Tags.Remove( name );
+                NBTag tag = ( this )[name];
+                ( (NBTCompound)this ).Tags.Remove( name );
                 return tag;
             } else {
                 throw new NotSupportedException( "Can only Remove() from compound tags." );
             }
         }
+
 
         public NBTag Remove() {
             if( Parent != null && Parent is NBTCompound ) {
@@ -212,10 +229,12 @@ namespace SuperImageEvolver {
             }
         }
 
+
         public static NBTCompound ReadStream( Stream stream ) {
             BinaryReader reader = new BinaryReader( stream );
             return (NBTCompound)ReadTag( reader, (NBTType)reader.ReadByte(), null, null );
         }
+
 
         public static NBTag ReadTag( BinaryReader reader, NBTType type, string name, NBTag parent ) {
             if( name == null && type != NBTType.End ) {
@@ -293,7 +312,8 @@ namespace SuperImageEvolver {
                         if( childTag.Name == null )
                             continue;
                         if( compound.Tags.ContainsKey( childTag.Name ) ) {
-                            throw new IOException( "NBT parsing error: null names and duplicate names are not allowed within a compound tags." );
+                            throw new IOException(
+                                "NBT parsing error: null names and duplicate names are not allowed within a compound tags." );
                         } else {
                             compound.Tags.Add( childTag.Name, childTag );
                         }
@@ -304,6 +324,7 @@ namespace SuperImageEvolver {
                     throw new IOException( "NBT parsing error: unknown tag type." );
             }
         }
+
 
         public static string ReadString( BinaryReader reader ) {
             short stringLength = reader.ReadInt16();
@@ -323,15 +344,18 @@ namespace SuperImageEvolver {
             }
         }
 
+
         public void WriteTag( Stream stream ) {
             using( BinaryWriter writer = new BinaryWriter( stream ) ) {
                 WriteTag( writer, true );
             }
         }
 
+
         public void WriteTag( BinaryWriter writer ) {
             WriteTag( writer, true );
         }
+
 
         public void WriteTag( BinaryWriter writer, bool writeType ) {
             if( writeType ) writer.Write( (byte)Type );
@@ -363,7 +387,7 @@ namespace SuperImageEvolver {
                     return;
 
                 case NBTType.Bytes:
-                    writer.Write( ((byte[])Payload).Length );
+                    writer.Write( ( (byte[])Payload ).Length );
                     writer.Write( (byte[])Payload );
                     return;
 
@@ -376,17 +400,17 @@ namespace SuperImageEvolver {
                     return;
 
                 case NBTType.Color:
-                    writer.Write( ((Color)Payload).ToArgb() );
+                    writer.Write( ( (Color)Payload ).ToArgb() );
                     return;
 
                 case NBTType.Point:
-                    writer.Write( ((Point)Payload).X );
-                    writer.Write( ((Point)Payload).Y );
+                    writer.Write( ( (Point)Payload ).X );
+                    writer.Write( ( (Point)Payload ).Y );
                     break;
 
                 case NBTType.PointF:
-                    writer.Write( ((PointF)Payload).X );
-                    writer.Write( ((PointF)Payload).Y );
+                    writer.Write( ( (PointF)Payload ).X );
+                    writer.Write( ( (PointF)Payload ).Y );
                     break;
 
 
@@ -413,6 +437,7 @@ namespace SuperImageEvolver {
             }
         }
 
+
         public static void WriteString( string str, BinaryWriter writer ) {
             byte[] stringBytes = Encoding.UTF8.GetBytes( str );
             writer.Write( (short)stringBytes.Length );
@@ -423,130 +448,236 @@ namespace SuperImageEvolver {
 
 
         #region Accessors
-        public byte GetByte() { return (byte)Payload; }
-        public short GetShort() { return (short)Payload; }
-        public int GetInt() { return (int)Payload; }
-        public long GetLong() { return (long)Payload; }
-        public float GetFloat() { return (float)Payload; }
-        public double GetDouble() { return (double)Payload; }
-        public byte[] GetBytes() { return (byte[])Payload; }
-        public string GetString() { return (string)Payload; }
-        public bool GetBool() { return (bool)Payload; }
-        public Color GetColor() { return (Color)Payload; }
-        public Point GetPoint() { return (Point)Payload; }
-        public PointF GetPointF() { return (PointF)Payload; }
 
-        public void Set( object payload ) { Payload = payload; }
+        public byte GetByte() {
+            return (byte)Payload;
+        }
+
+
+        public short GetShort() {
+            return (short)Payload;
+        }
+
+
+        public int GetInt() {
+            return (int)Payload;
+        }
+
+
+        public long GetLong() {
+            return (long)Payload;
+        }
+
+
+        public float GetFloat() {
+            return (float)Payload;
+        }
+
+
+        public double GetDouble() {
+            return (double)Payload;
+        }
+
+
+        public byte[] GetBytes() {
+            return (byte[])Payload;
+        }
+
+
+        public string GetString() {
+            return (string)Payload;
+        }
+
+
+        public bool GetBool() {
+            return (bool)Payload;
+        }
+
+
+        public Color GetColor() {
+            return (Color)Payload;
+        }
+
+
+        public Point GetPoint() {
+            return (Point)Payload;
+        }
+
+
+        public PointF GetPointF() {
+            return (PointF)Payload;
+        }
+
+
+        public void Set( object payload ) {
+            Payload = payload;
+        }
+
 
         object GetChild( string name, object defaultValue ) {
             return Contains( name ) ? this[name].Payload : defaultValue;
         }
 
 
-        public byte GetByte( string name, byte defaultValue ) { return (byte)GetChild( name, defaultValue ); }
-        public short GetShort( string name, short defaultValue ) { return (short)GetChild( name, defaultValue ); }
-        public int GetInt( string name, int defaultValue ) { return (int)GetChild( name, defaultValue ); }
-        public long GetLong( string name, long defaultValue ) { return (long)GetChild( name, defaultValue ); }
-        public float GetFloat( string name, float defaultValue ) { return (float)GetChild( name, defaultValue ); }
-        public double GetDouble( string name, double defaultValue ) { return (double)GetChild( name, defaultValue ); }
-        public byte[] GetBytes( string name, byte[] defaultValue ) { return (byte[])GetChild( name, defaultValue ); }
-        public string GetString( string name, string defaultValue ) { return (string)GetChild( name, defaultValue ); }
-        public bool GetBool( string name, bool defaultValue ) { return (bool)GetChild( name, defaultValue ); }
-        public Color GetColor( string name, Color defaultValue ) { return (Color)GetChild( name, defaultValue ); }
-        public Point GetPoint( string name, Point defaultValue ) { return (Point)GetChild( name, defaultValue ); }
-        public PointF GetPointF( string name, PointF defaultValue ) { return (PointF)GetChild( name, defaultValue ); }
+        public byte GetByte( string name, byte defaultValue ) {
+            return (byte)GetChild( name, defaultValue );
+        }
+
+
+        public short GetShort( string name, short defaultValue ) {
+            return (short)GetChild( name, defaultValue );
+        }
+
+
+        public int GetInt( string name, int defaultValue ) {
+            return (int)GetChild( name, defaultValue );
+        }
+
+
+        public long GetLong( string name, long defaultValue ) {
+            return (long)GetChild( name, defaultValue );
+        }
+
+
+        public float GetFloat( string name, float defaultValue ) {
+            return (float)GetChild( name, defaultValue );
+        }
+
+
+        public double GetDouble( string name, double defaultValue ) {
+            return (double)GetChild( name, defaultValue );
+        }
+
+
+        public byte[] GetBytes( string name, byte[] defaultValue ) {
+            return (byte[])GetChild( name, defaultValue );
+        }
+
+
+        public string GetString( string name, string defaultValue ) {
+            return (string)GetChild( name, defaultValue );
+        }
+
+
+        public bool GetBool( string name, bool defaultValue ) {
+            return (bool)GetChild( name, defaultValue );
+        }
+
+
+        public Color GetColor( string name, Color defaultValue ) {
+            return (Color)GetChild( name, defaultValue );
+        }
+
+
+        public Point GetPoint( string name, Point defaultValue ) {
+            return (Point)GetChild( name, defaultValue );
+        }
+
+
+        public PointF GetPointF( string name, PointF defaultValue ) {
+            return (PointF)GetChild( name, defaultValue );
+        }
 
         #endregion
 
 
         #region Indexers
-        public NBTag this[int index] {
+
+        public NBTag this[ int index ] {
             get {
                 if( this is NBTList ) {
-                    return ((NBTList)this).Tags[index];
+                    return ( (NBTList)this ).Tags[index];
                 } else {
                     throw new NotSupportedException();
                 }
             }
             set {
                 if( this is NBTList ) {
-                    ((NBTList)this).Tags[index] = value;
+                    ( (NBTList)this ).Tags[index] = value;
                 } else {
                     throw new NotSupportedException();
                 }
             }
         }
 
-        public NBTag this[string key] {
+
+        public NBTag this[ string key ] {
             get {
                 if( this is NBTCompound ) {
-                    return ((NBTCompound)this).Tags[key];
+                    return ( (NBTCompound)this ).Tags[key];
                 } else {
                     throw new NotSupportedException();
                 }
             }
             set {
                 if( this is NBTCompound ) {
-                    ((NBTCompound)this).Tags[key] = value;
+                    ( (NBTCompound)this ).Tags[key] = value;
                 } else {
                     throw new NotSupportedException();
                 }
             }
         }
+
         #endregion
 
 
         #region Enumerators
+
         public IEnumerator<NBTag> GetEnumerator() {
             return new NBTEnumerator( this );
         }
+
 
         IEnumerator IEnumerable.GetEnumerator() {
             return new NBTEnumerator( this );
         }
 
+
         public sealed class NBTEnumerator : IEnumerator<NBTag> {
             readonly NBTag[] tags;
             int index = -1;
 
+
             public NBTEnumerator( NBTag tag ) {
                 if( tag is NBTCompound ) {
-                    tags = new NBTag[((NBTCompound)tag).Tags.Count];
-                    ((NBTCompound)tag).Tags.Values.CopyTo( tags, 0 );
+                    tags = new NBTag[( (NBTCompound)tag ).Tags.Count];
+                    ( (NBTCompound)tag ).Tags.Values.CopyTo( tags, 0 );
                 } else if( tag is NBTList ) {
-                    tags = ((NBTList)tag).Tags;
+                    tags = ( (NBTList)tag ).Tags;
                 } else {
                     tags = new NBTag[0];
                 }
             }
 
+
             public NBTag Current {
-                get {
-                    return tags[index];
-                }
+                get { return tags[index]; }
             }
 
             object IEnumerator.Current {
-                get {
-                    return tags[index];
-                }
+                get { return tags[index]; }
             }
+
 
             public bool MoveNext() {
                 if( index < tags.Length ) index++;
                 return index < tags.Length;
             }
 
+
             public void Reset() {
                 index = -1;
             }
 
-            public void Dispose() { }
+
+            public void Dispose() {}
         }
+
         #endregion
 
 
         #region ToString
+
         public string GetFullName() {
             string fullName = ToString();
             NBTag tag = this;
@@ -557,6 +688,7 @@ namespace SuperImageEvolver {
             return fullName;
         }
 
+
         public string GetIndentedName() {
             string fullName = ToString();
             NBTag tag = this;
@@ -566,6 +698,7 @@ namespace SuperImageEvolver {
             }
             return fullName;
         }
+
 
         public override string ToString() {
             switch( Type ) {
@@ -588,6 +721,7 @@ namespace SuperImageEvolver {
             }
         }
 
+
         public string ToString( bool recursive ) {
             string output = GetIndentedName() + Environment.NewLine;
             NBTList thisList = this as NBTList;
@@ -601,6 +735,7 @@ namespace SuperImageEvolver {
             }
             return output;
         }
+
         #endregion
     }
 
@@ -609,22 +744,27 @@ namespace SuperImageEvolver {
         public NBTList() {
             Type = NBTType.List;
         }
+
+
         public NBTList( string name, NBTType type, int count ) {
             Name = name;
             Type = NBTType.List;
             ListType = type;
             Tags = new NBTag[count];
         }
+
+
         public NBTList( string name, NBTType type, Array payloads ) {
             if( payloads == null ) throw new ArgumentNullException( "payloads" );
             Name = name;
             Type = NBTType.List;
             ListType = type;
             if( ListType == NBTType.Compound ) {
-                if( !(payloads is NBTCompound[]) ) throw new ArgumentException( "Expected NBTCompound[]", "payloads" );
+                if( !( payloads is NBTCompound[] ) )
+                    throw new ArgumentException( "Expected NBTCompound[]", "payloads" );
                 Tags = (NBTCompound[])payloads.Clone();
             } else if( ListType == NBTType.List ) {
-                if( !(payloads is NBTList[]) ) throw new ArgumentException( "Expected NBTList[]", "payloads" );
+                if( !( payloads is NBTList[] ) ) throw new ArgumentException( "Expected NBTList[]", "payloads" );
                 Tags = (NBTList[])payloads.Clone();
             } else {
                 Tags = new NBTag[payloads.Length];
@@ -633,6 +773,8 @@ namespace SuperImageEvolver {
                 }
             }
         }
+
+
         public NBTag[] Tags;
         public NBTType ListType;
     }
@@ -643,6 +785,8 @@ namespace SuperImageEvolver {
             Type = NBTType.Compound;
             Name = name;
         }
+
+
         public readonly Dictionary<string, NBTag> Tags = new Dictionary<string, NBTag>();
     }
 }

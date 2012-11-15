@@ -47,9 +47,7 @@ namespace SuperImageEvolver {
             BackColor = tag["BackColor"].GetColor();
             MaxOverlap = tag["MaxOverlap"].GetInt();
             MinAlpha = tag["MinAlpha"].GetByte();
-            if( tag.Contains( "RefreshRate" ) ) {
-                RefreshRate = new TimeSpan( tag["RefreshRate"].GetLong() );
-            }
+            RefreshRate = new TimeSpan( tag.GetLong( "RefreshRate", RefreshRate.Ticks ) );
         }
     }
 }

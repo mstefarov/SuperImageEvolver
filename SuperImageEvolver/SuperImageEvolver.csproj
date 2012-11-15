@@ -61,6 +61,7 @@
     <Compile Include="Canvas.Designer.cs">
       <DependentUpon>Canvas.cs</DependentUpon>
     </Compile>
+    <Compile Include="Core\Mutation.cs" />
     <Compile Include="Core\ProjectOptions.cs" />
     <Compile Include="DiffCanvas.cs">
       <SubType>UserControl</SubType>

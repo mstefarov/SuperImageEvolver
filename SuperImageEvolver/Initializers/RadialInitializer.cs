@@ -2,19 +2,31 @@
 using System.Drawing;
 
 namespace SuperImageEvolver {
-
     public class RadialInitializerFactory : IModuleFactory {
-        public Type ModuleType { get { return typeof( RadialInitializer ); } }
-        public string ID { get { return "std.RadialInitializer.1"; } }
-        public ModuleFunction Function { get { return ModuleFunction.Initializer; } }
+        public Type ModuleType {
+            get { return typeof( RadialInitializer ); }
+        }
+
+        public string ID {
+            get { return "std.RadialInitializer.1"; }
+        }
+
+        public ModuleFunction Function {
+            get { return ModuleFunction.Initializer; }
+        }
+
         public ModulePreset[] Presets {
             get {
-                return new[]{
-                    new ModulePreset("Radial", ()=>(new RadialInitializer(Color.Black)), this )
+                return new[] {
+                    new ModulePreset( "Radial", () => ( new RadialInitializer( Color.Black ) ), this )
                 };
             }
         }
-        public IModule GetInstance() { return new RadialInitializer( Color.Black ); }
+
+
+        public IModule GetInstance() {
+            return new RadialInitializer( Color.Black );
+        }
     }
 
 
@@ -22,6 +34,7 @@ namespace SuperImageEvolver {
         public Color Color { get; set; }
         public int MaxOverlap { get; set; }
         public byte StartingAlpha { get; set; }
+
 
         public RadialInitializer( Color color ) {
             Color = color;
@@ -44,8 +57,8 @@ namespace SuperImageEvolver {
                                           rand.Next( radius - MaxOverlap, task.ImageHeight - radius + MaxOverlap ) );
                 for( int j = 0; j < shape.Points.Length; j++ ) {
                     double t = j * Math.PI * 2 / shape.Points.Length + Math.PI / task.Vertices;
-                    shape.Points[j].X = (float)(center.X + Math.Cos( t ) * radius);
-                    shape.Points[j].Y = (float)(center.Y + Math.Sin( t ) * radius);
+                    shape.Points[j].X = (float)( center.X + Math.Cos( t ) * radius );
+                    shape.Points[j].Y = (float)( center.Y + Math.Sin( t ) * radius );
                 }
                 if( shape.GetBoundaries().Width < 1 || shape.GetBoundaries().Height < 1 ) {
                     continue;
@@ -55,6 +68,7 @@ namespace SuperImageEvolver {
             return dna;
         }
 
+
         object ICloneable.Clone() {
             return new RadialInitializer( Color ) {
                 MaxOverlap = MaxOverlap
@@ -62,8 +76,8 @@ namespace SuperImageEvolver {
         }
 
 
-        void IModule.ReadSettings( NBTag tag ) { }
+        void IModule.ReadSettings( NBTag tag ) {}
 
-        void IModule.WriteSettings( NBTag tag ) { }
+        void IModule.WriteSettings( NBTag tag ) {}
     }
 }

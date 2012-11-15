@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Drawing;
-
 
 namespace SuperImageEvolver {
     public static class ModuleManager {
-
         static readonly Dictionary<string, IModuleFactory> FactoriesById = new Dictionary<string, IModuleFactory>();
         static readonly Dictionary<string, ModulePreset> Presets = new Dictionary<string, ModulePreset>();
         static readonly Dictionary<Type, IModuleFactory> FactoriesByType = new Dictionary<Type, IModuleFactory>();
 
+
         public static Dictionary<string, ModulePreset> GetPresets( ModuleFunction function ) {
             return Presets.Where( p => p.Value.Factory.Function == function ).ToDictionary( k => k.Key, v => v.Value );
         }
+
 
         public static void LoadAllPluginAssemblies( string path ) {
             foreach( string file in Directory.GetFiles( path, "*.SIE.dll" ) ) {
@@ -73,6 +73,7 @@ namespace SuperImageEvolver {
             }
         }
 
+
         public static IModuleFactory[] ListAllModules() {
             return FactoriesById.Values.ToArray();
         }
@@ -88,13 +89,13 @@ namespace SuperImageEvolver {
             IModuleFactory factory = GetFactoryByID( moduleID );
             IModule module = factory.GetInstance();
 
-            if( tag.Contains( "Properties" ) ) {
-            }
+            if( tag.Contains( "Properties" ) ) {}
 
             module.ReadSettings( tag["Settings"] );
 
             return module;
         }
+
 
         public static void ReadModuleProperties( IModule module, NBTag tag ) {
             IModuleFactory factory = GetFactoryByType( module.GetType() );
@@ -140,7 +141,8 @@ namespace SuperImageEvolver {
             IModuleFactory factory = GetFactoryByType( module.GetType() );
             root.Append( "ID", factory.ID );
 
-            bool auto = !factory.ModuleType.GetCustomAttributes( typeof( DisableAutoSerializationAttribute ), true ).Any();
+            bool auto =
+                !factory.ModuleType.GetCustomAttributes( typeof( DisableAutoSerializationAttribute ), true ).Any();
             if( auto ) {
                 root.Append( WriteModuleProperties( module ) );
             }
@@ -153,7 +155,7 @@ namespace SuperImageEvolver {
 
         public static NBTag WriteModuleProperties( IModule module ) {
             IModuleFactory factory = GetFactoryByType( module.GetType() );
-            NBTag root = new NBTCompound("Properties");
+            NBTag root = new NBTCompound( "Properties" );
             foreach( PropertyInfo p in factory.ModuleType.GetProperties() ) {
                 object val = p.GetValue( module, null );
                 if( p.PropertyType == typeof( byte ) ) {

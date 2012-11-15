@@ -3,21 +3,32 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 
-
 namespace SuperImageEvolver {
-
     public class SloppyRGBEvaluatorFactory : IModuleFactory {
-        public Type ModuleType { get { return typeof( SloppyRGBEvaluator ); } }
-        public string ID { get { return "std.SloppyRGBEvaluator.1"; } }
-        public ModuleFunction Function { get { return ModuleFunction.Evaluator; } }
+        public Type ModuleType {
+            get { return typeof( SloppyRGBEvaluator ); }
+        }
+
+        public string ID {
+            get { return "std.SloppyRGBEvaluator.1"; }
+        }
+
+        public ModuleFunction Function {
+            get { return ModuleFunction.Evaluator; }
+        }
+
         public ModulePreset[] Presets {
             get {
-                return new[]{
-                    new ModulePreset("RGB (Sloppy)", ()=>(new SloppyRGBEvaluator()), this )
+                return new[] {
+                    new ModulePreset( "RGB (Sloppy)", () => ( new SloppyRGBEvaluator() ), this )
                 };
             }
         }
-        public IModule GetInstance() { return new SloppyRGBEvaluator(); }
+
+
+        public IModule GetInstance() {
+            return new SloppyRGBEvaluator();
+        }
     }
 
 
@@ -30,6 +41,7 @@ namespace SuperImageEvolver {
         public bool Smooth { get; set; }
         public bool Emphasized { get; set; }
         public double EmphasisAmount { get; set; }
+
 
         public SloppyRGBEvaluator() {
             Smooth = true;
@@ -56,18 +68,19 @@ namespace SuperImageEvolver {
                 if( EmphasisAmount == 2 ) {
                     maxDivergence = 3L * state.ImageWidth / 2L * state.ImageHeight / 2L * 255L * 255L;
                 } else {
-                    maxDivergence = (long)(3L * state.ImageWidth / 2L * state.ImageHeight / 2L * Math.Pow( 255, EmphasisAmount ));
+                    maxDivergence =
+                        (long)( 3L * state.ImageWidth / 2L * state.ImageHeight / 2L * Math.Pow( 255, EmphasisAmount ) );
                 }
             } else {
                 maxDivergence = 3L * state.ImageWidth / 2L * state.ImageHeight / 2L * 255L;
             }
 
             long sum = 0;
-            long roundedMax = (long)(max * maxDivergence + 1);
+            long roundedMax = (long)( max * maxDivergence + 1 );
             using( Graphics g = Graphics.FromImage( testImage ) ) {
                 g.Clear( state.ProjectOptions.Matte );
                 g.Transform = new Matrix( .5f, 0, 0, .5f, 0, 0 );
-                g.SmoothingMode = (Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
+                g.SmoothingMode = ( Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed );
                 for( int i = 0; i < dna.Shapes.Length; i++ ) {
                     g.FillPolygon( new SolidBrush( dna.Shapes[i].Color ), dna.Shapes[i].Points, FillMode.Alternate );
                 }
@@ -87,7 +100,10 @@ namespace SuperImageEvolver {
                         if( EmphasisAmount == 2 ) {
                             sum += r * r + b * b + g * g;
                         } else {
-                            sum += (long)(Math.Pow( r, EmphasisAmount ) + Math.Pow( g, EmphasisAmount ) + Math.Pow( b, EmphasisAmount ));
+                            sum +=
+                                (long)
+                                ( Math.Pow( r, EmphasisAmount ) + Math.Pow( g, EmphasisAmount ) +
+                                  Math.Pow( b, EmphasisAmount ) );
                         }
                     } else {
                         sum += r + b + g;
@@ -115,10 +131,8 @@ namespace SuperImageEvolver {
         }
 
 
+        void IModule.ReadSettings( NBTag tag ) {}
 
-        void IModule.ReadSettings( NBTag tag ) { }
-
-        void IModule.WriteSettings( NBTag tag ) { }
-
+        void IModule.WriteSettings( NBTag tag ) {}
     }
 }

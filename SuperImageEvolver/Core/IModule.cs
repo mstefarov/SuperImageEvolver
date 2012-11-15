@@ -28,16 +28,20 @@ namespace SuperImageEvolver {
             Factory = factory;
         }
 
+
         readonly ModuleInstanceCallback callback;
         public string Name { get; private set; }
         public IModuleFactory Factory { get; private set; }
+
 
         public IModule GetInstance() {
             return callback();
         }
     }
 
+
     public delegate IModule ModuleInstanceCallback();
+
 
     public enum ModuleFunction {
         Evaluator,
@@ -45,5 +49,6 @@ namespace SuperImageEvolver {
         Mutator
     }
 
-    public sealed class DisableAutoSerializationAttribute : Attribute { }
+
+    public sealed class DisableAutoSerializationAttribute : Attribute {}
 }

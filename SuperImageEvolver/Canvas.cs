@@ -1,30 +1,33 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using System.ComponentModel;
-
 
 namespace SuperImageEvolver {
     sealed partial class Canvas : UserControl {
         public Canvas() {
             InitializeComponent();
             DoubleBuffered = true;
-
-            MouseClick += delegate( object sender, MouseEventArgs e ) {
-                switch( e.Button ) {
-                    case MouseButtons.Left:
-                        state.ClickLocation = PointToClient( MousePosition );
-                        break;
-
-                    case MouseButtons.Middle:
-                        state.ClickLocation = default( Point );
-                        break;
-                }
-            };
+            MouseClick += OnMouseClick;
         }
 
+
+        void OnMouseClick( object sender, MouseEventArgs e ) {
+            switch( e.Button ) {
+                case MouseButtons.Left:
+                    state.ClickLocation = PointToClient( MousePosition );
+                    break;
+
+                case MouseButtons.Middle:
+                    state.ClickLocation = default( Point );
+                    break;
+            }
+        }
+
+
         TaskState state;
+
         public TaskState State {
             get { return state; }
             set {
@@ -40,6 +43,7 @@ namespace SuperImageEvolver {
         }
 
         float zoom = 1;
+
         [DefaultValue( 1 )]
         public float Zoom {
             get { return zoom; }
@@ -56,18 +60,26 @@ namespace SuperImageEvolver {
         }
 
         bool wireframe;
+
         [DefaultValue( false )]
         public bool Wireframe {
             get { return wireframe; }
-            set { wireframe = value; Invalidate(); }
+            set {
+                wireframe = value;
+                Invalidate();
+            }
         }
 
 
         bool showLastChange;
+
         [DefaultValue( false )]
         public bool ShowLastChange {
             get { return showLastChange; }
-            set { showLastChange = value; Invalidate(); }
+            set {
+                showLastChange = value;
+                Invalidate();
+            }
         }
 
 
@@ -86,7 +98,7 @@ namespace SuperImageEvolver {
                 e.Graphics.ScaleTransform( zoom, zoom );
                 LastChangePen.Width = 2 / zoom;
                 DNA tempDNA = state.BestMatch;
-                g.SmoothingMode = (state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
+                g.SmoothingMode = ( state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed );
 
                 for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                     g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ), tempDNA.Shapes[i].Points, FillMode.Winding );
@@ -105,7 +117,9 @@ namespace SuperImageEvolver {
             } else {
                 g.Clear( Color.White );
                 SizeF align = g.MeasureString( PlaceholderText, Font );
-                g.DrawString( PlaceholderText, Font, Brushes.Black, Width / 2 - align.Width / 2, Height / 2 - align.Height / 2 );
+                g.DrawString( PlaceholderText, Font, Brushes.Black,
+                              Width / 2 - align.Width / 2,
+                              Height / 2 - align.Height / 2 );
             }
             base.OnPaint( e );
         }

@@ -23,7 +23,7 @@ namespace SuperImageEvolver {
 
         public readonly List<PointF> MutationDataLog = new List<PointF>();
 
-        public IInitializer Initializer = new SegmentedInitializer(Color.Black);
+        public IInitializer Initializer = new SegmentedInitializer( Color.Black );
         public IMutator Mutator = new HardMutator();
         public IEvaluator Evaluator = new RGBEvaluator( false );
 
@@ -40,7 +40,7 @@ namespace SuperImageEvolver {
 
         public readonly Dictionary<MutationType, int> MutationCounts = new Dictionary<MutationType, int>();
         public readonly Dictionary<MutationType, double> MutationImprovements = new Dictionary<MutationType, double>();
-        
+
 
         public void SetEvaluator( IEvaluator newEvaluator ) {
             lock( ImprovementLock ) {
@@ -67,7 +67,7 @@ namespace SuperImageEvolver {
 
             tag.Append( ProjectOptions.SerializeNBT() );
 
-            tag.Append( BestMatch.SerializeNBT("BestMatch") );
+            tag.Append( BestMatch.SerializeNBT( "BestMatch" ) );
 
             NBTag initializerTag = ModuleManager.WriteModule( "Initializer", Initializer );
             tag.Append( initializerTag );
@@ -146,7 +146,7 @@ namespace SuperImageEvolver {
         public XDocument SerializeSVG() {
             XDocument doc = new XDocument();
             XNamespace svg = "http://www.w3.org/2000/svg";
-            XElement root = new XElement( svg+"svg" );
+            XElement root = new XElement( svg + "svg" );
             root.Add( new XAttribute( "xmlns", svg ) );
             root.Add( new XAttribute( XNamespace.Xmlns + "xlink", "http://www.w3.org/1999/xlink" ) );
             root.Add( new XAttribute( "width", ImageWidth ) );
@@ -156,7 +156,7 @@ namespace SuperImageEvolver {
                 root.Add( shape.SerializeSVG( svg ) );
             }
             doc.Add( root );
-            
+
             return doc;
         }
     }

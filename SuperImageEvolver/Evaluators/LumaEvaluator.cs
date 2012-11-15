@@ -1,33 +1,47 @@
 ﻿using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
 namespace SuperImageEvolver {
-
     public class LumaEvaluatorFactory : IModuleFactory {
-        public Type ModuleType { get { return typeof( LumaEvaluator ); } }
-        public string ID { get { return "std.LumaEvaluator.1"; } }
-        public ModuleFunction Function { get { return ModuleFunction.Evaluator; } }
+        public Type ModuleType {
+            get { return typeof( LumaEvaluator ); }
+        }
+
+        public string ID {
+            get { return "std.LumaEvaluator.1"; }
+        }
+
+        public ModuleFunction Function {
+            get { return ModuleFunction.Evaluator; }
+        }
+
         public ModulePreset[] Presets {
             get {
-                return new[]{
-                    new ModulePreset("RGB+Luma (Fast)", ()=>(new LumaEvaluator(false)), this ),
-                    new ModulePreset("RGB+Luma (Smooth)", ()=>(new LumaEvaluator(true)), this )
+                return new[] {
+                    new ModulePreset( "RGB+Luma (Fast)", () => ( new LumaEvaluator( false ) ), this ),
+                    new ModulePreset( "RGB+Luma (Smooth)", () => ( new LumaEvaluator( true ) ), this )
                 };
             }
         }
-        public IModule GetInstance() { return new LumaEvaluator(); }
+
+
+        public IModule GetInstance() {
+            return new LumaEvaluator();
+        }
     }
 
 
     sealed unsafe class LumaEvaluator : IEvaluator {
 
-        public void Initialize( TaskState state ) {
-        }
+        public void Initialize( TaskState state ) {}
 
         public bool Smooth { get; set; }
-        public LumaEvaluator() { }
+
+        public LumaEvaluator() {}
+
+
         public LumaEvaluator( bool smooth ) {
             Smooth = smooth;
         }
@@ -36,10 +50,10 @@ namespace SuperImageEvolver {
         public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState state, double max ) {
             double maxDivergence = state.ImageWidth * state.ImageHeight * 2 * 255;
             long sum = 0;
-            long roundedMax = (long)(max * maxDivergence + 1);
+            long roundedMax = (long)( max * maxDivergence + 1 );
             using( Graphics g = Graphics.FromImage( testImage ) ) {
                 g.Clear( state.ProjectOptions.Matte );
-                g.SmoothingMode = (Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
+                g.SmoothingMode = ( Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed );
                 for( int i = 0; i < dna.Shapes.Length; i++ ) {
                     g.FillPolygon( new SolidBrush( dna.Shapes[i].Color ), dna.Shapes[i].Points, FillMode.Alternate );
                 }
@@ -67,21 +81,23 @@ namespace SuperImageEvolver {
                     */
 
 
-                    int originalLumi = (Math.Min( Math.Min( originalPointer[2], originalPointer[1] ), *originalPointer ) +
-                                  Math.Max( Math.Max( originalPointer[2], originalPointer[1] ), *originalPointer )) / 2;
-                    int testLumi = (Math.Min( Math.Min( testPointer[2], testPointer[1] ), *testPointer ) +
-                                  Math.Max( Math.Max( testPointer[2], testPointer[1] ), *testPointer )) / 2;
+                    int originalLumi =
+                        ( Math.Min( Math.Min( originalPointer[2], originalPointer[1] ), *originalPointer ) +
+                          Math.Max( Math.Max( originalPointer[2], originalPointer[1] ), *originalPointer ) ) / 2;
+                    int testLumi = ( Math.Min( Math.Min( testPointer[2], testPointer[1] ), *testPointer ) +
+                                     Math.Max( Math.Max( testPointer[2], testPointer[1] ), *testPointer ) ) / 2;
 
                     byte lumiDelta = (byte)Math.Abs( originalLumi - testLumi );
 
 
-                    int oringinalChroma = (Math.Max( Math.Max( originalPointer[2], originalPointer[1] ), *originalPointer ) -
-                                           Math.Min( Math.Min( originalPointer[2], originalPointer[1] ), *originalPointer ));
-                    int testChroma = (Math.Max( Math.Max( testPointer[2], testPointer[1] ), *testPointer ) -
-                                      Math.Min( Math.Min( testPointer[2], testPointer[1] ), *testPointer ));
+                    int oringinalChroma =
+                        ( Math.Max( Math.Max( originalPointer[2], originalPointer[1] ), *originalPointer ) -
+                          Math.Min( Math.Min( originalPointer[2], originalPointer[1] ), *originalPointer ) );
+                    int testChroma = ( Math.Max( Math.Max( testPointer[2], testPointer[1] ), *testPointer ) -
+                                       Math.Min( Math.Min( testPointer[2], testPointer[1] ), *testPointer ) );
 
 
-                    sum += lumiDelta * 2 + (byte)(Math.Abs( oringinalChroma - testChroma ) * lumiDelta / 255);
+                    sum += lumiDelta * 2 + (byte)( Math.Abs( oringinalChroma - testChroma ) * lumiDelta / 255 );
 
                     originalPointer += 4;
                     testPointer += 4;
@@ -93,14 +109,13 @@ namespace SuperImageEvolver {
         }
 
 
-
         object ICloneable.Clone() {
             return new LumaEvaluator( Smooth );
         }
 
 
-        void IModule.ReadSettings( NBTag tag ) { }
+        void IModule.ReadSettings( NBTag tag ) {}
 
-        void IModule.WriteSettings( NBTag tag ) { }
+        void IModule.WriteSettings( NBTag tag ) {}
     }
 }

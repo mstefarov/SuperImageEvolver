@@ -1,21 +1,32 @@
 ﻿using System;
 using System.Drawing;
 
-
 namespace SuperImageEvolver {
-
     public class HardishMutatorFactory : IModuleFactory {
-        public Type ModuleType { get { return typeof( HardishMutator ); } }
-        public string ID { get { return "std.HardishMutator.1"; } }
-        public ModuleFunction Function { get { return ModuleFunction.Mutator; } }
+        public Type ModuleType {
+            get { return typeof( HardishMutator ); }
+        }
+
+        public string ID {
+            get { return "std.HardishMutator.1"; }
+        }
+
+        public ModuleFunction Function {
+            get { return ModuleFunction.Mutator; }
+        }
+
         public ModulePreset[] Presets {
             get {
-                return new[]{
-                    new ModulePreset("Hardish", ()=>new HardishMutator(), this )
+                return new[] {
+                    new ModulePreset( "Hardish", () => new HardishMutator(), this )
                 };
             }
         }
-        public IModule GetInstance() { return new HardishMutator(); }
+
+
+        public IModule GetInstance() {
+            return new HardishMutator();
+        }
     }
 
 
@@ -23,6 +34,7 @@ namespace SuperImageEvolver {
 
         public int MaxPosDelta { get; set; }
         public int MaxColorDelta { get; set; }
+
 
         public HardishMutator() {
             MaxPosDelta = 10;
@@ -46,10 +58,13 @@ namespace SuperImageEvolver {
 
         void MutateShape( Random rand, DNA dna, Shape shape, TaskState task ) {
             shape.PreviousState = shape.Clone() as Shape;
-            int colorDelta = (byte)rand.Next( 1, MaxColorDelta + 1 ) * (rand.Next( 2 ) == 0 ? 1 : -1);
+            int colorDelta = (byte)rand.Next( 1, MaxColorDelta + 1 ) * ( rand.Next( 2 ) == 0 ? 1 : -1 );
             switch( rand.Next( 10 ) ) {
                 case 0:
-                    shape.Color = Color.FromArgb( Math.Max( task.ProjectOptions.MinAlpha, Math.Min( 255, shape.Color.A + colorDelta ) ), shape.Color.R, shape.Color.G, shape.Color.B );
+                    shape.Color =
+                        Color.FromArgb(
+                            Math.Max( task.ProjectOptions.MinAlpha, Math.Min( 255, shape.Color.A + colorDelta ) ),
+                            shape.Color.R, shape.Color.G, shape.Color.B );
                     dna.LastMutation = MutationType.AdjustColor;
                     if( rand.Next( 10 ) == 0 ) {
                         MutateMultiplePoints( shape, rand, dna, task );
@@ -58,7 +73,9 @@ namespace SuperImageEvolver {
                     break;
 
                 case 1:
-                    shape.Color = Color.FromArgb( shape.Color.A, Math.Max( 0, Math.Min( 255, shape.Color.R + colorDelta ) ), shape.Color.G, shape.Color.B );
+                    shape.Color = Color.FromArgb( shape.Color.A,
+                                                  Math.Max( 0, Math.Min( 255, shape.Color.R + colorDelta ) ),
+                                                  shape.Color.G, shape.Color.B );
                     dna.LastMutation = MutationType.AdjustColor;
                     if( rand.Next( 10 ) == 0 ) {
                         MutateMultiplePoints( shape, rand, dna, task );
@@ -67,7 +84,9 @@ namespace SuperImageEvolver {
                     break;
 
                 case 2:
-                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, Math.Max( 0, Math.Min( 255, shape.Color.G + colorDelta ) ), shape.Color.B );
+                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R,
+                                                  Math.Max( 0, Math.Min( 255, shape.Color.G + colorDelta ) ),
+                                                  shape.Color.B );
                     dna.LastMutation = MutationType.AdjustColor;
                     if( rand.Next( 10 ) == 0 ) {
                         MutateMultiplePoints( shape, rand, dna, task );
@@ -76,7 +95,8 @@ namespace SuperImageEvolver {
                     break;
 
                 case 3:
-                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, shape.Color.G, Math.Max( 0, Math.Min( 255, shape.Color.B + colorDelta ) ) );
+                    shape.Color = Color.FromArgb( shape.Color.A, shape.Color.R, shape.Color.G,
+                                                  Math.Max( 0, Math.Min( 255, shape.Color.B + colorDelta ) ) );
                     dna.LastMutation = MutationType.AdjustColor;
                     if( rand.Next( 10 ) == 0 ) {
                         MutateMultiplePoints( shape, rand, dna, task );
@@ -95,10 +115,10 @@ namespace SuperImageEvolver {
             int index = rand.Next( shape.Points.Length );
             shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
             if( rand.Next( 2 ) == 0 ) {
-                index = (index + 1) % shape.Points.Length;
+                index = ( index + 1 ) % shape.Points.Length;
                 shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
                 if( rand.Next( 2 ) == 0 ) {
-                    index = (index + 1) % shape.Points.Length;
+                    index = ( index + 1 ) % shape.Points.Length;
                     shape.Points[index] = MutatePoint( rand, dna, shape.Points[index], task );
                 }
                 dna.LastMutation = MutationType.AdjustPoints;
@@ -109,7 +129,7 @@ namespace SuperImageEvolver {
 
 
         PointF MutatePoint( Random rand, DNA dna, PointF point, TaskState task ) {
-            float posDelta = (float)rand.NextDouble() * MaxPosDelta * (rand.Next( 2 ) == 0 ? 1 : -1);
+            float posDelta = (float)rand.NextDouble() * MaxPosDelta * ( rand.Next( 2 ) == 0 ? 1 : -1 );
             int maxOverlap = task.ProjectOptions.MaxOverlap;
             switch( rand.Next( 5 ) ) {
                 case 0:
@@ -139,8 +159,9 @@ namespace SuperImageEvolver {
             };
         }
 
-        void IModule.ReadSettings( NBTag tag ) { }
 
-        void IModule.WriteSettings( NBTag tag ) { }
+        void IModule.ReadSettings( NBTag tag ) {}
+
+        void IModule.WriteSettings( NBTag tag ) {}
     }
 }

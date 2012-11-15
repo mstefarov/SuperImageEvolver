@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
-using System.Xml.Linq;
 using System.Text;
+using System.Xml.Linq;
 
 namespace SuperImageEvolver {
     public sealed class Shape : ICloneable {
-        public Shape() { }
+        public Shape() {}
+
+
         public Shape( Shape other ) {
             Color = other.Color;
             Points = (PointF[])other.Points.Clone();
         }
+
 
         public Color Color;
         public PointF[] Points;
@@ -26,8 +29,9 @@ namespace SuperImageEvolver {
             }
         }
 
+
         public NBTag SerializeNBT() {
-            NBTCompound tag = new NBTCompound("Shape");
+            NBTCompound tag = new NBTCompound( "Shape" );
             tag.Append( "Color", Color );
             NBTList points = new NBTList( "Points", NBTType.PointF, Points.Length );
             for( int p = 0; p < Points.Length; p++ ) {
@@ -36,6 +40,7 @@ namespace SuperImageEvolver {
             tag.Append( points );
             return tag;
         }
+
 
         public Shape( Stream stream, int vertices ) {
             BinaryReader reader = new BinaryReader( stream );
@@ -46,6 +51,7 @@ namespace SuperImageEvolver {
                 Points[p].Y = reader.ReadSingle();
             }
         }
+
 
         public XElement SerializeSVG( XNamespace xmlns ) {
             XElement el = new XElement( xmlns + "polygon" );
@@ -59,6 +65,7 @@ namespace SuperImageEvolver {
             return el;
         }
 
+
         public RectangleF GetBoundaries() {
             RectangleF rect = new RectangleF( int.MaxValue, int.MaxValue, 0, 0 );
             for( int i = 0; i < Points.Length; i++ ) {
@@ -71,6 +78,7 @@ namespace SuperImageEvolver {
             rect.Height -= rect.Y;
             return rect;
         }
+
 
         public object Clone() {
             return new Shape( this );
