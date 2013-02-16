@@ -146,11 +146,27 @@ namespace SuperImageEvolver {
         public XDocument SerializeSVG() {
             XDocument doc = new XDocument();
             XNamespace svg = "http://www.w3.org/2000/svg";
-            XElement root = new XElement( svg + "svg" );
-            root.Add( new XAttribute( "xmlns", svg ) );
-            root.Add( new XAttribute( XNamespace.Xmlns + "xlink", "http://www.w3.org/1999/xlink" ) );
-            root.Add( new XAttribute( "width", ImageWidth ) );
-            root.Add( new XAttribute( "height", ImageHeight ) );
+            XElement root = new XElement( svg + "svg",
+                new XAttribute( "xmlns", svg ),
+                new XAttribute( XNamespace.Xmlns + "xlink", "http://www.w3.org/1999/xlink" ),
+                new XAttribute( "width", ImageWidth ),
+                new XAttribute( "height", ImageHeight ) );
+
+            if( ProjectOptions.Matte != Color.White ) {
+                string matteRGB = String.Format( "rgb({0},{1},{2})",
+                                                 ProjectOptions.Matte.R,
+                                                 ProjectOptions.Matte.G,
+                                                 ProjectOptions.Matte.B );
+                XElement fill = new XElement( svg+ "rect",
+                    new XAttribute( "x", 0 ),
+                    new XAttribute( "y", 0 ),
+                    new XAttribute( "width", ImageWidth ),
+                    new XAttribute( "height", ImageHeight ),
+                    new XAttribute( "fill", matteRGB ),
+                    new XAttribute( "fill-opacity", ProjectOptions.Matte.A/255f ) );
+                root.Add( fill );
+            }
+
             DNA currentBestMatch = BestMatch;
             foreach( Shape shape in currentBestMatch.Shapes ) {
                 root.Add( shape.SerializeSVG( svg ) );
