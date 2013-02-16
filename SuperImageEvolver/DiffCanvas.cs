@@ -19,6 +19,7 @@ namespace SuperImageEvolver {
         public void Init( TaskState _state ) {
             state = _state;
             canvasImage = new Bitmap( state.ImageWidth, state.ImageHeight );
+            Zoom = zoom;
         }
 
 

@@ -109,8 +109,7 @@ namespace SuperImageEvolver {
             picBestMatch.State = State;
             picBestMatch.Invalidate();
 
-            picDiff.Zoom = picDiff.Zoom; // force resize
-            picDiff.Init( State );
+            picDiff.Init( State ); // force resize
             picDiff.Invalidate();
         }
 
@@ -853,8 +852,7 @@ SinceImproved: {7} / {6}",
                 picBestMatch.Visible = presentationTag.GetBool( "BestMatchVisible", picBestMatch.Visible );
                 picBestMatch.Zoom = presentationTag.GetFloat( "BestMatchZoom", picBestMatch.Zoom );
                 picBestMatch.Wireframe = presentationTag.GetBool( "BestMatchWireframe", picBestMatch.Wireframe );
-                picBestMatch.ShowLastChange = presentationTag.GetBool( "BestMatchShowLastChange",
-                                                                       picBestMatch.ShowLastChange );
+                picBestMatch.ShowLastChange = presentationTag.GetBool( "BestMatchShowLastChange", picBestMatch.ShowLastChange );
                 picDiff.Visible = presentationTag.GetBool( "DiffVisible", picDiff.Visible );
                 picDiff.Invert = presentationTag.GetBool( "DiffInvert", picDiff.Invert );
                 picDiff.Exaggerate = presentationTag.GetBool( "DiffExaggerate", picDiff.Exaggerate );
