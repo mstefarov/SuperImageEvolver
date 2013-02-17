@@ -30,7 +30,6 @@ namespace SuperImageEvolver {
         public DateTime TaskStart;
         public DateTime LastImprovementTime;
         public long LastImprovementMutationCount;
-        public Point ClickLocation;
 
         public bool HasChangedSinceSave = true;
 

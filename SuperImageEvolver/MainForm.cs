@@ -83,6 +83,7 @@ namespace SuperImageEvolver {
             if( State.WorkingImageCopy != null ) {
                 State.WorkingImageCopy.Dispose();
             }
+
             State.WorkingImageCopy = new Bitmap( image.Width, image.Height );
             using( Graphics g = Graphics.FromImage( State.WorkingImageCopy ) ) {
                 g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
@@ -254,6 +255,11 @@ SinceImproved: {7} / {6}",
             State.LastImprovementMutationCount = 0;
             State.BestMatch = State.Initializer.Initialize( new Random(), State );
             State.HasChangedSinceSave = true;
+
+            if( cmOriginalZoomSync.Checked ) cmOriginalZoomSync.PerformClick();
+            cmOriginalZoom100.PerformClick();
+            cmBestMatchZoom100.PerformClick();
+            cmDiffZoom100.PerformClick();
         }
 
 
@@ -566,6 +572,55 @@ SinceImproved: {7} / {6}",
         }
 
 
+        #region Zoom
+
+        void cmOriginalZoom_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
+            if( e.ClickedItem is ToolStripSeparator ) return;
+            if( e.ClickedItem == cmOriginalZoomSync ) {
+                cmOriginalZoomSync.Checked = !cmOriginalZoomSync.Checked;
+                cmBestMatchZoomSync.Checked = cmOriginalZoom.Checked;
+                cmDiffZoomSync.Checked = cmOriginalZoom.Checked;
+            } else {
+                ApplyOriginalZoom( e.ClickedItem );
+            }
+            if( cmOriginalZoomSync.Checked ) {
+                if( cmOriginalZoomSync.Checked ) {
+                    if( cmOriginalZoom50.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom50 );
+                        ApplyDiffZoom( cmDiffZoom50 );
+                    } else if( cmOriginalZoom75.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom75 );
+                        ApplyDiffZoom( cmDiffZoom75 );
+                    } else if( cmOriginalZoom100.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom100 );
+                        ApplyDiffZoom( cmDiffZoom100 );
+                    } else if( cmOriginalZoom125.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom125 );
+                        ApplyDiffZoom( cmDiffZoom125 );
+                    } else if( cmOriginalZoom150.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom150 );
+                        ApplyDiffZoom( cmDiffZoom150 );
+                    } else if( cmOriginalZoom200.Checked ) {
+                        ApplyBestMatchZoom( cmBestMatchZoom200 );
+                        ApplyDiffZoom( cmDiffZoom200 );
+                    }
+                }
+            }
+        }
+
+
+        void ApplyOriginalZoom( ToolStripItem item ) {
+            cmOriginalZoom50.Checked = false;
+            cmOriginalZoom75.Checked = false;
+            cmOriginalZoom100.Checked = false;
+            cmOriginalZoom125.Checked = false;
+            cmOriginalZoom150.Checked = false;
+            cmOriginalZoom200.Checked = false;
+            ((ToolStripMenuItem)item).Checked = true;
+            OriginalZoom = float.Parse( item.Tag.ToString() );
+        }
+
+
         void cmBestMatchZoom_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
             if( e.ClickedItem is ToolStripSeparator ) return;
             if( e.ClickedItem == cmBestMatchZoomSync ) {
@@ -608,7 +663,7 @@ SinceImproved: {7} / {6}",
             cmBestMatchZoom125.Checked = false;
             cmBestMatchZoom150.Checked = false;
             cmBestMatchZoom200.Checked = false;
-            ( (ToolStripMenuItem)item ).Checked = true;
+            ((ToolStripMenuItem)item).Checked = true;
             picBestMatch.Zoom = float.Parse( item.Tag.ToString() );
         }
 
@@ -659,52 +714,7 @@ SinceImproved: {7} / {6}",
             picDiff.Zoom = float.Parse( item.Tag.ToString() );
         }
 
-
-        void cmOriginalZoom_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
-            if( e.ClickedItem is ToolStripSeparator ) return;
-            if( e.ClickedItem == cmOriginalZoomSync ) {
-                cmOriginalZoomSync.Checked = !cmOriginalZoomSync.Checked;
-                cmBestMatchZoomSync.Checked = cmOriginalZoom.Checked;
-                cmDiffZoomSync.Checked = cmOriginalZoom.Checked;
-            } else {
-                ApplyOriginalZoom( e.ClickedItem );
-            }
-            if( cmOriginalZoomSync.Checked ) {
-                if( cmOriginalZoomSync.Checked ) {
-                    if( cmOriginalZoom50.Checked ) {
-                        ApplyBestMatchZoom( cmBestMatchZoom50 );
-                        ApplyDiffZoom( cmDiffZoom50 );
-                    } else if( cmOriginalZoom75.Checked ) {
-                        ApplyBestMatchZoom( cmBestMatchZoom75 );
-                        ApplyDiffZoom( cmDiffZoom75 );
-                    } else if( cmOriginalZoom100.Checked ) {
-                        ApplyBestMatchZoom( cmBestMatchZoom100 );
-                        ApplyDiffZoom( cmDiffZoom100 );
-                    } else if( cmOriginalZoom125.Checked ) {
-                        ApplyBestMatchZoom( cmBestMatchZoom125 );
-                        ApplyDiffZoom( cmDiffZoom125 );
-                    } else if( cmOriginalZoom150.Checked ) {
-                        ApplyBestMatchZoom( cmBestMatchZoom150 );
-                        ApplyDiffZoom( cmDiffZoom150 );
-                    } else if( cmOriginalZoom200.Checked ) {
-                        ApplyBestMatchZoom( cmBestMatchZoom200 );
-                        ApplyDiffZoom( cmDiffZoom200 );
-                    }
-                }
-            }
-        }
-
-
-        void ApplyOriginalZoom( ToolStripItem item ) {
-            cmOriginalZoom50.Checked = false;
-            cmOriginalZoom75.Checked = false;
-            cmOriginalZoom100.Checked = false;
-            cmOriginalZoom125.Checked = false;
-            cmOriginalZoom150.Checked = false;
-            cmOriginalZoom200.Checked = false;
-            ( (ToolStripMenuItem)item ).Checked = true;
-            OriginalZoom = float.Parse( item.Tag.ToString() );
-        }
+        #endregion
 
 
         void cmDiffExaggerate_CheckedChanged( object sender, EventArgs e ) {
@@ -803,7 +813,14 @@ SinceImproved: {7} / {6}",
                 if( !oldStopped ) Stop();
                 State.ProjectOptions = md.Module;
                 BackColor = State.ProjectOptions.BackColor;
-                SetImage( State.OriginalImage );
+                if( BackColor.R*0.2126 + BackColor.G*0.7152 + BackColor.B*0.0722 > 128 ) {
+                    panel1.ForeColor = Color.Black;
+                } else {
+                    panel1.ForeColor = Color.White;
+                }
+                if( State.OriginalImage != null ) {
+                    SetImage( State.OriginalImage );
+                }
                 graphWindow1.Invalidate();
                 if( !oldStopped ) Start( false );
             }
@@ -889,6 +906,7 @@ SinceImproved: {7} / {6}",
                 presentationTag.Append( "DiffShowColor", picDiff.ShowColor );
                 presentationTag.Append( "DiffZoom", picDiff.Zoom );
                 presentationTag.Append( "DiffShowLastChange", picDiff.ShowLastChange );
+                presentationTag.Append( "SyncZoom", cmOriginalZoomSync.Checked );
 
                 NBTag tag = State.SerializeNBT();
                 tag.Append( presentationTag );

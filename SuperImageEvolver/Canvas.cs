@@ -9,20 +9,6 @@ namespace SuperImageEvolver {
         public Canvas() {
             InitializeComponent();
             DoubleBuffered = true;
-            MouseClick += OnMouseClick;
-        }
-
-
-        void OnMouseClick( object sender, MouseEventArgs e ) {
-            switch( e.Button ) {
-                case MouseButtons.Left:
-                    state.ClickLocation = PointToClient( MousePosition );
-                    break;
-
-                case MouseButtons.Middle:
-                    state.ClickLocation = default( Point );
-                    break;
-            }
         }
 
 

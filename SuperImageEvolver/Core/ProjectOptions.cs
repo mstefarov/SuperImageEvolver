@@ -12,7 +12,7 @@ namespace SuperImageEvolver {
 
         public ProjectOptions() {
             Matte = Color.White;
-            BackColor = Color.Black;
+            BackColor = Color.DimGray;
             MaxOverlap = 8;
             MinAlpha = 1;
             RefreshRate = TimeSpan.FromMilliseconds( 500 );

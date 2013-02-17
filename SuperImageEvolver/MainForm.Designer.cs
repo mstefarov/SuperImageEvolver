@@ -490,6 +490,7 @@
             this.panel1.Controls.Add(this.lShapes);
             this.panel1.Controls.Add(this.nPolygons);
             this.panel1.Controls.Add(this.nVertices);
+            this.panel1.ForeColor = System.Drawing.Color.White;
             this.panel1.Location = new System.Drawing.Point(261, 5);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(203, 215);
@@ -968,11 +969,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Black;
+            this.BackColor = System.Drawing.Color.DimGray;
             this.ClientSize = new System.Drawing.Size(882, 485);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.flowLayoutPanel1);
-            this.ForeColor = System.Drawing.Color.Gray;
             this.Name = "MainForm";
             this.Text = "Super Image Evolver";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
