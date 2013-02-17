@@ -39,9 +39,6 @@ namespace SuperImageEvolver {
                     cEvaluator.Items.Add( preset.Value.Name );
                 }
                 */
-                cInitializer.SelectedIndex = 1;
-                cMutator.SelectedIndex = 1;
-                cEvaluator.SelectedIndex = 2;
 
                 if( args.Length == 1 ) {
                     if( args[0].EndsWith( ".sie" ) ) {
@@ -53,6 +50,7 @@ namespace SuperImageEvolver {
                     MessageBox.Show( "Drag either a project file (.sie) or an image to open it." );
                 } else {
                     Reset();
+                    ResetUI();
                     tMutationStats.Text = "No project loaded";
                 }
             };
@@ -255,6 +253,21 @@ SinceImproved: {7} / {6}",
             State.LastImprovementMutationCount = 0;
             State.BestMatch = State.Initializer.Initialize( new Random(), State );
             State.HasChangedSinceSave = true;
+        }
+
+
+        void ResetUI() {
+            cInitializer.SelectedIndex = 1;
+            cMutator.SelectedIndex = 1;
+            cEvaluator.SelectedIndex = 2;
+
+            if( cmBestMatchWireframe.Checked ) cmBestMatchWireframe.PerformClick();
+            if( cmBestMatchShowLastChange.Checked ) cmBestMatchShowLastChange.PerformClick();
+
+            if( cmDiffInvert.Checked ) cmDiffInvert.PerformClick();
+            if( !cmDiffShowColor.Checked ) cmDiffShowColor.PerformClick();
+            if( !cmDiffExaggerate.Checked ) cmDiffExaggerate.PerformClick();
+            if( cmDiffShowLastChange.Checked ) cmDiffShowLastChange.PerformClick();
 
             if( cmOriginalZoomSync.Checked ) cmOriginalZoomSync.PerformClick();
             cmOriginalZoom100.PerformClick();
@@ -460,15 +473,15 @@ SinceImproved: {7} / {6}",
         }
 
 
-        readonly SaveFileDialog exportSVGDialog = new SaveFileDialog {
+        readonly SaveFileDialog exportSvgDialog = new SaveFileDialog {
             Filter = "SVG Image|*.svg",
             Title = "Saving best match image (SVG)..."
         };
 
 
         void bExportVectors_Click( object sender, EventArgs e ) {
-            if( exportSVGDialog.ShowDialog() == DialogResult.OK ) {
-                State.SerializeSVG().Save( exportSVGDialog.FileName );
+            if( exportSvgDialog.ShowDialog() == DialogResult.OK ) {
+                State.SerializeSVG().Save( exportSvgDialog.FileName );
             }
         }
 
@@ -807,23 +820,24 @@ SinceImproved: {7} / {6}",
         void bProjectOptions_Click( object sender, EventArgs e ) {
             if( State == null ) return;
             var md = new ModuleSettingsDisplay<ProjectOptions>( State.ProjectOptions );
-            if( md.ShowDialog() == DialogResult.OK ) {
-                State.HasChangedSinceSave = true;
-                bool oldStopped = stopped;
-                if( !oldStopped ) Stop();
-                State.ProjectOptions = md.Module;
-                BackColor = State.ProjectOptions.BackColor;
-                if( BackColor.R*0.2126 + BackColor.G*0.7152 + BackColor.B*0.0722 > 128 ) {
-                    panel1.ForeColor = Color.Black;
-                } else {
-                    panel1.ForeColor = Color.White;
-                }
-                if( State.OriginalImage != null ) {
-                    SetImage( State.OriginalImage );
-                }
-                graphWindow1.Invalidate();
-                if( !oldStopped ) Start( false );
+            if( md.ShowDialog() != DialogResult.OK ) {
+                return;
             }
+            State.HasChangedSinceSave = true;
+            bool oldStopped = stopped;
+            if( !oldStopped ) Stop();
+            State.ProjectOptions = md.Module;
+            BackColor = State.ProjectOptions.BackColor;
+            if( BackColor.R*0.2126 + BackColor.G*0.7152 + BackColor.B*0.0722 > 128 ) {
+                panel1.ForeColor = Color.Black;
+            } else {
+                panel1.ForeColor = Color.White;
+            }
+            if( State.OriginalImage != null ) {
+                SetImage( State.OriginalImage );
+            }
+            graphWindow1.Invalidate();
+            if( !oldStopped ) Start( false );
         }
 
         #endregion
@@ -834,6 +848,7 @@ SinceImproved: {7} / {6}",
             State = new TaskState();
             SetImage( image );
             Reset();
+            ResetUI();
             State.SetEvaluator( State.Evaluator );
             UpdateTick();
             picDiff.Invalidate();
