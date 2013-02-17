@@ -72,9 +72,6 @@ namespace SuperImageEvolver {
         const string PlaceholderText = "best match";
 
 
-        static readonly Pen LastChangePen = new Pen( Color.White, 2 ) {
-            EndCap = LineCap.NoAnchor // TODO
-        };
 
 
         protected override void OnPaint( PaintEventArgs e ) {
@@ -82,21 +79,24 @@ namespace SuperImageEvolver {
             if( state != null && state.BestMatch != null ) {
                 g.Clear( state.ProjectOptions.Matte );
                 e.Graphics.ScaleTransform( zoom, zoom );
-                LastChangePen.Width = 2 / zoom;
                 DNA tempDNA = state.BestMatch;
                 g.SmoothingMode = ( state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed );
+
+                Pen wireframePen = new Pen( state.ProjectOptions.WireframeColor, 1 / zoom );
 
                 for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                     g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ), tempDNA.Shapes[i].Points, FillMode.Winding );
                     if( Wireframe ) {
-                        g.DrawPolygon( new Pen( Brushes.Black, 1 / zoom ), tempDNA.Shapes[i].Points );
+                        g.DrawPolygon( wireframePen, tempDNA.Shapes[i].Points );
                     }
                 }
                 if( showLastChange ) {
+                    Pen lastChangePen1 = new Pen( state.ProjectOptions.LastChangeColor1, 2 / zoom );
+                    Pen lastChangePen2 = new Pen( state.ProjectOptions.LastChangeColor2, 1 / zoom );
                     for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
                         if( tempDNA.Shapes[i].PreviousState != null ) {
-                            g.DrawPolygon( LastChangePen, tempDNA.Shapes[i].Points );
-                            g.DrawPolygon( new Pen( Brushes.Black, 1 / zoom ), tempDNA.Shapes[i].PreviousState.Points );
+                            g.DrawPolygon( lastChangePen1, tempDNA.Shapes[i].Points );
+                            g.DrawPolygon( lastChangePen2, tempDNA.Shapes[i].PreviousState.Points );
                         }
                     }
                 }
@@ -104,8 +104,8 @@ namespace SuperImageEvolver {
                 g.Clear( Color.White );
                 SizeF align = g.MeasureString( PlaceholderText, Font );
                 g.DrawString( PlaceholderText, Font, Brushes.Black,
-                              Width / 2 - align.Width / 2,
-                              Height / 2 - align.Height / 2 );
+                              Width / 2f - align.Width / 2,
+                              Height / 2f - align.Height / 2 );
             }
             base.OnPaint( e );
         }
