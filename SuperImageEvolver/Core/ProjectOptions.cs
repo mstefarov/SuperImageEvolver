@@ -12,8 +12,14 @@ namespace SuperImageEvolver {
         public Color LastChangeColor1 { get; set; }
         public Color LastChangeColor2 { get; set; }
 
+        public double RiskRate { get; set; }
+        public double RiskMargin { get; set; }
+
 
         public ProjectOptions() {
+            RiskRate = .1;
+            RiskMargin = .1;
+
             Matte = Color.White;
             BackColor = Color.DimGray;
             MaxOverlap = 8;
@@ -34,7 +40,10 @@ namespace SuperImageEvolver {
                 RefreshRate = RefreshRate,
                 WireframeColor = WireframeColor,
                 LastChangeColor1 = LastChangeColor1,
-                LastChangeColor2 = LastChangeColor2
+                LastChangeColor2 = LastChangeColor2,
+
+                RiskRate = RiskRate,
+                RiskMargin = RiskMargin
             };
         }
 
@@ -49,6 +58,8 @@ namespace SuperImageEvolver {
             tag.Append( "WireframeColor", WireframeColor );
             tag.Append( "LastChangeColor1", LastChangeColor1 );
             tag.Append( "LastChangeColor2", LastChangeColor2 );
+            tag.Append( "RiskMargin", RiskMargin );
+            tag.Append( "RiskRate", RiskRate );
             return tag;
         }
 
@@ -63,6 +74,8 @@ namespace SuperImageEvolver {
             WireframeColor = tag.GetColor( "WireframeColor", WireframeColor );
             LastChangeColor1 = tag.GetColor( "LastChangeColor1", LastChangeColor1 );
             LastChangeColor2 = tag.GetColor( "LastChangeColor2", LastChangeColor2 );
+            RiskRate = tag.GetDouble( "RiskRate", RiskRate );
+            RiskMargin = tag.GetDouble( "RiskMargin", RiskMargin );
         }
     }
 }

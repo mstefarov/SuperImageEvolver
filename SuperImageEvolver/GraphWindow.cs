@@ -53,7 +53,6 @@ namespace SuperImageEvolver {
                   minY = float.MaxValue,
                   maxY = float.MinValue;
 
-
             for( int i = 0; i < input.Count; i++ ) {
                 minX = Math.Min( minX, input[i].X );
                 maxX = Math.Max( maxX, input[i].X );

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading;
 using System.Xml.Linq;
 
 namespace SuperImageEvolver {
@@ -13,7 +15,7 @@ namespace SuperImageEvolver {
         public DNA BestMatch;
 
         public ProjectOptions ProjectOptions = new ProjectOptions();
-        public int ImprovementCounter, MutationCounter;
+        public int ImprovementCounter, MutationCounter, RiskyMoveCounter;
 
         public Bitmap OriginalImage;
         public Bitmap WorkingImageCopy;
@@ -42,7 +44,9 @@ namespace SuperImageEvolver {
 
 
         public void SetEvaluator( IEvaluator newEvaluator ) {
+            Debug.WriteLine( Thread.CurrentThread.ManagedThreadId + " SetEvaluator > lock ---" );
             lock( ImprovementLock ) {
+                Debug.WriteLine( Thread.CurrentThread.ManagedThreadId + " SetEvaluator > locked ---" );
                 if( OriginalImage != null && BestMatch != null ) {
                     using( Bitmap testCanvas = new Bitmap( ImageWidth, ImageHeight ) ) {
                         newEvaluator.Initialize( this );
@@ -51,6 +55,7 @@ namespace SuperImageEvolver {
                 }
                 Evaluator = newEvaluator;
             }
+            Debug.WriteLine( Thread.CurrentThread.ManagedThreadId + " SetEvaluator < unlock ---" );
         }
 
 
@@ -62,6 +67,7 @@ namespace SuperImageEvolver {
             tag.Append( "Vertices", Vertices );
             tag.Append( "ImprovementCounter", ImprovementCounter );
             tag.Append( "MutationCounter", MutationCounter );
+            tag.Append( "RiskyMoveCounter", RiskyMoveCounter );
             tag.Append( "ElapsedTime", DateTime.UtcNow.Subtract( TaskStart ).Ticks );
 
             tag.Append( ProjectOptions.SerializeNBT() );
