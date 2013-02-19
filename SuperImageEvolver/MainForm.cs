@@ -858,6 +858,7 @@ SinceImproved: {7} / {6}",
             State.HasChangedSinceSave = true;
             bool oldStopped = stopped;
             if( !oldStopped ) Stop();
+            bool updateEvaluator = (State.ProjectOptions.Matte != md.Module.Matte && oldStopped);
             State.ProjectOptions = md.Module;
             BackColor = State.ProjectOptions.BackColor;
             if( BackColor.R*0.2126 + BackColor.G*0.7152 + BackColor.B*0.0722 > 128 ) {
@@ -867,6 +868,9 @@ SinceImproved: {7} / {6}",
             }
             if( State.OriginalImage != null ) {
                 SetImage( State.OriginalImage );
+            }
+            if( updateEvaluator ) {
+                State.SetEvaluator( State.Evaluator );
             }
             graphWindow1.Invalidate();
             if( !oldStopped ) Start( false );
@@ -995,6 +999,47 @@ SinceImproved: {7} / {6}",
                         break;
                 }
             }
+        }
+
+
+        void bMatteToAverageColor_Click( object sender, EventArgs e ) {
+            State.HasChangedSinceSave = true;
+            bool oldStopped = stopped;
+            if( !oldStopped ) Stop();
+            State.ProjectOptions.Matte = CalculateAverageColor( State.WorkingImageData );
+            if( State.OriginalImage != null ) {
+                SetImage( State.OriginalImage );
+            }
+            picBestMatch.Invalidate();
+            picDiff.Invalidate();
+            
+            UpdateTick();
+            if( !oldStopped ) {
+                Start( false );
+            } else {
+                State.SetEvaluator( State.Evaluator );
+            }
+        }
+
+
+        unsafe Color CalculateAverageColor( BitmapData srcData ) {
+            long totalR = 0, totalG = 0, totalB = 0;
+
+            for( int i = 0; i < srcData.Height; i++ ) {
+                byte* ptr = (byte*)srcData.Scan0 + srcData.Stride*i;
+                for( int j = 0; j < srcData.Width; j++ ) {
+                    totalB += ptr[0];
+                    totalG += ptr[1];
+                    totalR += ptr[2];
+                    ptr += 4;
+                }
+            }
+
+            int pixels = srcData.Width * srcData.Height;
+            return Color.FromArgb( 255,
+                                   (int)(totalR / pixels),
+                                   (int)(totalG / pixels),
+                                   (int)(totalB / pixels) );
         }
     }
 }

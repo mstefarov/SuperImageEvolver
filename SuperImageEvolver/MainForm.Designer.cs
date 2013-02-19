@@ -41,6 +41,7 @@
             this.cmOriginalZoom200 = new System.Windows.Forms.ToolStripMenuItem();
             this.cmOriginalZoomSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.cmOriginalZoomSync = new System.Windows.Forms.ToolStripMenuItem();
+            this.picBestMatch = new SuperImageEvolver.Canvas();
             this.cmBestMatch = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmBestMatchZoom = new System.Windows.Forms.ToolStripMenuItem();
             this.cmBestMatchZoom50 = new System.Windows.Forms.ToolStripMenuItem();
@@ -53,6 +54,7 @@
             this.cmBestMatchZoomSync = new System.Windows.Forms.ToolStripMenuItem();
             this.cmBestMatchWireframe = new System.Windows.Forms.ToolStripMenuItem();
             this.cmBestMatchShowLastChange = new System.Windows.Forms.ToolStripMenuItem();
+            this.picDiff = new SuperImageEvolver.DiffCanvas();
             this.cmDiff = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmDiffZoom = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDiffZoom50 = new System.Windows.Forms.ToolStripMenuItem();
@@ -77,6 +79,7 @@
             this.lInitializer = new System.Windows.Forms.Label();
             this.cMutator = new System.Windows.Forms.ComboBox();
             this.cInitializer = new System.Windows.Forms.ComboBox();
+            this.graphWindow1 = new SuperImageEvolver.GraphWindow();
             this.lPoints = new System.Windows.Forms.Label();
             this.lShapes = new System.Windows.Forms.Label();
             this.nPolygons = new System.Windows.Forms.NumericUpDown();
@@ -107,9 +110,7 @@
             this.bProjectOptions = new System.Windows.Forms.ToolStripMenuItem();
             this.menuHelp = new System.Windows.Forms.ToolStripDropDownButton();
             this.bHelpListModules = new System.Windows.Forms.ToolStripMenuItem();
-            this.picBestMatch = new SuperImageEvolver.Canvas();
-            this.picDiff = new SuperImageEvolver.DiffCanvas();
-            this.graphWindow1 = new SuperImageEvolver.GraphWindow();
+            this.bMatteToAverageColor = new System.Windows.Forms.ToolStripMenuItem();
             separator1 = new System.Windows.Forms.ToolStripSeparator();
             separator4 = new System.Windows.Forms.ToolStripSeparator();
             separator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -260,6 +261,18 @@
             this.cmOriginalZoomSync.Size = new System.Drawing.Size(146, 22);
             this.cmOriginalZoomSync.Text = "Sync all views";
             // 
+            // picBestMatch
+            // 
+            this.picBestMatch.ContextMenuStrip = this.cmBestMatch;
+            this.picBestMatch.Location = new System.Drawing.Point(89, 5);
+            this.picBestMatch.Name = "picBestMatch";
+            this.picBestMatch.ShowLastChange = false;
+            this.picBestMatch.Size = new System.Drawing.Size(80, 30);
+            this.picBestMatch.State = null;
+            this.picBestMatch.TabIndex = 0;
+            this.picBestMatch.Wireframe = false;
+            this.picBestMatch.Zoom = 1F;
+            // 
             // cmBestMatch
             // 
             this.cmBestMatch.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -355,6 +368,20 @@
             this.cmBestMatchShowLastChange.Size = new System.Drawing.Size(171, 22);
             this.cmBestMatchShowLastChange.Text = "Show Last Change";
             this.cmBestMatchShowLastChange.CheckedChanged += new System.EventHandler(this.showLastChangeToolStripMenuItem_CheckedChanged);
+            // 
+            // picDiff
+            // 
+            this.picDiff.ContextMenuStrip = this.cmDiff;
+            this.picDiff.Exaggerate = true;
+            this.picDiff.Invert = false;
+            this.picDiff.Location = new System.Drawing.Point(175, 5);
+            this.picDiff.Name = "picDiff";
+            this.picDiff.ShowColor = true;
+            this.picDiff.ShowLastChange = false;
+            this.picDiff.Size = new System.Drawing.Size(80, 30);
+            this.picDiff.State = null;
+            this.picDiff.TabIndex = 8;
+            this.picDiff.Zoom = 1F;
             // 
             // cmDiff
             // 
@@ -528,7 +555,7 @@
             this.lEvaluator.AutoSize = true;
             this.lEvaluator.Location = new System.Drawing.Point(3, 190);
             this.lEvaluator.Name = "lEvaluator";
-            this.lEvaluator.Size = new System.Drawing.Size(52, 13);
+            this.lEvaluator.Size = new System.Drawing.Size(58, 15);
             this.lEvaluator.TabIndex = 13;
             this.lEvaluator.Text = "Evaluator";
             // 
@@ -553,7 +580,7 @@
             this.lMutator.AutoSize = true;
             this.lMutator.Location = new System.Drawing.Point(12, 163);
             this.lMutator.Name = "lMutator";
-            this.lMutator.Size = new System.Drawing.Size(43, 13);
+            this.lMutator.Size = new System.Drawing.Size(49, 15);
             this.lMutator.TabIndex = 11;
             this.lMutator.Text = "Mutator";
             // 
@@ -562,7 +589,7 @@
             this.lInitializer.AutoSize = true;
             this.lInitializer.Location = new System.Drawing.Point(8, 136);
             this.lInitializer.Name = "lInitializer";
-            this.lInitializer.Size = new System.Drawing.Size(47, 13);
+            this.lInitializer.Size = new System.Drawing.Size(56, 15);
             this.lInitializer.TabIndex = 10;
             this.lInitializer.Text = "Initializer";
             // 
@@ -605,12 +632,20 @@
             this.cInitializer.TabIndex = 8;
             this.cInitializer.SelectedIndexChanged += new System.EventHandler(this.cInitializer_SelectedIndexChanged);
             // 
+            // graphWindow1
+            // 
+            this.graphWindow1.BackColor = System.Drawing.Color.White;
+            this.graphWindow1.Location = new System.Drawing.Point(3, 3);
+            this.graphWindow1.Name = "graphWindow1";
+            this.graphWindow1.Size = new System.Drawing.Size(197, 98);
+            this.graphWindow1.TabIndex = 9;
+            // 
             // lPoints
             // 
             this.lPoints.AutoSize = true;
             this.lPoints.Location = new System.Drawing.Point(19, 109);
             this.lPoints.Name = "lPoints";
-            this.lPoints.Size = new System.Drawing.Size(36, 13);
+            this.lPoints.Size = new System.Drawing.Size(41, 15);
             this.lPoints.TabIndex = 7;
             this.lPoints.Text = "Points";
             // 
@@ -619,7 +654,7 @@
             this.lShapes.AutoSize = true;
             this.lShapes.Location = new System.Drawing.Point(107, 109);
             this.lShapes.Name = "lShapes";
-            this.lShapes.Size = new System.Drawing.Size(43, 13);
+            this.lShapes.Size = new System.Drawing.Size(49, 15);
             this.lShapes.TabIndex = 6;
             this.lShapes.Text = "Shapes";
             // 
@@ -904,7 +939,8 @@
             // 
             this.menuOptions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.menuOptions.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.bProjectOptions});
+            this.bProjectOptions,
+            this.bMatteToAverageColor});
             this.menuOptions.Image = global::SuperImageEvolver.Properties.Resources.gear;
             this.menuOptions.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.menuOptions.Name = "menuOptions";
@@ -915,7 +951,7 @@
             // bProjectOptions
             // 
             this.bProjectOptions.Name = "bProjectOptions";
-            this.bProjectOptions.Size = new System.Drawing.Size(156, 22);
+            this.bProjectOptions.Size = new System.Drawing.Size(216, 22);
             this.bProjectOptions.Text = "Project Options";
             this.bProjectOptions.Click += new System.EventHandler(this.bProjectOptions_Click);
             // 
@@ -937,33 +973,12 @@
             this.bHelpListModules.Text = "List Modules";
             this.bHelpListModules.Click += new System.EventHandler(this.bHelpListModules_Click);
             // 
-            // picBestMatch
+            // bMatteToAverageColor
             // 
-            this.picBestMatch.ContextMenuStrip = this.cmBestMatch;
-            this.picBestMatch.Location = new System.Drawing.Point(89, 5);
-            this.picBestMatch.Name = "picBestMatch";
-            this.picBestMatch.Size = new System.Drawing.Size(80, 30);
-            this.picBestMatch.State = null;
-            this.picBestMatch.TabIndex = 0;
-            this.picBestMatch.Zoom = 1F;
-            // 
-            // picDiff
-            // 
-            this.picDiff.ContextMenuStrip = this.cmDiff;
-            this.picDiff.Location = new System.Drawing.Point(175, 5);
-            this.picDiff.Name = "picDiff";
-            this.picDiff.Size = new System.Drawing.Size(80, 30);
-            this.picDiff.State = null;
-            this.picDiff.TabIndex = 8;
-            this.picDiff.Zoom = 1F;
-            // 
-            // graphWindow1
-            // 
-            this.graphWindow1.BackColor = System.Drawing.Color.White;
-            this.graphWindow1.Location = new System.Drawing.Point(3, 3);
-            this.graphWindow1.Name = "graphWindow1";
-            this.graphWindow1.Size = new System.Drawing.Size(197, 98);
-            this.graphWindow1.TabIndex = 9;
+            this.bMatteToAverageColor.Name = "bMatteToAverageColor";
+            this.bMatteToAverageColor.Size = new System.Drawing.Size(216, 22);
+            this.bMatteToAverageColor.Text = "Set Matte to Average Color";
+            this.bMatteToAverageColor.Click += new System.EventHandler(this.bMatteToAverageColor_Click);
             // 
             // MainForm
             // 
@@ -1077,6 +1092,7 @@
         private System.Windows.Forms.ToolStripMenuItem cmOriginalZoom200;
         private System.Windows.Forms.ToolStripSeparator cmOriginalZoomSeparator;
         private System.Windows.Forms.ToolStripMenuItem cmOriginalZoomSync;
+        private System.Windows.Forms.ToolStripMenuItem bMatteToAverageColor;
     }
 }
 
