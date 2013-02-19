@@ -58,7 +58,7 @@ namespace SuperImageEvolver {
         public void Initialize( TaskState state ) {}
 
 
-        public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState state, double max ) {
+        public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState state, double maxAcceptableDivergence ) {
 
             if( Emphasized ) {
                 if( EmphasisAmount == 2 ) {
@@ -71,7 +71,7 @@ namespace SuperImageEvolver {
             }
 
             double sum = 0;
-            double roundedMax = ( max * maxDivergence + 1 );
+            double roundedMax = ( maxAcceptableDivergence * maxDivergence + 1 );
             using( Graphics g = Graphics.FromImage( testImage ) ) {
                 g.Clear( state.ProjectOptions.Matte );
                 g.SmoothingMode = ( Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed );
@@ -99,12 +99,15 @@ namespace SuperImageEvolver {
                             originalPointer += 4;
                             testPointer += 4;
                         }
-                        if( sum > roundedMax ) break;
+                        if( sum > roundedMax ) {
+                            sum = maxDivergence;
+                            break;
+                        }
                     }
                 } else {
                     for( int i = 0; i < state.ImageHeight; i++ ) {
-                        originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
-                        testPointer = (byte*)testData.Scan0 + testData.Stride * i;
+                        originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride*i;
+                        testPointer = (byte*)testData.Scan0 + testData.Stride*i;
                         for( int j = 0; j < state.ImageWidth; j++ ) {
                             int b = Math.Abs( *originalPointer - *testPointer );
                             int g = Math.Abs( originalPointer[1] - testPointer[1] );
@@ -114,7 +117,10 @@ namespace SuperImageEvolver {
                             originalPointer += 4;
                             testPointer += 4;
                         }
-                        if( sum > roundedMax ) break;
+                        if( sum > roundedMax ) {
+                            sum = maxDivergence;
+                            break;
+                        }
                     }
                 }
             } else {
@@ -129,7 +135,10 @@ namespace SuperImageEvolver {
                         originalPointer += 4;
                         testPointer += 4;
                     }
-                    if( sum > roundedMax ) break;
+                    if( sum > roundedMax ) {
+                        sum = maxDivergence;
+                        break;
+                    }
                 }
             }
 

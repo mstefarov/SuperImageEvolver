@@ -63,7 +63,7 @@ namespace SuperImageEvolver {
         }
 
 
-        public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState state, double max ) {
+        public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState state, double maxAcceptableDivergence ) {
             if( Emphasized ) {
                 if( EmphasisAmount == 2 ) {
                     maxDivergence = 3L * state.ImageWidth / 2L * state.ImageHeight / 2L * 255L * 255L;
@@ -76,7 +76,7 @@ namespace SuperImageEvolver {
             }
 
             long sum = 0;
-            long roundedMax = (long)( max * maxDivergence + 1 );
+            long roundedMax = (long)( maxAcceptableDivergence * maxDivergence + 1 );
             using( Graphics g = Graphics.FromImage( testImage ) ) {
                 g.Clear( state.ProjectOptions.Matte );
                 g.Transform = new Matrix( .5f, 0, 0, .5f, 0, 0 );
@@ -111,7 +111,10 @@ namespace SuperImageEvolver {
                     originalPointer += 4;
                     testPointer += 4;
                 }
-                if( sum > roundedMax ) break;
+                if( sum > roundedMax ) {
+                    sum = (long)maxDivergence;
+                    break;
+                }
             }
             testImage.UnlockBits( testData );
             if( Emphasized ) {

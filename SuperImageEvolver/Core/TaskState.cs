@@ -12,7 +12,7 @@ namespace SuperImageEvolver {
         public int Shapes, Vertices;
         public int ImageWidth, ImageHeight;
 
-        public DNA BestMatch;
+        public volatile DNA BestMatch;
 
         public ProjectOptions ProjectOptions = new ProjectOptions();
         public int ImprovementCounter, MutationCounter, RiskyMoveCounter;
@@ -25,9 +25,9 @@ namespace SuperImageEvolver {
 
         public readonly List<PointF> MutationDataLog = new List<PointF>();
 
-        public IInitializer Initializer = new SegmentedInitializer( Color.Black );
-        public IMutator Mutator = new HardMutator();
-        public IEvaluator Evaluator = new RGBEvaluator( false );
+        public volatile IInitializer Initializer = new SegmentedInitializer( Color.Black );
+        public volatile IMutator Mutator = new HardMutator();
+        public volatile IEvaluator Evaluator = new RGBEvaluator( false );
 
         public DateTime TaskStart;
         public DateTime LastImprovementTime;
@@ -44,9 +44,7 @@ namespace SuperImageEvolver {
 
 
         public void SetEvaluator( IEvaluator newEvaluator ) {
-            Debug.WriteLine( Thread.CurrentThread.ManagedThreadId + " SetEvaluator > lock ---" );
             lock( ImprovementLock ) {
-                Debug.WriteLine( Thread.CurrentThread.ManagedThreadId + " SetEvaluator > locked ---" );
                 if( OriginalImage != null && BestMatch != null ) {
                     using( Bitmap testCanvas = new Bitmap( ImageWidth, ImageHeight ) ) {
                         newEvaluator.Initialize( this );
@@ -55,7 +53,6 @@ namespace SuperImageEvolver {
                 }
                 Evaluator = newEvaluator;
             }
-            Debug.WriteLine( Thread.CurrentThread.ManagedThreadId + " SetEvaluator < unlock ---" );
         }
 
 

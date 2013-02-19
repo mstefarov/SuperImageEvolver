@@ -47,10 +47,10 @@ namespace SuperImageEvolver {
         }
 
 
-        public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState state, double max ) {
+        public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState state, double maxAcceptableDivergence ) {
             double maxDivergence = state.ImageWidth * state.ImageHeight * 2 * 255;
             long sum = 0;
-            long roundedMax = (long)( max * maxDivergence + 1 );
+            long roundedMax = (long)( maxAcceptableDivergence * maxDivergence + 1 );
             using( Graphics g = Graphics.FromImage( testImage ) ) {
                 g.Clear( state.ProjectOptions.Matte );
                 g.SmoothingMode = ( Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed );

@@ -6,6 +6,6 @@ namespace SuperImageEvolver {
 
         void Initialize( TaskState state );
 
-        double CalculateDivergence( Bitmap testImage, DNA dna, TaskState state, double max );
+        double CalculateDivergence( Bitmap testImage, DNA dna, TaskState state, double maxAcceptableDivergence );
     }
 }

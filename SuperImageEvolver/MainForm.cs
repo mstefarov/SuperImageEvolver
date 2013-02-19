@@ -15,7 +15,7 @@ namespace SuperImageEvolver {
         public static TaskState State = new TaskState();
         bool stopped = true;
 
-        readonly Thread[] threads = new Thread[Environment.ProcessorCount];
+        readonly Thread[] threads = new Thread[1];
 
 
         public MainForm( string[] args ) {
@@ -139,33 +139,33 @@ namespace SuperImageEvolver {
             Random rand = new Random();
             Bitmap testCanvas = new Bitmap( State.ImageWidth, State.ImageHeight );
 
-            double averageImprovement;
-            if( State.ImprovementCounter > 0 ) {
-                averageImprovement = State.MutationImprovements.Values.Sum()/State.ImprovementCounter;
-            } else {
-                averageImprovement = 1;
-            }
-
             while( !stopped ) {
                 Interlocked.Increment( ref State.MutationCounter );
                 DNA mutation = State.Mutator.Mutate( rand, State.BestMatch, State );
+
+                bool takeRisk = (rand.NextDouble() < State.ProjectOptions.RiskRate * State.BestMatch.Divergence);
+                double riskMargin = -(State.BestMatch.Divergence * State.BestMatch.Divergence * State.BestMatch.Divergence) *
+                                    State.ProjectOptions.RiskMargin;
+                if( !takeRisk ) riskMargin = 0;
+
                 mutation.Divergence = State.Evaluator.CalculateDivergence( testCanvas,
                                                                            mutation,
                                                                            State,
-                                                                           State.BestMatch.Divergence );
+                                                                           State.BestMatch.Divergence - riskMargin );
+
+                if( Math.Abs( mutation.Divergence - 1 ) < float.Epsilon ) continue;
 
                 double improvement = State.BestMatch.Divergence - mutation.Divergence;
-                bool takeRisk = (rand.NextDouble() < State.ProjectOptions.RiskRate);
-                double riskMargin = -averageImprovement*State.ProjectOptions.RiskMargin;
 
                 if( improvement > 0 || takeRisk && (improvement > riskMargin) ) {
-                    Debug.WriteLine( Thread.CurrentThread.ManagedThreadId + " lock > " + improvement * 100 );
                     lock( State.ImprovementLock ) {
-                        Debug.WriteLine( Thread.CurrentThread.ManagedThreadId + "   locked >" );
+                        riskMargin = -(State.BestMatch.Divergence*State.BestMatch.Divergence)*
+                                     State.ProjectOptions.RiskMargin;
+                        if( !takeRisk ) riskMargin = 0;
                         mutation.Divergence = State.Evaluator.CalculateDivergence( testCanvas,
                                                                                    mutation,
                                                                                    State,
-                                                                                   State.BestMatch.Divergence );
+                                                                                   1 );
                         improvement = State.BestMatch.Divergence - mutation.Divergence;
 
                         if( improvement > 0 || takeRisk && (improvement > riskMargin) ) {
@@ -173,11 +173,10 @@ namespace SuperImageEvolver {
                             State.ImprovementCounter++;
                             if( improvement <= 0 ) {
                                 State.RiskyMoveCounter++;
+                            } else {
+                                State.MutationCounts[mutation.LastMutation]++;
+                                State.MutationImprovements[mutation.LastMutation] += improvement;
                             }
-                            State.MutationCounts[mutation.LastMutation]++;
-                            State.MutationImprovements[mutation.LastMutation] += improvement;
-
-                            averageImprovement = State.MutationImprovements.Values.Sum()/State.ImprovementCounter;
 
                             State.MutationDataLog.Add( new PointF {
                                 X = (float)DateTime.UtcNow.Subtract( State.TaskStart ).TotalSeconds,
@@ -189,13 +188,9 @@ namespace SuperImageEvolver {
                             picBestMatch.Invalidate();
                             picDiff.Invalidate();
                             graphWindow1.SetData( State.MutationDataLog, true, true, false, false, true, true );
-                            AutoSave();
-                            Debug.WriteLine( Thread.CurrentThread.ManagedThreadId + "   taken!" + improvement*100 );
-                        } else {
-                            Debug.WriteLine( Thread.CurrentThread.ManagedThreadId + "   rejected! " + improvement * 100 );
                         }
                     }
-                    Debug.WriteLine( Thread.CurrentThread.ManagedThreadId + " < unlocked" );
+                    AutoSave();
                 }
             }
         }
@@ -253,16 +248,13 @@ SinceImproved: {7} / {6}",
                     sb.AppendLine();
                 }
 
-                double averageImprovement;
-                if( State.ImprovementCounter > 0 ) {
-                    averageImprovement = State.MutationImprovements.Values.Sum() / State.ImprovementCounter;
-                } else {
-                    averageImprovement = 1;
+                if( State.BestMatch != null ) {
+                    sb.AppendFormat( "Risk: margin {0:0.0000}, rate {1:0.0}%, taken {2} times",
+                                     (State.BestMatch.Divergence * State.BestMatch.Divergence * State.BestMatch.Divergence) *
+                                     State.ProjectOptions.RiskMargin*100,
+                                     State.BestMatch.Divergence*State.ProjectOptions.RiskRate * 100,
+                                     State.RiskyMoveCounter );
                 }
-                sb.AppendFormat( "Risk: margin {0:0.0000}, rate {1:0.0}%, taken {2} times",
-                                 averageImprovement*State.ProjectOptions.RiskMargin*100,
-                                 State.ProjectOptions.RiskRate*100,
-                                 State.RiskyMoveCounter );
 
                 tMutationStats.Text += sb.ToString();
                 graphWindow1.Invalidate();
