@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Threading;
 using System.Xml.Linq;
 
 namespace SuperImageEvolver {
@@ -46,11 +44,11 @@ namespace SuperImageEvolver {
 
         public void SetEvaluator( IEvaluator newEvaluator ) {
             lock( ImprovementLock ) {
-                if( OriginalImage != null && CurrentMatch != null ) {
+                if( OriginalImage != null && BestMatch != null ) {
                     using( Bitmap testCanvas = new Bitmap( ImageWidth, ImageHeight ) ) {
                         newEvaluator.Initialize( this );
-                        CurrentMatch.Divergence = newEvaluator.CalculateDivergence( testCanvas, CurrentMatch, this, 1 );
                         BestMatch.Divergence = newEvaluator.CalculateDivergence( testCanvas, BestMatch, this, 1 );
+                        CurrentMatch = BestMatch;
                     }
                 }
                 Evaluator = newEvaluator;
