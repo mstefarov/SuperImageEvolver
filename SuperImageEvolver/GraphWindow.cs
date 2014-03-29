@@ -43,51 +43,54 @@ namespace SuperImageEvolver {
 
         public void SetData( IList<PointF> input, bool logXAxis, bool logYAxis, bool normalizeYStart, bool normalizeYEnd,
                              bool normalizeXStart, bool normalizeXEnd ) {
-            if( input.Count < 2 ) {
+            if (input.Count < 2) {
                 Points = null;
-            }
-            PointF[] output = new PointF[input.Count];
+            } else {
+                int count = Math.Min(input.Count, 1000);
+                int offset = input.Count -count;
+                var output = new PointF[count];
 
-            float minX = float.MaxValue,
-                  maxX = float.MinValue,
-                  minY = float.MaxValue,
-                  maxY = float.MinValue;
+                float minX = float.MaxValue,
+                    maxX = float.MinValue,
+                    minY = float.MaxValue,
+                    maxY = float.MinValue;
 
-            for( int i = 0; i < input.Count; i++ ) {
-                minX = Math.Min( minX, input[i].X );
-                maxX = Math.Max( maxX, input[i].X );
-                minY = Math.Min( minY, input[i].Y );
-                maxY = Math.Max( maxY, input[i].Y );
-            }
-
-            if( !normalizeXStart ) minX = 0;
-            if( !normalizeYStart ) minY = 0;
-            if( !normalizeXEnd ) maxX = 1;
-            if( !normalizeYEnd ) maxY = 1;
-
-            float multiplierX = 1 / ( maxX - minX );
-            float constantX = -minX / ( maxX - minX );
-            float multiplierY = 1 / ( maxY - minY );
-            float constantY = -minY / ( maxY - minY );
-
-            double logScaleMultiplier = 1 / Math.Log( LogSteepness + 1 );
-
-            for( int i = 0; i < input.Count; i++ ) {
-                output[i].X = input[i].X * multiplierX + constantX; // normalize
-                if( logXAxis ) {
-                    output[i].X = (float)( Math.Log( output[i].X * LogSteepness + 1 ) * logScaleMultiplier ); // scale
+                for (int i = 0; i < count; i++) {
+                    minX = Math.Min(minX, input[offset+i].X);
+                    maxX = Math.Max(maxX, input[offset+i].X);
+                    minY = Math.Min(minY, input[offset+i].Y);
+                    maxY = Math.Max(maxY, input[offset+i].Y);
                 }
-                output[i].X = ( Width - 1 ) * output[i].X;
+
+                if (!normalizeXStart) minX = 0;
+                if (!normalizeYStart) minY = 0;
+                if (!normalizeXEnd) maxX = 1;
+                if (!normalizeYEnd) maxY = 1;
+
+                float multiplierX = 1/(maxX - minX);
+                float constantX = -minX/(maxX - minX);
+                float multiplierY = 1/(maxY - minY);
+                float constantY = -minY/(maxY - minY);
+
+                double logScaleMultiplier = 1/Math.Log(LogSteepness + 1);
+
+                for (int i = 0; i < count; i++) {
+                    output[i].X = input[offset+i].X*multiplierX + constantX; // normalize
+                    if (logXAxis) {
+                        output[i].X = (float)(Math.Log(output[i].X*LogSteepness + 1)*logScaleMultiplier); // scale
+                    }
+                    output[i].X = (Width - 1)*output[i].X;
 
 
-                output[i].Y = input[i].Y * multiplierY + constantY; // normalize
-                if( logYAxis ) {
-                    output[i].Y = (float)( Math.Log( output[i].Y * LogSteepness + 1 ) * logScaleMultiplier ); // scale
+                    output[i].Y = input[offset+i].Y*multiplierY + constantY; // normalize
+                    if (logYAxis) {
+                        output[i].Y = (float)(Math.Log(output[i].Y*LogSteepness + 1)*logScaleMultiplier); // scale
+                    }
+                    output[i].Y = (Height - 1)*output[i].Y;
                 }
-                output[i].Y = ( Height - 1 ) * output[i].Y;
-            }
 
-            Points = output;
+                Points = output;
+            }
         }
     }
 }
