@@ -72,10 +72,10 @@ namespace SuperImageEvolver {
 
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g = e.Graphics;
-            if( state != null && state.BestMatch != null ) {
+            if( state != null && state.CurrentMatch != null ) {
                 g.Clear( state.ProjectOptions.Matte );
                 e.Graphics.ScaleTransform( zoom, zoom );
-                DNA tempDNA = state.BestMatch;
+                DNA tempDNA = state.CurrentMatch;
                 g.SmoothingMode = (state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
 
                 Pen wireframePen = new Pen( state.ProjectOptions.WireframeColor, 1/zoom );

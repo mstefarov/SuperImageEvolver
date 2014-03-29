@@ -107,9 +107,9 @@ namespace SuperImageEvolver {
         
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g2 = e.Graphics;
-            if( state != null && state.BestMatch != null ) {
+            if( state != null && state.CurrentMatch != null ) {
                 e.Graphics.ScaleTransform( zoom, zoom );
-                DNA tempDNA = state.BestMatch;
+                DNA tempDNA = state.CurrentMatch;
                 using( Graphics g = Graphics.FromImage( canvasImage ) ) {
                     g.Clear( state.ProjectOptions.Matte );
 

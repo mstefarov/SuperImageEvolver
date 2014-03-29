@@ -141,38 +141,43 @@ namespace SuperImageEvolver {
 
             while( !stopped ) {
                 Interlocked.Increment( ref State.MutationCounter );
-                DNA mutation = State.Mutator.Mutate( rand, State.BestMatch, State );
+                DNA mutation = State.Mutator.Mutate( rand, State.CurrentMatch, State );
 
-                bool takeRisk = (rand.NextDouble() < State.ProjectOptions.RiskRate * State.BestMatch.Divergence);
-                double riskMargin = -(State.BestMatch.Divergence * State.BestMatch.Divergence * State.BestMatch.Divergence) *
-                                    State.ProjectOptions.RiskMargin;
+                bool takeRisk = (rand.NextDouble() < State.ProjectOptions.RiskRate * State.CurrentMatch.Divergence);
+                double riskMargin = -(State.CurrentMatch.Divergence*State.CurrentMatch.Divergence)*
+                                     State.ProjectOptions.RiskMargin;
                 if( !takeRisk ) riskMargin = 0;
 
                 mutation.Divergence = State.Evaluator.CalculateDivergence( testCanvas,
                                                                            mutation,
                                                                            State,
-                                                                           State.BestMatch.Divergence - riskMargin );
+                                                                           State.CurrentMatch.Divergence - riskMargin );
 
                 if( Math.Abs( mutation.Divergence - 1 ) < float.Epsilon ) continue;
 
-                double improvement = State.BestMatch.Divergence - mutation.Divergence;
+                double improvement = State.CurrentMatch.Divergence - mutation.Divergence;
 
                 if( improvement > 0 || takeRisk && (improvement > riskMargin) ) {
                     lock( State.ImprovementLock ) {
-                        riskMargin = -(State.BestMatch.Divergence*State.BestMatch.Divergence)*
+                        riskMargin = -(State.CurrentMatch.Divergence*State.CurrentMatch.Divergence)*
                                      State.ProjectOptions.RiskMargin;
                         if( !takeRisk ) riskMargin = 0;
                         mutation.Divergence = State.Evaluator.CalculateDivergence( testCanvas,
                                                                                    mutation,
                                                                                    State,
                                                                                    1 );
-                        improvement = State.BestMatch.Divergence - mutation.Divergence;
+                        improvement = State.CurrentMatch.Divergence - mutation.Divergence;
 
                         if( improvement > 0 || takeRisk && (improvement > riskMargin) ) {
                             State.HasChangedSinceSave = true;
                             State.ImprovementCounter++;
                             if( improvement <= 0 ) {
-                                State.RiskyMoveCounter++;
+                                if (State.BestMatch.Divergence < State.CurrentMatch.Divergence) {
+                                    State.FailedRiskCounter++;
+                                    mutation = State.BestMatch;
+                                } else {
+                                    State.RiskyMoveCounter++;
+                                }
                             } else {
                                 State.MutationCounts[mutation.LastMutation]++;
                                 State.MutationImprovements[mutation.LastMutation] += improvement;
@@ -182,7 +187,10 @@ namespace SuperImageEvolver {
                                 X = (float)DateTime.UtcNow.Subtract( State.TaskStart ).TotalSeconds,
                                 Y = (float)mutation.Divergence
                             } );
-                            State.BestMatch = mutation;
+                            State.CurrentMatch = mutation;
+                            if (mutation.Divergence <= State.BestMatch.Divergence) {
+                                State.BestMatch = mutation;
+                            }
                             State.LastImprovementTime = DateTime.UtcNow;
                             State.LastImprovementMutationCount = State.MutationCounter;
                             picBestMatch.Invalidate();
@@ -224,7 +232,7 @@ Improvements: {1} ({2:0.00}/s)
 Mutations: {3} ({4:0}/s)
 Elapsed: {5}
 SinceImproved: {7} / {6}",
-                    State.BestMatch == null ? 0 : 100 - State.BestMatch.Divergence * 100,
+                    State.CurrentMatch == null ? 0 : 100 - State.CurrentMatch.Divergence * 100,
                     State.ImprovementCounter,
                     State.ImprovementCounter / DateTime.UtcNow.Subtract( State.TaskStart ).TotalSeconds,
                     State.MutationCounter,
@@ -248,12 +256,12 @@ SinceImproved: {7} / {6}",
                     sb.AppendLine();
                 }
 
-                if( State.BestMatch != null ) {
-                    sb.AppendFormat( "Risk: margin {0:0.0000}, rate {1:0.0}%, taken {2} times",
-                                     (State.BestMatch.Divergence * State.BestMatch.Divergence * State.BestMatch.Divergence) *
+                if( State.CurrentMatch != null ) {
+                    sb.AppendFormat( "Risk: margin {0:0.0000}, rate {1:0.0}%, taken {2} times (failed {3} times)",
+                                     (State.CurrentMatch.Divergence * State.CurrentMatch.Divergence * State.CurrentMatch.Divergence) *
                                      State.ProjectOptions.RiskMargin*100,
-                                     State.BestMatch.Divergence*State.ProjectOptions.RiskRate * 100,
-                                     State.RiskyMoveCounter );
+                                     State.CurrentMatch.Divergence*State.ProjectOptions.RiskRate * 100,
+                                     State.RiskyMoveCounter, State.FailedRiskCounter );
                 }
 
                 tMutationStats.Text += sb.ToString();
@@ -282,8 +290,10 @@ SinceImproved: {7} / {6}",
             lastMutationtCounter = 0;
             State.MutationCounter = 0;
             State.RiskyMoveCounter = 0;
+            State.FailedRiskCounter = 0;
             State.LastImprovementMutationCount = 0;
-            State.BestMatch = State.Initializer.Initialize( new Random(), State );
+            State.CurrentMatch = State.Initializer.Initialize( new Random(), State );
+            State.BestMatch = State.CurrentMatch;
             State.HasChangedSinceSave = true;
         }
 
@@ -553,7 +563,7 @@ SinceImproved: {7} / {6}",
 
         void bStart_Click( object sender, EventArgs e ) {
             if( stopped ) {
-                Start( State.BestMatch == null );
+                Start( State.CurrentMatch == null );
             }
         }
 
@@ -778,12 +788,12 @@ SinceImproved: {7} / {6}",
 
 
         void bExportDNA_Click( object sender, EventArgs e ) {
-            if( State == null || State.BestMatch == null ) return;
+            if( State == null || State.CurrentMatch == null ) return;
             List<string> parts = new List<string> {
                 State.Vertices.ToString(),
                 State.Shapes.ToString()
             };
-            foreach( Shape shape in State.BestMatch.Shapes ) {
+            foreach( Shape shape in State.CurrentMatch.Shapes ) {
                 parts.Add( shape.Color.R.ToString() );
                 parts.Add( shape.Color.G.ToString() );
                 parts.Add( shape.Color.B.ToString() );
@@ -831,6 +841,7 @@ SinceImproved: {7} / {6}",
                         }
                         importedDNA.Shapes[s] = shape;
                     }
+                    State.CurrentMatch = importedDNA;
                     State.BestMatch = importedDNA;
                     State.SetEvaluator( State.Evaluator );
                     UpdateTick();

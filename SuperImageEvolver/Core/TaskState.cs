@@ -11,11 +11,12 @@ namespace SuperImageEvolver {
     public sealed class TaskState {
         public int Shapes, Vertices;
         public int ImageWidth, ImageHeight;
-
+        
+        public volatile DNA CurrentMatch;
         public volatile DNA BestMatch;
 
         public ProjectOptions ProjectOptions = new ProjectOptions();
-        public int ImprovementCounter, MutationCounter, RiskyMoveCounter;
+        public int ImprovementCounter, MutationCounter, RiskyMoveCounter, FailedRiskCounter;
 
         public Bitmap OriginalImage;
         public Bitmap WorkingImageCopy;
@@ -45,10 +46,10 @@ namespace SuperImageEvolver {
 
         public void SetEvaluator( IEvaluator newEvaluator ) {
             lock( ImprovementLock ) {
-                if( OriginalImage != null && BestMatch != null ) {
+                if( OriginalImage != null && CurrentMatch != null ) {
                     using( Bitmap testCanvas = new Bitmap( ImageWidth, ImageHeight ) ) {
                         newEvaluator.Initialize( this );
-                        BestMatch.Divergence = newEvaluator.CalculateDivergence( testCanvas, BestMatch, this, 1 );
+                        CurrentMatch.Divergence = newEvaluator.CalculateDivergence( testCanvas, CurrentMatch, this, 1 );
                     }
                 }
                 Evaluator = newEvaluator;
@@ -118,6 +119,7 @@ namespace SuperImageEvolver {
             ProjectOptions = new ProjectOptions( tag["ProjectOptions"] );
 
             BestMatch = new DNA( tag["BestMatch"] );
+            CurrentMatch = BestMatch;
 
             Initializer = (IInitializer)ModuleManager.ReadModule( tag["Initializer"] );
             Mutator = (IMutator)ModuleManager.ReadModule( tag["Mutator"] );
