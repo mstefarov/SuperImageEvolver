@@ -50,6 +50,7 @@ namespace SuperImageEvolver {
                     using( Bitmap testCanvas = new Bitmap( ImageWidth, ImageHeight ) ) {
                         newEvaluator.Initialize( this );
                         CurrentMatch.Divergence = newEvaluator.CalculateDivergence( testCanvas, CurrentMatch, this, 1 );
+                        BestMatch.Divergence = newEvaluator.CalculateDivergence( testCanvas, BestMatch, this, 1 );
                     }
                 }
                 Evaluator = newEvaluator;
