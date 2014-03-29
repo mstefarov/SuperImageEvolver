@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -257,11 +256,11 @@ SinceImproved: {7} / {6}",
                 }
 
                 if( State.CurrentMatch != null ) {
-                    sb.AppendFormat( "Risk: margin {0:0.0000}, rate {1:0.0}%, taken {2} times (failed {3} times)",
+                    sb.AppendFormat( "Risk: margin {0:0.0000}, rate {1:0.0}%, taken {2} times (paid off {3} times)",
                                      (State.CurrentMatch.Divergence * State.CurrentMatch.Divergence * State.CurrentMatch.Divergence) *
                                      State.ProjectOptions.RiskMargin*100,
                                      State.CurrentMatch.Divergence*State.ProjectOptions.RiskRate * 100,
-                                     State.RiskyMoveCounter, State.FailedRiskCounter );
+                                     State.RiskyMoveCounter, State.RiskyMoveCounter - State.FailedRiskCounter );
                 }
 
                 tMutationStats.Text += sb.ToString();
@@ -351,6 +350,12 @@ SinceImproved: {7} / {6}",
             }
             Application.DoEvents();
             if( updateThread != null ) updateThread.Join();
+
+            State.CurrentMatch = State.BestMatch;
+            UpdateTick();
+            picBestMatch.Invalidate();
+            picDiff.Invalidate();
+
             cInitializer.Enabled = true;
             nPolygons.Enabled = true;
             nVertices.Enabled = true;
@@ -994,7 +999,7 @@ SinceImproved: {7} / {6}",
 
         void MainForm_FormClosing( object sender, FormClosingEventArgs e ) {
             if( State != null && State.OriginalImage != null && State.HasChangedSinceSave ) {
-                DialogResult result = MessageBox.Show( "Save changes to before exiting?",
+                DialogResult result = MessageBox.Show( "Save project to before exiting?",
                                                        "Exiting SuperImageEvolver",
                                                        MessageBoxButtons.YesNoCancel,
                                                        MessageBoxIcon.Warning,
