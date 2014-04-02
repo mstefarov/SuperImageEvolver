@@ -889,6 +889,7 @@ SinceImproved: {7} / {6}",
             if( updateEvaluator ) {
                 State.SetEvaluator( State.Evaluator );
             }
+            picBestMatch.Invalidate();
             graphWindow1.Invalidate();
             if( !oldStopped ) Start( false );
         }
