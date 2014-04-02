@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace SuperImageEvolver {
@@ -16,9 +17,6 @@ namespace SuperImageEvolver {
         }
 
 
-        readonly Pen pen = new Pen( Color.Black, 2 );
-
-
         protected override void OnPaint( PaintEventArgs e ) {
             Graphics g = e.Graphics;
             g.Clear( Color.White );
@@ -28,7 +26,10 @@ namespace SuperImageEvolver {
             }
             if( Points != null && Points.Length > 1 ) {
                 try {
-                    g.DrawLines( pen, Points );
+                    g.DrawLines( Pens.Black, Points );
+                    g.TranslateTransform(0,-1);
+                    g.DrawLines( Pens.Black, Points );
+                    g.ResetTransform();
                 } catch( Exception ex ) {
                     Console.WriteLine( ex );
                 }
@@ -56,10 +57,11 @@ namespace SuperImageEvolver {
                     maxY = float.MinValue;
 
                 for (int i = 0; i < count; i++) {
-                    minX = Math.Min(minX, input[offset+i].X);
-                    maxX = Math.Max(maxX, input[offset+i].X);
-                    minY = Math.Min(minY, input[offset+i].Y);
-                    maxY = Math.Max(maxY, input[offset+i].Y);
+                    PointF pt = input[offset + i];
+                    minX = Math.Min(minX, pt.X);
+                    maxX = Math.Max(maxX, pt.X);
+                    minY = Math.Min(minY, pt.Y);
+                    maxY = Math.Max(maxY, pt.Y);
                 }
 
                 if (!normalizeXStart) minX = 0;
