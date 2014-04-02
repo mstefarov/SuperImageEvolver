@@ -15,6 +15,13 @@ namespace SuperImageEvolver {
         bool stopped = true;
 
         readonly Thread[] threads = new Thread[1];
+        Thread updateThread;
+
+        readonly object autosaveLock = new object();
+        DateTime autosaveNext;
+        readonly TimeSpan autosaveInterval = TimeSpan.FromSeconds( 30 );
+        int lastMutationtCounter;
+        DateTime lastUpdate;
 
 
         public MainForm( string[] args ) {
@@ -113,10 +120,6 @@ namespace SuperImageEvolver {
         }
 
 
-        readonly object autosaveLock = new object();
-        DateTime autosaveNext;
-        readonly TimeSpan autosaveInterval = TimeSpan.FromSeconds( 30 );
-
 
         void AutoSave() {
             if( State.ProjectFileName != null && DateTime.UtcNow > autosaveNext ) {
@@ -168,8 +171,6 @@ namespace SuperImageEvolver {
                         improvement = State.CurrentMatch.Divergence - mutation.Divergence;
 
                         if( improvement > 0 || takeRisk && (improvement > riskMargin) ) {
-                            State.HasChangedSinceSave = true;
-                            State.ImprovementCounter++;
                             if( improvement <= 0 ) {
                                 if (State.BestMatch.Divergence < State.CurrentMatch.Divergence) {
                                     State.FailedRiskCounter++;
@@ -187,14 +188,16 @@ namespace SuperImageEvolver {
                                 Y = (float)mutation.Divergence
                             } );
                             State.CurrentMatch = mutation;
-                            if (mutation.Divergence <= State.BestMatch.Divergence) {
+                            if (mutation.Divergence < State.BestMatch.Divergence) {
                                 State.BestMatch = mutation;
+                                State.LastImprovementTime = DateTime.UtcNow;
+                                State.LastImprovementMutationCount = State.MutationCounter;
+                                State.ImprovementCounter++;
+                                State.HasChangedSinceSave = true;
                             }
-                            State.LastImprovementTime = DateTime.UtcNow;
-                            State.LastImprovementMutationCount = State.MutationCounter;
                             picBestMatch.Invalidate();
                             picDiff.Invalidate();
-                            graphWindow1.SetData( State.MutationDataLog, true, true, false, false, true, true );
+                            graphWindow1.SetData( State.MutationDataLog, false, true, false, false, true, true );
                         }
                     }
                     AutoSave();
@@ -203,8 +206,6 @@ namespace SuperImageEvolver {
         }
 
 
-        int lastMutationtCounter;
-        DateTime lastUpdate;
 
 
         void UpdateStatus() {
@@ -222,55 +223,55 @@ namespace SuperImageEvolver {
             try {
                 int mutationDelta = State.MutationCounter - lastMutationtCounter;
                 lastMutationtCounter = State.MutationCounter;
-                double timeDelta = ( DateTime.UtcNow - lastUpdate ).TotalSeconds;
+                double timeDelta = (DateTime.UtcNow - lastUpdate).TotalSeconds;
                 lastUpdate = DateTime.UtcNow;
 
-                tMutationStats.Text = String.Format(
-@"Fitness: {0:0.00000}%
+                lock (State.ImprovementLock) {
+                    tMutationStats.Text = String.Format(
+                        @"Fitness: {0:0.00000}%
 Improvements: {1} ({2:0.00}/s)
 Mutations: {3} ({4:0}/s)
 Elapsed: {5}
 SinceImproved: {7} / {6}",
-                    State.CurrentMatch == null ? 0 : 100 - State.CurrentMatch.Divergence * 100,
-                    State.ImprovementCounter,
-                    State.ImprovementCounter / DateTime.UtcNow.Subtract( State.TaskStart ).TotalSeconds,
-                    State.MutationCounter,
-                    mutationDelta / timeDelta,
-                    DateTime.UtcNow.Subtract( State.TaskStart ).ToCompactString(),
-                    DateTime.UtcNow.Subtract( State.LastImprovementTime ).ToCompactString(),
-                    State.MutationCounter - State.LastImprovementMutationCount );
-                StringBuilder sb = new StringBuilder( Environment.NewLine );
-                sb.AppendLine();
-                double totalImprovements = State.MutationImprovements.Values.Sum();
-                foreach( MutationType type in Enum.GetValues( typeof( MutationType ) ) ) {
-                    double rate = 0;
-                    if( State.MutationCounts[type] != 0 ) {
-                        rate = State.MutationImprovements[type] / State.MutationCounts[type];
-                    }
-                    sb.AppendFormat( "{0} - {1}*{2:0.0000} ({3:0.0}%)",
-                                     type,
-                                     State.MutationCounts[type],
-                                     rate * 100,
-                                     ( State.MutationImprovements[type] / totalImprovements ) * 100 );
+                        State.CurrentMatch == null ? 0 : 100 - State.CurrentMatch.Divergence*100,
+                        State.ImprovementCounter,
+                        State.ImprovementCounter/DateTime.UtcNow.Subtract(State.TaskStart).TotalSeconds,
+                        State.MutationCounter,
+                        mutationDelta/timeDelta,
+                        DateTime.UtcNow.Subtract(State.TaskStart).ToCompactString(),
+                        DateTime.UtcNow.Subtract(State.LastImprovementTime).ToCompactString(),
+                        State.MutationCounter - State.LastImprovementMutationCount);
+                    StringBuilder sb = new StringBuilder(Environment.NewLine);
                     sb.AppendLine();
+                    double totalImprovements = State.MutationImprovements.Values.Sum();
+                    foreach (MutationType type in Enum.GetValues(typeof(MutationType))) {
+                        double rate = 0;
+                        if (State.MutationCounts[type] != 0) {
+                            rate = State.MutationImprovements[type]/State.MutationCounts[type];
+                        }
+                        sb.AppendFormat("{0} - {1}*{2:0.0000} ({3:0.0}%)",
+                                        type,
+                                        State.MutationCounts[type],
+                                        rate*100,
+                                        (State.MutationImprovements[type]/totalImprovements)*100);
+                        sb.AppendLine();
+                    }
+
+                    if (State.CurrentMatch != null) {
+                        sb.AppendFormat("Risk: margin {0:0.0000}, rate {1:0.0}%, taken {2} times (paid off {3} times)",
+                                        (State.CurrentMatch.Divergence*State.CurrentMatch.Divergence*
+                                         State.CurrentMatch.Divergence)*
+                                        State.ProjectOptions.RiskMargin*100,
+                                        State.CurrentMatch.Divergence*State.ProjectOptions.RiskRate*100,
+                                        State.RiskyMoveCounter, State.RiskyMoveCounter - State.FailedRiskCounter);
+                    }
+                    tMutationStats.Text += sb.ToString();
                 }
 
-                if( State.CurrentMatch != null ) {
-                    sb.AppendFormat( "Risk: margin {0:0.0000}, rate {1:0.0}%, taken {2} times (paid off {3} times)",
-                                     (State.CurrentMatch.Divergence * State.CurrentMatch.Divergence * State.CurrentMatch.Divergence) *
-                                     State.ProjectOptions.RiskMargin*100,
-                                     State.CurrentMatch.Divergence*State.ProjectOptions.RiskRate * 100,
-                                     State.RiskyMoveCounter, State.RiskyMoveCounter - State.FailedRiskCounter );
-                }
-
-                tMutationStats.Text += sb.ToString();
                 graphWindow1.Invalidate();
 
-            } catch( ObjectDisposedException ) {}
+            } catch (ObjectDisposedException) {}
         }
-
-
-        Thread updateThread;
 
 
         void Reset() {
