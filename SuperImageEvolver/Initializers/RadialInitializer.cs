@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 
 namespace SuperImageEvolver {
@@ -32,46 +33,65 @@ namespace SuperImageEvolver {
 
     public sealed class RadialInitializer : IInitializer {
         public Color Color { get; set; }
+        [DefaultValue(6)]
         public int MaxOverlap { get; set; }
+        [DefaultValue(1)]
         public byte StartingAlpha { get; set; }
+        [DefaultValue(2)]
+        public int MinRadius { get; set; }
+        [DefaultValue(0.5)]
+        public double MaxRadiusRatio { get; set; }
+        [DefaultValue(0)]
+        public double Angle { get; set; }
+        [DefaultValue(1)]
+        public double Revolutions { get; set; }
 
 
         public RadialInitializer( Color color ) {
             Color = color;
             MaxOverlap = 6;
             StartingAlpha = 1;
+            MinRadius = 2;
+            MaxRadiusRatio = 0.5;
+            Angle = 0;
+            Revolutions = 1;
         }
 
 
-        public DNA Initialize( Random rand, TaskState task ) {
-            DNA dna = new DNA {
+        public DNA Initialize(Random rand, TaskState task) {
+            var dna = new DNA {
                 Shapes = new Shape[task.Shapes]
             };
-            for( int i = 0; i < task.Shapes; i++ ) {
-                Shape shape = new Shape {
-                    Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B ),
+            for (int s = 0; s < task.Shapes; s++) {
+                var shape = new Shape {
+                    Color = Color.FromArgb(StartingAlpha, Color.R, Color.G, Color.B),
                     Points = new PointF[task.Vertices]
                 };
-                int radius = rand.Next( 2, Math.Min( task.ImageWidth, task.ImageHeight ) / 2 );
-                Point center = new Point( rand.Next( radius - MaxOverlap, task.ImageWidth - radius + MaxOverlap ),
-                                          rand.Next( radius - MaxOverlap, task.ImageHeight - radius + MaxOverlap ) );
-                for( int j = 0; j < shape.Points.Length; j++ ) {
-                    double t = j * Math.PI * 2 / shape.Points.Length + Math.PI / task.Vertices;
-                    shape.Points[j].X = (float)( center.X + Math.Cos( t ) * radius );
-                    shape.Points[j].Y = (float)( center.Y + Math.Sin( t ) * radius );
+                int maxRadius = (int)Math.Round(Math.Min(task.ImageWidth, task.ImageHeight)*MaxRadiusRatio);
+                int radius = rand.Next(MinRadius, maxRadius);
+                var center = new Point(rand.Next(radius - MaxOverlap, task.ImageWidth - radius + MaxOverlap),
+                                       rand.Next(radius - MaxOverlap, task.ImageHeight - radius + MaxOverlap));
+                for (int v = 0; v < task.Vertices; v++) {
+                    double t = v*Math.PI*2*Revolutions/task.Vertices + Angle*Math.PI*2 + Math.PI/task.Vertices;
+                    shape.Points[v].X = (float)(center.X + Math.Cos(t)*radius);
+                    shape.Points[v].Y = (float)(center.Y + Math.Sin(t)*radius);
                 }
-                if( shape.GetBoundaries().Width < 1 || shape.GetBoundaries().Height < 1 ) {
+                if (shape.GetBoundaries().Width < 1 || shape.GetBoundaries().Height < 1) {
                     continue;
                 }
-                dna.Shapes[i] = shape;
+                dna.Shapes[s] = shape;
             }
             return dna;
         }
 
 
         object ICloneable.Clone() {
-            return new RadialInitializer( Color ) {
-                MaxOverlap = MaxOverlap
+            return new RadialInitializer(Color) {
+                MaxOverlap = MaxOverlap,
+                StartingAlpha = StartingAlpha,
+                MinRadius = MinRadius,
+                MaxRadiusRatio = MaxRadiusRatio,
+                Revolutions = Revolutions
             };
         }
 
