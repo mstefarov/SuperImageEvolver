@@ -88,6 +88,7 @@
     <Compile Include="Core\IModule.cs" />
     <Compile Include="Initializers\RadialInitializer.cs" />
     <Compile Include="Initializers\IInitializer.cs" />
+    <Compile Include="PolygonValueEvaluator.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -80,9 +80,16 @@ namespace SuperImageEvolver {
                 Pen wireframePen = new Pen( state.ProjectOptions.WireframeColor, 1/zoom );
 
                 for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
-                    g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ), tempDNA.Shapes[i].Points, FillMode.Winding );
-                    if( Wireframe ) {
-                        g.DrawPolygon( wireframePen, tempDNA.Shapes[i].Points );
+                        g.FillPolygon(new SolidBrush(tempDNA.Shapes[i].Color), tempDNA.Shapes[i].Points,
+                                      FillMode.Winding);
+                        if (Wireframe) {
+                            g.DrawPolygon(wireframePen, tempDNA.Shapes[i].Points);
+                        }
+                }
+                for (int i = 0; i < tempDNA.Shapes.Length; i++) {
+                    if (tempDNA.Shapes[i].OutlineColor != Color.Transparent) {
+                        wireframePen.Color = tempDNA.Shapes[i].OutlineColor;
+                            g.DrawPolygon(wireframePen, tempDNA.Shapes[i].Points);
                     }
                 }
                 if( showLastChange ) {

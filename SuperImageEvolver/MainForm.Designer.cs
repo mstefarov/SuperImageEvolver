@@ -30,6 +30,7 @@
             System.Windows.Forms.ToolStripSeparator separator3;
             System.Windows.Forms.ToolStripSeparator separator5;
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.picOriginal = new SuperImageEvolver.CustomInterpolationPictureBox();
             this.cmOriginal = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmOriginalZoom = new System.Windows.Forms.ToolStripMenuItem();
             this.cmOriginalZoom50 = new System.Windows.Forms.ToolStripMenuItem();
@@ -40,6 +41,7 @@
             this.cmOriginalZoom200 = new System.Windows.Forms.ToolStripMenuItem();
             this.cmOriginalZoomSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.cmOriginalZoomSync = new System.Windows.Forms.ToolStripMenuItem();
+            this.picBestMatch = new SuperImageEvolver.Canvas();
             this.cmBestMatch = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmBestMatchZoom = new System.Windows.Forms.ToolStripMenuItem();
             this.cmBestMatchZoom50 = new System.Windows.Forms.ToolStripMenuItem();
@@ -52,6 +54,7 @@
             this.cmBestMatchZoomSync = new System.Windows.Forms.ToolStripMenuItem();
             this.cmBestMatchWireframe = new System.Windows.Forms.ToolStripMenuItem();
             this.cmBestMatchShowLastChange = new System.Windows.Forms.ToolStripMenuItem();
+            this.picDiff = new SuperImageEvolver.DiffCanvas();
             this.cmDiff = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmDiffZoom = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDiffZoom50 = new System.Windows.Forms.ToolStripMenuItem();
@@ -76,6 +79,7 @@
             this.lInitializer = new System.Windows.Forms.Label();
             this.cMutator = new System.Windows.Forms.ComboBox();
             this.cInitializer = new System.Windows.Forms.ComboBox();
+            this.graphWindow1 = new SuperImageEvolver.GraphWindow();
             this.lPoints = new System.Windows.Forms.Label();
             this.lShapes = new System.Windows.Forms.Label();
             this.nPolygons = new System.Windows.Forms.NumericUpDown();
@@ -107,16 +111,17 @@
             this.bMatteToAverageColor = new System.Windows.Forms.ToolStripMenuItem();
             this.menuHelp = new System.Windows.Forms.ToolStripDropDownButton();
             this.bHelpListModules = new System.Windows.Forms.ToolStripMenuItem();
-            this.picOriginal = new SuperImageEvolver.CustomInterpolationPictureBox();
-            this.picBestMatch = new SuperImageEvolver.Canvas();
-            this.picDiff = new SuperImageEvolver.DiffCanvas();
-            this.graphWindow1 = new SuperImageEvolver.GraphWindow();
+            this.polygonValueEvaluationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.evaluateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.redistributeLeastValuableShapesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearOutlinesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             separator1 = new System.Windows.Forms.ToolStripSeparator();
             separator4 = new System.Windows.Forms.ToolStripSeparator();
             separator2 = new System.Windows.Forms.ToolStripSeparator();
             separator3 = new System.Windows.Forms.ToolStripSeparator();
             separator5 = new System.Windows.Forms.ToolStripSeparator();
             this.flowLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).BeginInit();
             this.cmOriginal.SuspendLayout();
             this.cmBestMatch.SuspendLayout();
             this.cmDiff.SuspendLayout();
@@ -125,7 +130,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nVertices)).BeginInit();
             this.pStatistics.SuspendLayout();
             this.toolStrip.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).BeginInit();
             this.SuspendLayout();
             // 
             // separator1
@@ -172,6 +176,17 @@
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 2, 0, 0);
             this.flowLayoutPanel1.Size = new System.Drawing.Size(882, 461);
             this.flowLayoutPanel1.TabIndex = 3;
+            // 
+            // picOriginal
+            // 
+            this.picOriginal.ContextMenuStrip = this.cmOriginal;
+            this.picOriginal.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            this.picOriginal.Location = new System.Drawing.Point(3, 5);
+            this.picOriginal.Name = "picOriginal";
+            this.picOriginal.Size = new System.Drawing.Size(80, 30);
+            this.picOriginal.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picOriginal.TabIndex = 10;
+            this.picOriginal.TabStop = false;
             // 
             // cmOriginal
             // 
@@ -250,6 +265,18 @@
             this.cmOriginalZoomSync.Name = "cmOriginalZoomSync";
             this.cmOriginalZoomSync.Size = new System.Drawing.Size(146, 22);
             this.cmOriginalZoomSync.Text = "Sync all views";
+            // 
+            // picBestMatch
+            // 
+            this.picBestMatch.ContextMenuStrip = this.cmBestMatch;
+            this.picBestMatch.Location = new System.Drawing.Point(89, 5);
+            this.picBestMatch.Name = "picBestMatch";
+            this.picBestMatch.ShowLastChange = false;
+            this.picBestMatch.Size = new System.Drawing.Size(80, 30);
+            this.picBestMatch.State = null;
+            this.picBestMatch.TabIndex = 0;
+            this.picBestMatch.Wireframe = false;
+            this.picBestMatch.Zoom = 1F;
             // 
             // cmBestMatch
             // 
@@ -346,6 +373,20 @@
             this.cmBestMatchShowLastChange.Size = new System.Drawing.Size(171, 22);
             this.cmBestMatchShowLastChange.Text = "Show Last Change";
             this.cmBestMatchShowLastChange.CheckedChanged += new System.EventHandler(this.showLastChangeToolStripMenuItem_CheckedChanged);
+            // 
+            // picDiff
+            // 
+            this.picDiff.ContextMenuStrip = this.cmDiff;
+            this.picDiff.Exaggerate = true;
+            this.picDiff.Invert = false;
+            this.picDiff.Location = new System.Drawing.Point(175, 5);
+            this.picDiff.Name = "picDiff";
+            this.picDiff.ShowColor = true;
+            this.picDiff.ShowLastChange = false;
+            this.picDiff.Size = new System.Drawing.Size(80, 30);
+            this.picDiff.State = null;
+            this.picDiff.TabIndex = 8;
+            this.picDiff.Zoom = 1F;
             // 
             // cmDiff
             // 
@@ -595,6 +636,14 @@
             this.cInitializer.Size = new System.Drawing.Size(114, 21);
             this.cInitializer.TabIndex = 8;
             this.cInitializer.SelectedIndexChanged += new System.EventHandler(this.cInitializer_SelectedIndexChanged);
+            // 
+            // graphWindow1
+            // 
+            this.graphWindow1.BackColor = System.Drawing.Color.White;
+            this.graphWindow1.Location = new System.Drawing.Point(3, 3);
+            this.graphWindow1.Name = "graphWindow1";
+            this.graphWindow1.Size = new System.Drawing.Size(197, 98);
+            this.graphWindow1.TabIndex = 9;
             // 
             // lPoints
             // 
@@ -896,7 +945,8 @@
             this.menuOptions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.menuOptions.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.bProjectOptions,
-            this.bMatteToAverageColor});
+            this.bMatteToAverageColor,
+            this.polygonValueEvaluationToolStripMenuItem});
             this.menuOptions.Image = global::SuperImageEvolver.Properties.Resources.gear;
             this.menuOptions.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.menuOptions.Name = "menuOptions";
@@ -936,50 +986,36 @@
             this.bHelpListModules.Text = "List Modules";
             this.bHelpListModules.Click += new System.EventHandler(this.bHelpListModules_Click);
             // 
-            // picOriginal
+            // polygonValueEvaluationToolStripMenuItem
             // 
-            this.picOriginal.ContextMenuStrip = this.cmOriginal;
-            this.picOriginal.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-            this.picOriginal.Location = new System.Drawing.Point(3, 5);
-            this.picOriginal.Name = "picOriginal";
-            this.picOriginal.Size = new System.Drawing.Size(80, 30);
-            this.picOriginal.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picOriginal.TabIndex = 10;
-            this.picOriginal.TabStop = false;
+            this.polygonValueEvaluationToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.evaluateToolStripMenuItem,
+            this.redistributeLeastValuableShapesToolStripMenuItem,
+            this.clearOutlinesToolStripMenuItem});
+            this.polygonValueEvaluationToolStripMenuItem.Name = "polygonValueEvaluationToolStripMenuItem";
+            this.polygonValueEvaluationToolStripMenuItem.Size = new System.Drawing.Size(216, 22);
+            this.polygonValueEvaluationToolStripMenuItem.Text = "Polygon Value";
             // 
-            // picBestMatch
+            // evaluateToolStripMenuItem
             // 
-            this.picBestMatch.ContextMenuStrip = this.cmBestMatch;
-            this.picBestMatch.Location = new System.Drawing.Point(89, 5);
-            this.picBestMatch.Name = "picBestMatch";
-            this.picBestMatch.ShowLastChange = false;
-            this.picBestMatch.Size = new System.Drawing.Size(80, 30);
-            this.picBestMatch.State = null;
-            this.picBestMatch.TabIndex = 0;
-            this.picBestMatch.Wireframe = false;
-            this.picBestMatch.Zoom = 1F;
+            this.evaluateToolStripMenuItem.Name = "evaluateToolStripMenuItem";
+            this.evaluateToolStripMenuItem.Size = new System.Drawing.Size(250, 22);
+            this.evaluateToolStripMenuItem.Text = "Evaluate";
+            this.evaluateToolStripMenuItem.Click += new System.EventHandler(this.evaluatePolygonValueToolStripMenuItem_Click);
             // 
-            // picDiff
+            // redistributeLeastValuableShapesToolStripMenuItem
             // 
-            this.picDiff.ContextMenuStrip = this.cmDiff;
-            this.picDiff.Exaggerate = true;
-            this.picDiff.Invert = false;
-            this.picDiff.Location = new System.Drawing.Point(175, 5);
-            this.picDiff.Name = "picDiff";
-            this.picDiff.ShowColor = true;
-            this.picDiff.ShowLastChange = false;
-            this.picDiff.Size = new System.Drawing.Size(80, 30);
-            this.picDiff.State = null;
-            this.picDiff.TabIndex = 8;
-            this.picDiff.Zoom = 1F;
+            this.redistributeLeastValuableShapesToolStripMenuItem.Name = "redistributeLeastValuableShapesToolStripMenuItem";
+            this.redistributeLeastValuableShapesToolStripMenuItem.Size = new System.Drawing.Size(250, 22);
+            this.redistributeLeastValuableShapesToolStripMenuItem.Text = "Redistribute least valuable shapes";
+            this.redistributeLeastValuableShapesToolStripMenuItem.Click += new System.EventHandler(this.eliminateLVPToolStripMenuItem_Click);
             // 
-            // graphWindow1
+            // clearOutlinesToolStripMenuItem
             // 
-            this.graphWindow1.BackColor = System.Drawing.Color.White;
-            this.graphWindow1.Location = new System.Drawing.Point(3, 3);
-            this.graphWindow1.Name = "graphWindow1";
-            this.graphWindow1.Size = new System.Drawing.Size(197, 98);
-            this.graphWindow1.TabIndex = 9;
+            this.clearOutlinesToolStripMenuItem.Name = "clearOutlinesToolStripMenuItem";
+            this.clearOutlinesToolStripMenuItem.Size = new System.Drawing.Size(250, 22);
+            this.clearOutlinesToolStripMenuItem.Text = "Clear outlines";
+            this.clearOutlinesToolStripMenuItem.Click += new System.EventHandler(this.clearOutlinesToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -993,6 +1029,7 @@
             this.Text = "Super Image Evolver";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.flowLayoutPanel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).EndInit();
             this.cmOriginal.ResumeLayout(false);
             this.cmBestMatch.ResumeLayout(false);
             this.cmDiff.ResumeLayout(false);
@@ -1004,7 +1041,6 @@
             this.pStatistics.PerformLayout();
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picOriginal)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1094,6 +1130,10 @@
         private System.Windows.Forms.ToolStripMenuItem cmOriginalZoomSync;
         private System.Windows.Forms.ToolStripMenuItem bMatteToAverageColor;
         private CustomInterpolationPictureBox picOriginal;
+        private System.Windows.Forms.ToolStripMenuItem polygonValueEvaluationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem evaluateToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem redistributeLeastValuableShapesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem clearOutlinesToolStripMenuItem;
     }
 }
 

@@ -12,12 +12,14 @@ namespace SuperImageEvolver {
         public Shape( Shape other ) {
             Color = other.Color;
             Points = (PointF[])other.Points.Clone();
+            OutlineColor = other.OutlineColor;
         }
 
 
         public Color Color;
         public PointF[] Points;
         public Shape PreviousState;
+        public Color OutlineColor = Color.Transparent;
 
 
         public Shape( NBTag tag ) {
@@ -82,6 +84,11 @@ namespace SuperImageEvolver {
 
         public object Clone() {
             return new Shape( this );
+        }
+
+
+        public override string ToString() {
+            return String.Format("Shape(" + Color + ")");
         }
     }
 }

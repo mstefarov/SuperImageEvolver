@@ -81,7 +81,7 @@ namespace SuperImageEvolver {
                     newDNA.LastMutation = MutationType.ReplaceColor;
                     break;
                 case 10:
-                    MutatorHelper.SwapShapes( rand, newDNA );
+                    newDNA.SwapShapes( rand );
                     break;
                 case 11:
                     shape.PreviousState = shape.Clone() as Shape;

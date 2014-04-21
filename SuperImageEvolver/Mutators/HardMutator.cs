@@ -38,7 +38,7 @@ namespace SuperImageEvolver {
             Shape shape = newDNA.Shapes[s1];
             switch( rand.Next( 20 ) ) {
                 case 0:
-                    MutatorHelper.SwapShapes( rand, newDNA );
+                    newDNA.SwapShapes( rand );
                     break;
                 case 1:
                     RandomizeShape( rand, shape, task );

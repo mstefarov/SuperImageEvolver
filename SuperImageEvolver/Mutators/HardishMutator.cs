@@ -47,7 +47,7 @@ namespace SuperImageEvolver {
             int s1 = rand.Next( newDNA.Shapes.Length );
             Shape shape = newDNA.Shapes[s1];
             if( rand.Next( 20 ) == 0 ) {
-                MutatorHelper.SwapShapes( rand, newDNA );
+                newDNA.SwapShapes( rand );
             } else {
                 MutateShape( rand, newDNA, shape, task );
             }

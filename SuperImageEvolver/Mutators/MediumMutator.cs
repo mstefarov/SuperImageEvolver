@@ -34,7 +34,7 @@ namespace SuperImageEvolver {
         DNA IMutator.Mutate( Random rand, DNA oldDNA, TaskState task ) {
             DNA newDNA = new DNA( oldDNA );
             if( rand.Next( 20 ) == 0 ) {
-                MutatorHelper.SwapShapes( rand, newDNA );
+                newDNA.SwapShapes( rand );
             } else {
                 MutateShape( rand, newDNA, newDNA.Shapes[rand.Next( newDNA.Shapes.Length )], task );
             }
