@@ -90,6 +90,7 @@ namespace SuperImageEvolver {
             }
 
             State.WorkingImageCopy = new Bitmap(image.Width, image.Height);
+            State.WorkingImageCopy.SetResolution(image.HorizontalResolution, image.VerticalResolution);
             using (Graphics g = Graphics.FromImage(State.WorkingImageCopy)) {
                 g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
                 g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
