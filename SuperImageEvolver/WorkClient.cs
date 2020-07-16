@@ -29,6 +29,16 @@ namespace SuperImageEvolver {
                     var tag = (NBTCompound)NBTag.ReadTag(reader, (NBTType)reader.ReadByte(), null, null);
                     Debug.WriteLine("> " + tag.Name);
                     switch (tag.Name) {
+                        case "load":
+                            cts?.Cancel();
+                            if (runnerTask != null) await runnerTask;
+                            state = new TaskState(tag["fullState"]);
+                            state.Stats.Reset();
+                            state.SetOriginalImage(state.OriginalImage);
+                            state.SetEvaluator(state.Evaluator);
+                            runner = new StateRunner(state);
+                            break;
+
                         case "report":
                             Debug.WriteLine("Sending [workUpdate]");
                             var msg = new NBTCompound("workUpdate");
@@ -44,15 +54,6 @@ namespace SuperImageEvolver {
                             pipe.WaitForPipeDrain();
                             break;
 
-                        case "load":
-                            cts?.Cancel();
-                            if (runnerTask != null) await runnerTask;
-                            state = new TaskState(tag["fullState"]);
-                            state.SetOriginalImage(state.OriginalImage);
-                            state.SetEvaluator(state.Evaluator);
-                            runner = new StateRunner(state);
-                            break;
-
                         case "updateConfig":
                             cts?.Cancel();
                             if (runnerTask != null) await runnerTask;
@@ -62,16 +63,16 @@ namespace SuperImageEvolver {
                             }
                             break;
 
+                        case "pause":
+                            cts?.Cancel();
+                            if (runnerTask != null) await runnerTask;
+                            break;
+
                         case "resume":
                             cts?.Cancel();
                             if (runnerTask != null) await runnerTask;
                             cts = new CancellationTokenSource();
                             runnerTask = Task.Run(() => runner.RunAsync(cts.Token));
-                            break;
-
-                        case "pause":
-                            cts?.Cancel();
-                            if (runnerTask != null) await runnerTask;
                             break;
 
                         case "exit":
