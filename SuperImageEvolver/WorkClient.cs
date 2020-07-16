@@ -5,18 +5,14 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SuperImageEvolver
-{
-    class WorkClient
-    {
+namespace SuperImageEvolver {
+    class WorkClient {
         private static BinaryWriter writer;
 
-        public static async Task Run(string pipeName)
-        {
+        public static async Task Run(string pipeName) {
             ModuleManager.LoadFactories(Assembly.GetExecutingAssembly());
 
-            try
-            {
+            try {
                 Debug.WriteLine("Connecting...");
                 var pipe = new NamedPipeClientStream(".", pipeName);
                 pipe.Connect();
@@ -28,20 +24,17 @@ namespace SuperImageEvolver
                 TaskState state = null;
                 StateRunner runner = null;
                 Task runnerTask = null;
-                while (pipe.IsConnected)
-                {
+                while (pipe.IsConnected) {
                     Debug.WriteLine("Waiting for next tag...");
                     var tag = (NBTCompound)NBTag.ReadTag(reader, (NBTType)reader.ReadByte(), null, null);
                     Debug.WriteLine("> " + tag.Name);
-                    switch (tag.Name)
-                    {
+                    switch (tag.Name) {
                         case "report":
                             Debug.WriteLine("Sending [workUpdate]");
                             var msg = new NBTCompound("workUpdate");
                             msg.Tags.Add("bestMatch", state.BestMatch.SerializeNBT("bestMatch"));
                             var statsTag = new NBTCompound("stats");
-                            lock (state.ImprovementLock)
-                            {
+                            lock (state.ImprovementLock) {
                                 state.Stats.Store(statsTag);
                                 state.Stats.Reset();
                             }
@@ -63,8 +56,7 @@ namespace SuperImageEvolver
                         case "updateConfig":
                             cts?.Cancel();
                             if (runnerTask != null) await runnerTask;
-                            lock (state.ImprovementLock)
-                            {
+                            lock (state.ImprovementLock) {
                                 state.ReadCoreConfig(tag["stateChanges"]);
                                 state.SetEvaluator(state.Evaluator);
                             }
@@ -88,9 +80,7 @@ namespace SuperImageEvolver
                             return;
                     }
                 }
-            }
-            catch (IOException)
-            {
+            } catch (IOException) {
                 // expected if server disconnects
             }
         }

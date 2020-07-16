@@ -14,7 +14,7 @@ namespace SuperImageEvolver {
         public static TaskState State = new TaskState();
         bool stopped = true;
 
-        readonly Thread[] threads = new Thread[1];
+        Thread workServerThread;
         Thread updateThread;
 
         readonly object autosaveLock = new object();
@@ -116,12 +116,9 @@ namespace SuperImageEvolver {
 
         int needsConfigChangeFlag = 0;
 
-        void Run() {
+        void RunWorkServer() {
             WorkServer.SendLoad(State);
             WorkServer.SendResume();
-            // TODO: listen for work reports
-            // TODO: combine stats from workers
-            // TODO: broadcast improvements
 
             while (!stopped)
             {
@@ -151,7 +148,6 @@ namespace SuperImageEvolver {
                     }
                 }
             }
-            // TODO: loop
             WorkServer.SendPause();
         }
 
@@ -169,7 +165,6 @@ namespace SuperImageEvolver {
 
         void UpdateTick() {
             try {
-
                 lock (State.ImprovementLock)
                     {
                     var stats = State.Stats;
@@ -278,10 +273,8 @@ SinceImproved: {7} / {6}",
             State.SetEvaluator(State.Evaluator);
 
             stopped = false;
-            for (int i = 0; i < threads.Length; i++) {
-                threads[i] = new Thread(Run);
-                threads[i].Start();
-            }
+            workServerThread = new Thread(RunWorkServer);
+            workServerThread.Start();
             updateThread = new Thread(UpdateStatus);
             updateThread.Start();
 
@@ -294,9 +287,7 @@ SinceImproved: {7} / {6}",
         void Stop() {
             stopped = true;
             clientReportSignal.Set();
-            for (int i = 0; i < threads.Length; i++) {
-                if (threads[i] != null) threads[i].Join();
-            }
+            workServerThread.Join();
             Application.DoEvents();
             if (updateThread != null) updateThread.Join();
 
@@ -316,7 +307,6 @@ SinceImproved: {7} / {6}",
 
 
         void cInitializer_SelectedIndexChanged(object sender, EventArgs e) {
-            State.HasChangedSinceSave = true;
             switch (cInitializer.SelectedIndex) {
                 case 0:
                     State.Initializer = new SolidColorInitializer(Color.Black);
@@ -328,11 +318,11 @@ SinceImproved: {7} / {6}",
                     State.Initializer = new RadialInitializer(Color.Black);
                     break;
             }
+            SignalStateChange(false);
         }
 
 
         void cMutator_SelectedIndexChanged(object sender, EventArgs e) {
-            State.HasChangedSinceSave = true;
             switch (cMutator.SelectedIndex) {
                 case 0:
                     State.Mutator = new HarderMutator();
@@ -394,13 +384,11 @@ SinceImproved: {7} / {6}",
                     };
                     break;
             }
-            Volatile.Write(ref needsConfigChangeFlag, 1);
-            clientReportSignal.Set();
+            SignalStateChange(true);
         }
 
 
         void cEvaluator_SelectedIndexChanged(object sender, EventArgs e) {
-            State.HasChangedSinceSave = true;
             switch (cEvaluator.SelectedIndex) {
                 case 0:
                     State.SetEvaluator(new SloppyRGBEvaluator());
@@ -420,10 +408,19 @@ SinceImproved: {7} / {6}",
             }
             picBestMatch.Invalidate();
             graphWindow1.Invalidate();
-            Volatile.Write(ref needsConfigChangeFlag, 1);
-            clientReportSignal.Set();
+            SignalStateChange(true);
         }
 
+
+        void SignalStateChange(bool reloadConfig)
+        {
+            State.HasChangedSinceSave = true;
+            if (reloadConfig)
+            {
+                Volatile.Write(ref needsConfigChangeFlag, 1);
+                clientReportSignal.Set();
+            }
+        }
 
         #region Menus
 

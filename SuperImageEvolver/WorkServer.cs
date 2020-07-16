@@ -3,112 +3,88 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
-using System.Threading.Tasks;
 
-namespace SuperImageEvolver
-{
-    static class WorkServer
-    {
+namespace SuperImageEvolver {
+    static class WorkServer {
         private static ClientConnection[] connections;
         public static int NumClients { get; private set; }
 
-        public static async Task Start()
-        {
-            try
-            {
+        public static void Start() {
+            try {
                 NumClients = Environment.ProcessorCount - 1;
                 connections = new ClientConnection[NumClients];
-                for (int i = 0; i < NumClients; i++)
-                {
+                for (int i = 0; i < NumClients; i++) {
                     string pipeName = "SuperImageEvolver." + Process.GetCurrentProcess().Id + "." + i;
                     var process = Process.Start(Process.GetCurrentProcess().MainModule.FileName, "pipe=" + pipeName);
                     var pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut);
                     connections[i] = new ClientConnection(process, pipe);
                 }
-                for (int i = 0; i < NumClients; i++)
-                {
+                for (int i = 0; i < NumClients; i++) {
                     connections[i].Pipe.WaitForConnection();
                 }
                 Debug.WriteLine("NamedPipeServerStream connected");
-            }
-            catch
-            {
+            } catch {
                 Shutdown();
             }
         }
 
 
-        public static void Shutdown()
-        {
+        public static void Shutdown() {
             foreach (var c in connections)
                 c.Process.Kill();
         }
 
-        private static void Broadcast(NBTCompound tag)
-        {
+        private static void Broadcast(NBTCompound tag) {
             Debug.WriteLine("Sending [" + tag.Name + "]");
-            foreach (var c in connections)
-            {
+            foreach (var c in connections) {
                 c.WriteTag(tag);
             }
         }
 
-        public static void SendLoad(TaskState state)
-        {
+        public static void SendLoad(TaskState state) {
             var msg = new NBTCompound("load");
-            lock (state.ImprovementLock)
-            {
+            lock (state.ImprovementLock) {
                 msg.Tags.Add("fullState", state.SerializeNBT("fullState"));
             }
             Broadcast(msg);
         }
 
-        public static void SendUpdateConfig(TaskState state)
-        {
+        public static void SendUpdateConfig(TaskState state) {
             var msg = new NBTCompound("updateConfig");
             var update = new NBTCompound("stateChanges");
-            lock (state.ImprovementLock)
-            {
+            lock (state.ImprovementLock) {
                 state.StoreCoreConfig(update);
             }
             msg.Tags.Add("stateChanges", update);
             Broadcast(msg);
         }
 
-        public static void SendResume()
-        {
+        public static void SendResume() {
             Broadcast(new NBTCompound("resume"));
         }
 
-        public static void SendPause()
-        {
+        public static void SendPause() {
             Broadcast(new NBTCompound("pause"));
         }
 
-        public static void SendExit()
-        {
+        public static void SendExit() {
             Broadcast(new NBTCompound("exit"));
         }
 
-        public static void RequestReports()
-        {
+        public static void RequestReports() {
             Broadcast(new NBTCompound("report"));
         }
 
-        public static List<DNA> ReadWorkUpdates(TaskState state)
-        {
+        public static List<DNA> ReadWorkUpdates(TaskState state) {
             var reports = new List<DNA>(NumClients);
-            for (int i = 0; i < NumClients; i++)
-            {
+            for (int i = 0; i < NumClients; i++) {
                 var cc = connections[i];
                 Debug.WriteLine("Waiting for [workUpdate]...");
                 var tag = cc.ReadTag();
                 Debug.WriteLine("> " + tag.Name);
-                switch (tag.Name)
-                {
+                switch (tag.Name) {
                     case "workUpdate":
-                        lock (state.ImprovementLock)
-                        {
+                        lock (state.ImprovementLock) {
                             state.Stats.Merge(tag["stats"]);
                         }
                         reports.Add(new DNA(tag["bestMatch"]));
@@ -120,28 +96,24 @@ namespace SuperImageEvolver
             return reports;
         }
 
-        private class ClientConnection
-        {
+        private class ClientConnection {
             public Process Process { get; }
             public NamedPipeServerStream Pipe { get; }
             private BinaryWriter writer;
             private BinaryReader reader;
 
-            public ClientConnection(Process process, NamedPipeServerStream pipe)
-            {
+            public ClientConnection(Process process, NamedPipeServerStream pipe) {
                 Process = process;
                 Pipe = pipe;
                 reader = new BinaryReader(pipe);
                 writer = new BinaryWriter(pipe);
             }
 
-            public NBTag ReadTag()
-            {
+            public NBTag ReadTag() {
                 return (NBTCompound)NBTag.ReadTag(reader, (NBTType)reader.ReadByte(), null, null);
             }
 
-            public void WriteTag(NBTag tag)
-            {
+            public void WriteTag(NBTag tag) {
                 tag.WriteTag(writer);
                 writer.Flush();
             }
