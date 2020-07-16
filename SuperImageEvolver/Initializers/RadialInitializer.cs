@@ -66,17 +66,17 @@ namespace SuperImageEvolver {
                 Shapes = new Shape[task.Shapes]
             };
             for (int s = 0; s < task.Shapes; s++) {
-                bool alt = (s%2==0);
                 var shape = new Shape {
-                    Color = Color.FromArgb(StartingAlpha, alt?255-Color.R:Color.R, alt?255-Color.G:Color.G, alt?255-Color.B:Color.B),
+                    Color = Color.FromArgb(StartingAlpha, Color.R, Color.G, Color.B),
                     Points = new PointF[task.Vertices]
                 };
                 int maxRadius = (int)Math.Round(Math.Min(task.ImageWidth, task.ImageHeight)*MaxRadiusRatio);
                 int radius = rand.Next(MinRadius, maxRadius);
                 var center = new Point(rand.Next(radius - MaxOverlap, task.ImageWidth - radius + MaxOverlap),
                                        rand.Next(radius - MaxOverlap, task.ImageHeight - radius + MaxOverlap));
+                double offsetAngle = (Angle + AngleDelta*s)/180*Math.PI + Math.PI/task.Vertices;
                 for (int v = 0; v < task.Vertices; v++) {
-                    double t = v*Math.PI*2*Revolutions/task.Vertices + (Angle + AngleDelta*s)/180*Math.PI + Math.PI/task.Vertices;
+                    double t = v*Math.PI*2*Revolutions/task.Vertices + offsetAngle;
                     shape.Points[v].X = (float)(center.X + Math.Cos(t)*radius);
                     shape.Points[v].Y = (float)(center.Y + Math.Sin(t)*radius);
                 }
