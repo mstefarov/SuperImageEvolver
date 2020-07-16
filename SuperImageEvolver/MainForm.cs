@@ -1017,21 +1017,23 @@ SinceImproved: {7} / {6}",
         }
 
 
-        const double DivergenceEliminationThreshold = 0.00002;
+        const double DivergenceEliminationThreshold = 0.0001;
 
 
         void evaluatePolygonValueToolStripMenuItem_Click(object sender, EventArgs e) {
             lock (State.ImprovementLock) {
                 ShapeEvaluation[] polys = PolygonValueEvaluator.SortShapes(State);
-                int polysToShow = polys.Count(shape => shape.Divergence <= DivergenceEliminationThreshold);
+                int badPolys = polys.Count(shape => shape.Divergence <= DivergenceEliminationThreshold);
+                int polysToShow = Math.Min(polys.Length/2, Math.Max(3, badPolys));
                 var sb = new StringBuilder();
+
                 ClearOutlines();
-                foreach (var kvp in polys.Skip(1).Take(polysToShow)) {
+                foreach (var kvp in polys.Take(polysToShow)) {
                     sb.AppendLine("MVP: " + kvp.Divergence);
                     State.BestMatch.Shapes[kvp.Ordinal].OutlineColor = Color.Green;
                 }
                 sb.AppendLine();
-                foreach (var kvp in polys.Reverse().Take(polysToShow)) {
+                foreach (var kvp in polys.Reverse().Take(polysToShow).Reverse()) {
                     sb.AppendLine("LVP: " + kvp.Divergence);
                     State.BestMatch.Shapes[kvp.Ordinal].OutlineColor = Color.Red;
                 }
@@ -1044,19 +1046,31 @@ SinceImproved: {7} / {6}",
         void eliminateLVPToolStripMenuItem_Click(object sender, EventArgs e) {
             lock (State.ImprovementLock) {
                 ShapeEvaluation[] polys = PolygonValueEvaluator.SortShapes(State);
-                int i = 0;
                 Random rand = new Random();
                 ClearOutlines();
-                while (polys[polys.Length - 1 - i].Divergence <= DivergenceEliminationThreshold) {
+                int shapesToElim = polys.Count(shape => shape.Divergence <= DivergenceEliminationThreshold);
+                if (shapesToElim == 0) {
+                    shapesToElim = Math.Min(polys.Length / 2, Math.Max(3, shapesToElim));
+                    foreach (var kvp in polys.Reverse().Take(shapesToElim).Reverse()) {
+                        State.BestMatch.Shapes[kvp.Ordinal].OutlineColor = Color.Red;
+                    }
+                    var dialogResult = MessageBox.Show(
+                        "None of the shapes are below the threshold-of-value (" + shapesToElim + ")." + Environment.NewLine
+                        + "Try redistributing these " + shapesToElim + " least-valuable ones anyway?",
+                        "Least Valuable Polygon elimination", MessageBoxButtons.YesNo);
+                    ClearOutlines();
+                    if (dialogResult != DialogResult.Yes)
+                        return;
+                }
+                for (int i = 0; i < shapesToElim; i++) {
                     State.BestMatch.DivideShape(rand,
-                        Array.IndexOf(State.BestMatch.Shapes,polys[i + 1].Shape),
-                        Array.IndexOf(State.BestMatch.Shapes,polys[polys.Length - 1 - i].Shape));
-                    i++;
+                        polys[i + 1].Ordinal,
+                        polys[polys.Length - 1 - i].Ordinal);
                 }
                 picBestMatch.Invalidate();
                 State.SetEvaluator(State.Evaluator);
                 UpdateTick();
-                MessageBox.Show("Redistributed " + i + " shapes.", "Least Valuable Polygon elimination");
+                MessageBox.Show("Redistributed " + shapesToElim + " shapes.", "Least Valuable Polygon elimination");
             }
         }
 
