@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -53,7 +53,7 @@ namespace SuperImageEvolver {
         public void Initialize( TaskState state ) {
             halfResImage = new Bitmap( state.ImageWidth / 2, state.ImageHeight / 2, PixelFormat.Format32bppArgb );
             using( Graphics g = Graphics.FromImage( halfResImage ) ) {
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.InterpolationMode = InterpolationMode.HighQualityBilinear;
                 g.SmoothingMode = SmoothingMode.HighQuality;
                 g.DrawImage( state.WorkingImageCopy, 0, 0, halfResImage.Width, halfResImage.Height );
             }
