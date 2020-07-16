@@ -22,6 +22,7 @@ namespace SuperImageEvolver {
         readonly TimeSpan autosaveInterval = TimeSpan.FromSeconds(30);
         int lastMutationCounter;
         DateTime lastUpdate;
+        ManualResetEvent clientReportSignal = new ManualResetEvent(false);
 
 
         public MainForm(string[] args) {
@@ -113,6 +114,7 @@ namespace SuperImageEvolver {
             }
         }
 
+        int needsConfigChangeFlag = 0;
 
         void Run() {
             WorkServer.SendLoad(State);
@@ -123,20 +125,30 @@ namespace SuperImageEvolver {
 
             while (!stopped)
             {
-                Thread.Sleep(1000);
-                WorkServer.RequestReports();
-                var dnas = WorkServer.ReadWorkUpdates(State);
-                var newBest = dnas.OrderBy(d=> d.Divergence).First();
-                if (newBest.Divergence < State.BestMatch.Divergence)
+                clientReportSignal.WaitOne(500);
+                clientReportSignal.Reset();
+                bool haveConfigChange = Interlocked.CompareExchange(ref needsConfigChangeFlag, 0, 1) == 1;
+                if (haveConfigChange)
                 {
-                    State.SetBestMatch(newBest);
-                    State.CurrentMatch = State.BestMatch;
-                    picBestMatch.Invalidate();
-                    picDiff.Invalidate();
-                    graphWindow1.SetData(State.Stats.MutationDataLog, false, true, false, false, true, true);
                     WorkServer.SendUpdateConfig(State);
                     WorkServer.SendResume();
-                    AutoSave();
+                }
+                else
+                {
+                    WorkServer.RequestReports();
+                    var dnas = WorkServer.ReadWorkUpdates(State);
+                    var newBest = dnas.OrderBy(d => d.Divergence).First();
+                    if (newBest.Divergence < State.BestMatch.Divergence)
+                    {
+                        State.SetBestMatch(newBest);
+                        State.CurrentMatch = State.BestMatch;
+                        picBestMatch.Invalidate();
+                        picDiff.Invalidate();
+                        graphWindow1.SetData(State.Stats.MutationDataLog, false, true, false, false, true, true);
+                        WorkServer.SendUpdateConfig(State);
+                        WorkServer.SendResume();
+                        AutoSave();
+                    }
                 }
             }
             // TODO: loop
@@ -157,13 +169,14 @@ namespace SuperImageEvolver {
 
         void UpdateTick() {
             try {
-                var stats = State.Stats;
-                int mutationDelta = stats.MutationCounter - lastMutationCounter;
-                lastMutationCounter = stats.MutationCounter;
-                double timeDelta = (DateTime.UtcNow - lastUpdate).TotalSeconds;
-                lastUpdate = DateTime.UtcNow;
 
-                lock (State.ImprovementLock) {
+                lock (State.ImprovementLock)
+                    {
+                    var stats = State.Stats;
+                    int mutationDelta = stats.MutationCounter - lastMutationCounter;
+                    lastMutationCounter = stats.MutationCounter;
+                    double timeDelta = (DateTime.UtcNow - lastUpdate).TotalSeconds;
+                    lastUpdate = DateTime.UtcNow;
                     tMutationStats.Text = String.Format(
                         @"Fitness: {0:0.00000}%
 Improvements: {1} ({2:0.00}/s)
@@ -211,19 +224,24 @@ SinceImproved: {7} / {6}",
         }
 
 
-        void Reset() {
+        void Reset()
+        {
             //cInitializer_SelectedIndexChanged( cInitializer, EventArgs.Empty );
             //cMutator_SelectedIndexChanged( cMutator, EventArgs.Empty );
             //cEvaluator_SelectedIndexChanged( cEvaluator, EventArgs.Empty );
-            State.TaskStart = DateTime.UtcNow;
-            State.Shapes = (int)nPolygons.Value;
-            State.Vertices = (int)nVertices.Value;
-            State.Stats.Reset();
-            lastMutationCounter = 0;
-            State.LastImprovementMutationCount = 0;
-            State.CurrentMatch = State.Initializer.Initialize(new Random(), State);
-            State.BestMatch = State.CurrentMatch;
-            State.HasChangedSinceSave = true;
+            lock (State.ImprovementLock)
+            {
+                State.TaskStart = DateTime.UtcNow;
+                State.Shapes = (int)nPolygons.Value;
+                State.Vertices = (int)nVertices.Value;
+                State.Stats.Reset();
+                lastMutationCounter = 0;
+                State.LastImprovementMutationCount = 0;
+                State.CurrentMatch = State.Initializer.Initialize(new Random(), State);
+                State.BestMatch = State.CurrentMatch;
+                State.HasChangedSinceSave = true;
+            }
+            clientReportSignal.Set();
         }
 
 
@@ -275,6 +293,7 @@ SinceImproved: {7} / {6}",
 
         void Stop() {
             stopped = true;
+            clientReportSignal.Set();
             for (int i = 0; i < threads.Length; i++) {
                 if (threads[i] != null) threads[i].Join();
             }
@@ -375,6 +394,8 @@ SinceImproved: {7} / {6}",
                     };
                     break;
             }
+            Volatile.Write(ref needsConfigChangeFlag, 1);
+            clientReportSignal.Set();
         }
 
 
@@ -399,6 +420,8 @@ SinceImproved: {7} / {6}",
             }
             picBestMatch.Invalidate();
             graphWindow1.Invalidate();
+            Volatile.Write(ref needsConfigChangeFlag, 1);
+            clientReportSignal.Set();
         }
 
 
@@ -529,6 +552,8 @@ SinceImproved: {7} / {6}",
             if (md.ShowDialog() == DialogResult.OK) {
                 State.Initializer = md.Module;
                 State.HasChangedSinceSave = true;
+                Volatile.Write(ref needsConfigChangeFlag, 1);
+                clientReportSignal.Set();
             }
         }
 
@@ -538,6 +563,8 @@ SinceImproved: {7} / {6}",
             if (md.ShowDialog() == DialogResult.OK) {
                 State.Mutator = md.Module;
                 State.HasChangedSinceSave = true;
+                Volatile.Write(ref needsConfigChangeFlag, 1);
+                clientReportSignal.Set();
             }
         }
 
@@ -548,6 +575,8 @@ SinceImproved: {7} / {6}",
                 State.SetEvaluator(md.Module);
                 graphWindow1.Invalidate();
                 State.HasChangedSinceSave = true;
+                Volatile.Write(ref needsConfigChangeFlag, 1);
+                clientReportSignal.Set();
             }
         }
 

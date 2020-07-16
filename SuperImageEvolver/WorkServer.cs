@@ -56,7 +56,10 @@ namespace SuperImageEvolver
         public static void SendLoad(TaskState state)
         {
             var msg = new NBTCompound("load");
-            msg.Tags.Add("fullState", state.SerializeNBT("fullState"));
+            lock (state.ImprovementLock)
+            {
+                msg.Tags.Add("fullState", state.SerializeNBT("fullState"));
+            }
             Broadcast(msg);
         }
 
@@ -64,7 +67,10 @@ namespace SuperImageEvolver
         {
             var msg = new NBTCompound("updateConfig");
             var update = new NBTCompound("stateChanges");
-            state.StoreCoreConfig(update);
+            lock (state.ImprovementLock)
+            {
+                state.StoreCoreConfig(update);
+            }
             msg.Tags.Add("stateChanges", update);
             Broadcast(msg);
         }
@@ -101,7 +107,10 @@ namespace SuperImageEvolver
                 switch (tag.Name)
                 {
                     case "workUpdate":
-                        state.Stats.Merge(tag["stats"]);
+                        lock (state.ImprovementLock)
+                        {
+                            state.Stats.Merge(tag["stats"]);
+                        }
                         reports.Add(new DNA(tag["bestMatch"]));
                         break;
                     default:
