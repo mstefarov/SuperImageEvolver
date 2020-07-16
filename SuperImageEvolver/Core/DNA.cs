@@ -104,7 +104,7 @@ namespace SuperImageEvolver {
             half2.Points[0] = divisionVertex2;
             half2.Points[1] = divisionVertex1;
             for (int i = 0; i < points/2; i++) {
-                half2.Points[i + 2] = shifted.Points[points/2 + i + 1];
+                half2.Points[i + 2] = shifted.Points[points/2 + i];
             }
 
             // Randomly redistribute extra vertices for each half (if there are any)
