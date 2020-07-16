@@ -43,6 +43,8 @@ namespace SuperImageEvolver {
         public double MaxRadiusRatio { get; set; }
         [DefaultValue(0)]
         public double Angle { get; set; }
+        [DefaultValue(0)]
+        public double AngleDelta { get; set; }
         [DefaultValue(1)]
         public double Revolutions { get; set; }
 
@@ -54,6 +56,7 @@ namespace SuperImageEvolver {
             MinRadius = 2;
             MaxRadiusRatio = 0.5;
             Angle = 0;
+            AngleDelta = 0;
             Revolutions = 1;
         }
 
@@ -73,7 +76,7 @@ namespace SuperImageEvolver {
                 var center = new Point(rand.Next(radius - MaxOverlap, task.ImageWidth - radius + MaxOverlap),
                                        rand.Next(radius - MaxOverlap, task.ImageHeight - radius + MaxOverlap));
                 for (int v = 0; v < task.Vertices; v++) {
-                    double t = v*Math.PI*2*Revolutions/task.Vertices + Angle*Math.PI*2 + Math.PI/task.Vertices;
+                    double t = v*Math.PI*2*Revolutions/task.Vertices + (Angle + AngleDelta*s)/180*Math.PI + Math.PI/task.Vertices;
                     shape.Points[v].X = (float)(center.X + Math.Cos(t)*radius);
                     shape.Points[v].Y = (float)(center.Y + Math.Sin(t)*radius);
                 }
@@ -92,7 +95,9 @@ namespace SuperImageEvolver {
                 StartingAlpha = StartingAlpha,
                 MinRadius = MinRadius,
                 MaxRadiusRatio = MaxRadiusRatio,
-                Revolutions = Revolutions
+                Angle = Angle,
+                AngleDelta = AngleDelta,
+                Revolutions = Revolutions,
             };
         }
 
