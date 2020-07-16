@@ -7,12 +7,18 @@
     <AssemblyName>SuperImageEvolver</AssemblyName>
     <RootNamespace>SuperImageEvolver</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\bin\Release\netcore31</OutputPath>
+    <IntermediateOutputPath>..\obj\Release\netcore31</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\bin\Debug\netcore31</OutputPath>
+    <IntermediateOutputPath>..\obj\Debug\netcore31</IntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\SuperImageEvolver\**\*.cs" />
     <EmbeddedResource Include="..\SuperImageEvolver\**\*.resx" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="..\SuperImageEvolver\CancellationToken.cs" />
   </ItemGroup>
 </Project>
