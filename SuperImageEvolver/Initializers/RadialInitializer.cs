@@ -63,8 +63,9 @@ namespace SuperImageEvolver {
                 Shapes = new Shape[task.Shapes]
             };
             for (int s = 0; s < task.Shapes; s++) {
+                bool alt = (s%2==0);
                 var shape = new Shape {
-                    Color = Color.FromArgb(StartingAlpha, Color.R, Color.G, Color.B),
+                    Color = Color.FromArgb(StartingAlpha, alt?255-Color.R:Color.R, alt?255-Color.G:Color.G, alt?255-Color.B:Color.B),
                     Points = new PointF[task.Vertices]
                 };
                 int maxRadius = (int)Math.Round(Math.Min(task.ImageWidth, task.ImageHeight)*MaxRadiusRatio);

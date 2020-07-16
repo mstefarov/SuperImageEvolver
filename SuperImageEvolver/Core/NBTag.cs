@@ -62,8 +62,8 @@ namespace SuperImageEvolver {
 
 
     public class NBTag : IEnumerable<NBTag> {
-        protected NBTType Type { get; set; }
-        protected string Name { get; set; }
+        public NBTType Type { get; protected set; }
+        public string Name { get; protected set; }
         object Payload { get; set; }
         NBTag Parent { get; set; }
 

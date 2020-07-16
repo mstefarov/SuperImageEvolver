@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Xml.Linq;
 
-namespace SuperImageEvolver {
+namespace SuperImageEvolver
+{
     public sealed class TaskState {
         public int Shapes, Vertices;
         public int ImageWidth, ImageHeight;
@@ -14,15 +14,12 @@ namespace SuperImageEvolver {
         public volatile DNA BestMatch;
 
         public ProjectOptions ProjectOptions = new ProjectOptions();
-        public int ImprovementCounter, MutationCounter, RiskyMoveCounter, FailedRiskCounter;
 
         public Bitmap OriginalImage;
         public Bitmap WorkingImageCopy;
         public Bitmap WorkingImageCopyClone;
         public BitmapData WorkingImageData;
         public string ProjectFileName;
-
-        public readonly List<PointF> MutationDataLog = new List<PointF>();
 
         public volatile IInitializer Initializer = new SegmentedInitializer( Color.Black );
         public volatile IMutator Mutator = new HardMutator();
@@ -32,14 +29,33 @@ namespace SuperImageEvolver {
         public DateTime LastImprovementTime;
         public long LastImprovementMutationCount;
 
+        public TaskStatistics Stats { get; } = new TaskStatistics();
+
         public bool HasChangedSinceSave = true;
 
         public const int FormatVersion = 1;
 
         public readonly object ImprovementLock = new object();
+        
 
-        public readonly Dictionary<MutationType, int> MutationCounts = new Dictionary<MutationType, int>();
-        public readonly Dictionary<MutationType, double> MutationImprovements = new Dictionary<MutationType, double>();
+        public TaskState( NBTag tag ) {
+            if( FormatVersion != tag["FormatVersion"].GetInt() ) throw new FormatException( "Incompatible format." );
+            Shapes = tag["Shapes"].GetInt();
+            Vertices = tag["Vertices"].GetInt();
+            TaskStart = DateTime.UtcNow.Subtract( TimeSpan.FromTicks( tag["ElapsedTime"].GetLong() ) );
+
+            ReadCoreConfig(tag);
+            Stats.Read(tag);
+
+            byte[] imageBytes = tag["ImageData"].GetBytes();
+            using( MemoryStream ms = new MemoryStream( imageBytes ) ) {
+                OriginalImage = new Bitmap( ms );
+            }
+        }
+
+
+        public TaskState() {
+        }
 
 
         public void SetEvaluator( IEvaluator newEvaluator ) {
@@ -56,29 +72,16 @@ namespace SuperImageEvolver {
         }
 
 
-        public NBTCompound SerializeNBT() {
+        public NBTCompound SerializeNBT(string rootTag = "SuperImageEvolver") {
             HasChangedSinceSave = false;
-            NBTCompound tag = new NBTCompound( "SuperImageEvolver" );
+            NBTCompound tag = new NBTCompound(rootTag);
             tag.Append( "FormatVersion", FormatVersion );
             tag.Append( "Shapes", Shapes );
             tag.Append( "Vertices", Vertices );
-            tag.Append( "ImprovementCounter", ImprovementCounter );
-            tag.Append( "MutationCounter", MutationCounter );
-            tag.Append( "RiskyMoveCounter", RiskyMoveCounter );
             tag.Append( "ElapsedTime", DateTime.UtcNow.Subtract( TaskStart ).Ticks );
 
-            tag.Append( ProjectOptions.SerializeNBT() );
-
-            tag.Append( BestMatch.SerializeNBT( "BestMatch" ) );
-
-            NBTag initializerTag = ModuleManager.WriteModule( "Initializer", Initializer );
-            tag.Append( initializerTag );
-
-            NBTag mutatorTag = ModuleManager.WriteModule( "Mutator", Mutator );
-            tag.Append( mutatorTag );
-
-            NBTag evaluatorTag = ModuleManager.WriteModule( "Evaluator", Evaluator );
-            tag.Append( evaluatorTag );
+            StoreCoreConfig(tag);
+            Stats.Store(tag);
 
             byte[] imageData;
             using( MemoryStream ms = new MemoryStream() ) {
@@ -92,57 +95,37 @@ namespace SuperImageEvolver {
 
             tag.Append( "ImageData", imageData );
 
-            List<NBTCompound> statTags = new List<NBTCompound>();
-            foreach( MutationType mtype in Enum.GetValues( typeof( MutationType ) ) ) {
-                NBTCompound stat = new NBTCompound( "MutationTypeStat" );
-                stat.Append( "Type", mtype.ToString() );
-                stat.Append( "Count", MutationCounts[mtype] );
-                stat.Append( "Sum", MutationImprovements[mtype] );
-                statTags.Add( stat );
-            }
-            var stats = new NBTList( "MutationStats", NBTType.Compound, statTags.ToArray() );
-            tag.Append( stats );
-
             return tag;
         }
 
 
-        public TaskState( NBTag tag ) {
-            if( FormatVersion != tag["FormatVersion"].GetInt() ) throw new FormatException( "Incompatible format." );
-            Shapes = tag["Shapes"].GetInt();
-            Vertices = tag["Vertices"].GetInt();
-            ImprovementCounter = tag["ImprovementCounter"].GetInt();
-            MutationCounter = tag["MutationCounter"].GetInt();
-            TaskStart = DateTime.UtcNow.Subtract( TimeSpan.FromTicks( tag["ElapsedTime"].GetLong() ) );
+        public void ReadCoreConfig(NBTag tag)
+        {
+            ProjectOptions = new ProjectOptions(tag["ProjectOptions"]);
 
-            ProjectOptions = new ProjectOptions( tag["ProjectOptions"] );
-
-            BestMatch = new DNA( tag["BestMatch"] );
+            BestMatch = new DNA(tag["BestMatch"]);
             CurrentMatch = BestMatch;
 
-            Initializer = (IInitializer)ModuleManager.ReadModule( tag["Initializer"] );
-            Mutator = (IMutator)ModuleManager.ReadModule( tag["Mutator"] );
-            Evaluator = (IEvaluator)ModuleManager.ReadModule( tag["Evaluator"] );
-
-            byte[] imageBytes = tag["ImageData"].GetBytes();
-            using( MemoryStream ms = new MemoryStream( imageBytes ) ) {
-                OriginalImage = new Bitmap( ms );
-            }
-
-            var statsTag = (NBTList)tag["MutationStats"];
-            foreach( NBTag stat in statsTag ) {
-                MutationType mutationType = (MutationType)Enum.Parse( typeof( MutationType ), stat["Type"].GetString() );
-                MutationCounts[mutationType] = stat["Count"].GetInt();
-                MutationImprovements[mutationType] = stat["Sum"].GetDouble();
-            }
+            Initializer = (IInitializer)ModuleManager.ReadModule(tag["Initializer"]);
+            Mutator = (IMutator)ModuleManager.ReadModule(tag["Mutator"]);
+            Evaluator = (IEvaluator)ModuleManager.ReadModule(tag["Evaluator"]);
         }
 
 
-        public TaskState() {
-            foreach( MutationType mutype in Enum.GetValues( typeof( MutationType ) ) ) {
-                MutationCounts[mutype] = 0;
-                MutationImprovements[mutype] = 0;
-            }
+        public void StoreCoreConfig(NBTag tag)
+        {
+            tag.Append(ProjectOptions.SerializeNBT());
+
+            tag.Append(BestMatch.SerializeNBT("BestMatch"));
+
+            NBTag initializerTag = ModuleManager.WriteModule("Initializer", Initializer);
+            tag.Append(initializerTag);
+
+            NBTag mutatorTag = ModuleManager.WriteModule("Mutator", Mutator);
+            tag.Append(mutatorTag);
+
+            NBTag evaluatorTag = ModuleManager.WriteModule("Evaluator", Evaluator);
+            tag.Append(evaluatorTag);
         }
 
 
@@ -177,6 +160,53 @@ namespace SuperImageEvolver {
             doc.Add( root );
 
             return doc;
+        }
+
+
+        public void SetBestMatch(DNA mutation)
+        {
+            BestMatch = mutation;
+            LastImprovementTime = DateTime.UtcNow;
+            LastImprovementMutationCount = Stats.MutationCounter;
+            Stats.ImprovementCounter++;
+            Stats.MutationDataLog.Add(new PointF {
+                X = (float)DateTime.UtcNow.Subtract(TaskStart).TotalSeconds,
+                Y = (float)mutation.Divergence
+            });
+            HasChangedSinceSave = true;
+        }
+
+
+        public void SetOriginalImage(Bitmap image)
+        {
+            OriginalImage = image;
+            if (WorkingImageCopy != null)
+            {
+                WorkingImageCopy.Dispose();
+            }
+
+            WorkingImageCopy = new Bitmap(OriginalImage.Width, OriginalImage.Height);
+            WorkingImageCopy.SetResolution(OriginalImage.HorizontalResolution, OriginalImage.VerticalResolution);
+            using (Graphics g = Graphics.FromImage(WorkingImageCopy))
+            {
+                g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+                g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                g.Clear(ProjectOptions.Matte);
+                g.DrawImageUnscaled(OriginalImage, Point.Empty);
+            }
+
+            if (WorkingImageData != null)
+            {
+                WorkingImageCopyClone.UnlockBits(WorkingImageData);
+                WorkingImageCopyClone.Dispose();
+            }
+            WorkingImageCopyClone = (Bitmap)WorkingImageCopy.Clone();
+            WorkingImageData =
+                WorkingImageCopyClone.LockBits(new Rectangle(Point.Empty, OriginalImage.Size),
+                                                     ImageLockMode.ReadOnly,
+                                                     PixelFormat.Format32bppArgb);
+            ImageWidth = OriginalImage.Width;
+            ImageHeight = OriginalImage.Height;
         }
     }
 }

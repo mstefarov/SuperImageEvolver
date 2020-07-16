@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -64,6 +64,7 @@
     </Compile>
     <Compile Include="Core\Mutation.cs" />
     <Compile Include="Core\ProjectOptions.cs" />
+    <Compile Include="Core\TaskStatistics.cs" />
     <Compile Include="DiffCanvas.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -122,6 +123,9 @@
     <Compile Include="CustomInterpolationPictureBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="StateRunner.cs" />
+    <Compile Include="WorkClient.cs" />
+    <Compile Include="WorkServer.cs" />
     <EmbeddedResource Include="DNAImportWindow.resx">
       <DependentUpon>DNAImportWindow.cs</DependentUpon>
     </EmbeddedResource>

@@ -64,6 +64,7 @@ namespace SuperImageEvolver {
 
             FormClosing += delegate {
                 stopped = true;
+                WorkServer.Shutdown();
             };
         }
 
@@ -83,32 +84,7 @@ namespace SuperImageEvolver {
 
 
         void SetImage(Bitmap image) {
-            State.OriginalImage = image;
-
-            if (State.WorkingImageCopy != null) {
-                State.WorkingImageCopy.Dispose();
-            }
-
-            State.WorkingImageCopy = new Bitmap(image.Width, image.Height);
-            State.WorkingImageCopy.SetResolution(image.HorizontalResolution, image.VerticalResolution);
-            using (Graphics g = Graphics.FromImage(State.WorkingImageCopy)) {
-                g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
-                g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                g.Clear(State.ProjectOptions.Matte);
-                g.DrawImageUnscaled(image, Point.Empty);
-            }
-
-            if (State.WorkingImageData != null) {
-                State.WorkingImageCopyClone.UnlockBits(State.WorkingImageData);
-                State.WorkingImageCopyClone.Dispose();
-            }
-            State.WorkingImageCopyClone = (Bitmap)State.WorkingImageCopy.Clone();
-            State.WorkingImageData =
-                State.WorkingImageCopyClone.LockBits(new Rectangle(Point.Empty, State.OriginalImage.Size),
-                                                     ImageLockMode.ReadOnly,
-                                                     PixelFormat.Format32bppArgb);
-            State.ImageWidth = State.OriginalImage.Width;
-            State.ImageHeight = State.OriginalImage.Height;
+            State.SetOriginalImage(image);
 
             picOriginal.Image = State.WorkingImageCopy;
             OriginalZoom = OriginalZoom; // force resize
@@ -139,74 +115,33 @@ namespace SuperImageEvolver {
 
 
         void Run() {
-            Random rand = new Random();
-            Bitmap testCanvas = new Bitmap(State.ImageWidth, State.ImageHeight);
+            WorkServer.SendLoad(State);
+            WorkServer.SendResume();
+            // TODO: listen for work reports
+            // TODO: combine stats from workers
+            // TODO: broadcast improvements
 
-            while (!stopped) {
-                Interlocked.Increment(ref State.MutationCounter);
-                DNA mutation = State.Mutator.Mutate(rand, State.CurrentMatch, State);
-
-                bool takeRisk = (rand.NextDouble() < State.ProjectOptions.RiskRate*State.CurrentMatch.Divergence);
-                double riskMargin = -(State.CurrentMatch.Divergence*State.CurrentMatch.Divergence)*
-                                    State.ProjectOptions.RiskMargin;
-                if (!takeRisk) riskMargin = 0;
-
-                mutation.Divergence = State.Evaluator.CalculateDivergence(testCanvas,
-                                                                          mutation,
-                                                                          State,
-                                                                          State.CurrentMatch.Divergence - riskMargin);
-
-                if (Math.Abs(mutation.Divergence - 1) < float.Epsilon) continue;
-
-                double improvement = State.CurrentMatch.Divergence - mutation.Divergence;
-
-                if (improvement > 0 || takeRisk && (improvement > riskMargin)) {
-                    lock (State.ImprovementLock) {
-                        riskMargin = -(State.CurrentMatch.Divergence*State.CurrentMatch.Divergence)*
-                                     State.ProjectOptions.RiskMargin;
-                        if (!takeRisk) riskMargin = 0;
-                        mutation.Divergence = State.Evaluator.CalculateDivergence(testCanvas,
-                                                                                  mutation,
-                                                                                  State,
-                                                                                  1);
-                        improvement = State.CurrentMatch.Divergence - mutation.Divergence;
-
-                        if (improvement > 0 || takeRisk && (improvement > riskMargin)) {
-                            if (improvement <= 0) {
-                                if (State.BestMatch.Divergence < State.CurrentMatch.Divergence) {
-                                    State.FailedRiskCounter++;
-                                    mutation = State.BestMatch;
-                                } else {
-                                    State.RiskyMoveCounter++;
-                                }
-                            } else {
-                                State.MutationCounts[mutation.LastMutation]++;
-                                State.MutationImprovements[mutation.LastMutation] += improvement;
-                            }
-
-                            State.MutationDataLog.Add(new PointF {
-                                X = (float)DateTime.UtcNow.Subtract(State.TaskStart).TotalSeconds,
-                                Y = (float)mutation.Divergence
-                            });
-                            State.CurrentMatch = mutation;
-                            if (mutation.Divergence < State.BestMatch.Divergence) {
-                                State.BestMatch = mutation;
-                                State.LastImprovementTime = DateTime.UtcNow;
-                                State.LastImprovementMutationCount = State.MutationCounter;
-                                State.ImprovementCounter++;
-                                State.HasChangedSinceSave = true;
-                            }
-                            picBestMatch.Invalidate();
-                            picDiff.Invalidate();
-                            graphWindow1.SetData(State.MutationDataLog, false, true, false, false, true, true);
-                        }
-                    }
+            while (!stopped)
+            {
+                Thread.Sleep(1000);
+                WorkServer.RequestReports();
+                var dnas = WorkServer.ReadWorkUpdates(State);
+                var newBest = dnas.OrderBy(d=> d.Divergence).First();
+                if (newBest.Divergence < State.BestMatch.Divergence)
+                {
+                    State.SetBestMatch(newBest);
+                    State.CurrentMatch = State.BestMatch;
+                    picBestMatch.Invalidate();
+                    picDiff.Invalidate();
+                    graphWindow1.SetData(State.Stats.MutationDataLog, false, true, false, false, true, true);
+                    WorkServer.SendUpdateConfig(State);
+                    WorkServer.SendResume();
                     AutoSave();
                 }
             }
+            // TODO: loop
+            WorkServer.SendPause();
         }
-
-
 
 
         void UpdateStatus() {
@@ -222,8 +157,9 @@ namespace SuperImageEvolver {
 
         void UpdateTick() {
             try {
-                int mutationDelta = State.MutationCounter - lastMutationCounter;
-                lastMutationCounter = State.MutationCounter;
+                var stats = State.Stats;
+                int mutationDelta = stats.MutationCounter - lastMutationCounter;
+                lastMutationCounter = stats.MutationCounter;
                 double timeDelta = (DateTime.UtcNow - lastUpdate).TotalSeconds;
                 lastUpdate = DateTime.UtcNow;
 
@@ -235,26 +171,26 @@ Mutations: {3} ({4:0}/s)
 Elapsed: {5}
 SinceImproved: {7} / {6}",
                         State.CurrentMatch == null ? 0 : 100 - State.CurrentMatch.Divergence*100,
-                        State.ImprovementCounter,
-                        State.ImprovementCounter/DateTime.UtcNow.Subtract(State.TaskStart).TotalSeconds,
-                        State.MutationCounter,
+                        stats.ImprovementCounter,
+                        stats.ImprovementCounter/DateTime.UtcNow.Subtract(State.TaskStart).TotalSeconds,
+                        stats.MutationCounter,
                         mutationDelta/timeDelta,
                         DateTime.UtcNow.Subtract(State.TaskStart).ToCompactString(),
                         DateTime.UtcNow.Subtract(State.LastImprovementTime).ToCompactString(),
-                        State.MutationCounter - State.LastImprovementMutationCount);
+                        stats.MutationCounter - State.LastImprovementMutationCount);
                     StringBuilder sb = new StringBuilder(Environment.NewLine);
                     sb.AppendLine();
-                    double totalImprovements = State.MutationImprovements.Values.Sum();
+                    double totalImprovements = stats.MutationImprovements.Values.Sum();
                     foreach (MutationType type in Enum.GetValues(typeof(MutationType))) {
                         double rate = 0;
-                        if (State.MutationCounts[type] != 0) {
-                            rate = State.MutationImprovements[type]/State.MutationCounts[type];
+                        if (stats.MutationCounts[type] != 0) {
+                            rate = stats.MutationImprovements[type]/stats.MutationCounts[type];
                         }
                         sb.AppendFormat("{0} - {1}*{2:0.0000} ({3:0.0}%)",
                                         type,
-                                        State.MutationCounts[type],
+                                        stats.MutationCounts[type],
                                         rate*100,
-                                        (State.MutationImprovements[type]/totalImprovements)*100);
+                                        (stats.MutationImprovements[type]/totalImprovements)*100);
                         sb.AppendLine();
                     }
 
@@ -264,7 +200,7 @@ SinceImproved: {7} / {6}",
                                          State.CurrentMatch.Divergence)*
                                         State.ProjectOptions.RiskMargin*100,
                                         State.CurrentMatch.Divergence*State.ProjectOptions.RiskRate*100,
-                                        State.RiskyMoveCounter, State.RiskyMoveCounter - State.FailedRiskCounter);
+                                        stats.RiskyMoveCounter, stats.RiskyMoveCounter - stats.FailedRiskCounter);
                     }
                     tMutationStats.Text += sb.ToString();
                 }
@@ -276,22 +212,14 @@ SinceImproved: {7} / {6}",
 
 
         void Reset() {
-            foreach (MutationType type in Enum.GetValues(typeof(MutationType))) {
-                State.MutationCounts[type] = 0;
-                State.MutationImprovements[type] = 0;
-            }
             //cInitializer_SelectedIndexChanged( cInitializer, EventArgs.Empty );
             //cMutator_SelectedIndexChanged( cMutator, EventArgs.Empty );
             //cEvaluator_SelectedIndexChanged( cEvaluator, EventArgs.Empty );
             State.TaskStart = DateTime.UtcNow;
             State.Shapes = (int)nPolygons.Value;
             State.Vertices = (int)nVertices.Value;
-            State.ImprovementCounter = 0;
-            State.MutationDataLog.Clear();
+            State.Stats.Reset();
             lastMutationCounter = 0;
-            State.MutationCounter = 0;
-            State.RiskyMoveCounter = 0;
-            State.FailedRiskCounter = 0;
             State.LastImprovementMutationCount = 0;
             State.CurrentMatch = State.Initializer.Initialize(new Random(), State);
             State.BestMatch = State.CurrentMatch;
@@ -326,7 +254,7 @@ SinceImproved: {7} / {6}",
             if (reset) {
                 Reset();
             } else {
-                lastMutationCounter = State.MutationCounter;
+                lastMutationCounter = State.Stats.MutationCounter;
             }
 
             State.SetEvaluator(State.Evaluator);
