@@ -42,11 +42,11 @@ namespace SuperImageEvolver {
                         case "report":
                             Debug.WriteLine("Sending [workUpdate]");
                             var msg = new NBTCompound("workUpdate");
-                            msg.Tags.Add("bestMatch", state.BestMatch.SerializeNBT("bestMatch"));
                             var statsTag = new NBTCompound("stats");
                             lock (state.ImprovementLock) {
                                 state.Stats.Store(statsTag);
                                 state.Stats.Reset();
+                                msg.Tags.Add("bestMatch", state.BestMatch.SerializeNBT("bestMatch"));
                             }
                             msg.Tags.Add("stats", statsTag);
                             msg.WriteTag(writer);
@@ -55,8 +55,7 @@ namespace SuperImageEvolver {
                             break;
 
                         case "updateConfig":
-                            cts?.Cancel();
-                            if (runnerTask != null) await runnerTask;
+                            runner.Pause();
                             lock (state.ImprovementLock) {
                                 state.ReadCoreConfig(tag["stateChanges"]);
                                 state.SetEvaluator(state.Evaluator);
@@ -66,13 +65,18 @@ namespace SuperImageEvolver {
                         case "pause":
                             cts?.Cancel();
                             if (runnerTask != null) await runnerTask;
+                            runnerTask=null;
                             break;
 
                         case "resume":
-                            cts?.Cancel();
-                            if (runnerTask != null) await runnerTask;
-                            cts = new CancellationTokenSource();
-                            runnerTask = Task.Run(() => runner.RunAsync(cts.Token));
+                            if (runner == null) {
+                                runner = new StateRunner(state);
+                            } else if (runnerTask == null) {
+                                cts = new CancellationTokenSource();
+                                runnerTask = Task.Run(() => runner.RunAsync(cts.Token), cts.Token);
+                            } else {
+                                runner.Resume();
+                            }
                             break;
 
                         case "exit":

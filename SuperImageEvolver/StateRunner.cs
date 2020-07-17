@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 namespace SuperImageEvolver {
     class StateRunner {
         private readonly TaskState state;
+        private ManualResetEventSlim internalWaiter = new ManualResetEventSlim(true);
+        private ManualResetEventSlim externalWaiter = new ManualResetEventSlim(true);
 
         public StateRunner(TaskState state) {
             this.state = state;
@@ -14,7 +16,6 @@ namespace SuperImageEvolver {
 
         public async Task RunAsync(CancellationToken token) {
             Debug.WriteLine("Running...");
-            await Task.Yield();
             Random rand = new Random();
             Bitmap testCanvas = new Bitmap(state.ImageWidth, state.ImageHeight);
 
@@ -71,9 +72,23 @@ namespace SuperImageEvolver {
                         }
                     }
                 }
+                if (!internalWaiter.IsSet) {
+                    externalWaiter.Set();
+                    internalWaiter.Wait(token);
+                }
             }
 
             Debug.WriteLine("...done running.");
+        }
+
+        public void Pause() {
+            externalWaiter.Reset();
+            internalWaiter.Reset();
+            externalWaiter.Wait();
+        }
+
+        public void Resume() {
+            internalWaiter.Set();
         }
     }
 }
