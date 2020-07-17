@@ -20,8 +20,7 @@ namespace SuperImageEvolver {
         readonly object autosaveLock = new object();
         DateTime autosaveNext;
         readonly TimeSpan autosaveInterval = TimeSpan.FromSeconds(30);
-        int lastMutationCounter;
-        DateTime lastUpdate;
+
         ManualResetEvent clientReportSignal = new ManualResetEvent(false);
 
 
@@ -163,15 +162,34 @@ namespace SuperImageEvolver {
         }
 
 
+        private class RunningLogEntry {
+            public RunningLogEntry(DateTime time, long mutationCount) {
+                Time = time;
+                MutationCount = mutationCount;
+            }
+            public DateTime Time { get; }
+            public long MutationCount { get; }
+        }
+
+        Queue<RunningLogEntry> mutationRunningLog = new Queue<RunningLogEntry>();
+        DateTime lastUpdateTime;
+        long lastMutationCount;
+
         void UpdateTick() {
+            TimeSpan averagingInterval = TimeSpan.FromSeconds(10);
             try {
-                lock (State.ImprovementLock)
-                    {
+                lock (State.ImprovementLock) {
                     var stats = State.Stats;
-                    int mutationDelta = stats.MutationCounter - lastMutationCounter;
-                    lastMutationCounter = stats.MutationCounter;
-                    double timeDelta = (DateTime.UtcNow - lastUpdate).TotalSeconds;
-                    lastUpdate = DateTime.UtcNow;
+
+                    // Keep a 10-second log of mutation counts to get a smooth average speed
+                    lastMutationCount = stats.MutationCounter;
+                    lastUpdateTime = DateTime.UtcNow;
+                    while(mutationRunningLog.Any() && lastUpdateTime - mutationRunningLog.Peek().Time > averagingInterval)
+                        mutationRunningLog.Dequeue();
+                    mutationRunningLog.Enqueue(new RunningLogEntry(lastUpdateTime, lastMutationCount));
+                    double timeDelta = (lastUpdateTime - mutationRunningLog.Peek().Time).TotalSeconds;
+                    long mutationDelta = lastMutationCount - mutationRunningLog.Peek().MutationCount;
+
                     tMutationStats.Text = String.Format(
                         @"Fitness: {0:0.00000}%
 Improvements: {1} ({2:0.00}/s)
@@ -182,7 +200,7 @@ SinceImproved: {7} / {6}",
                         stats.ImprovementCounter,
                         stats.ImprovementCounter/DateTime.UtcNow.Subtract(State.TaskStart).TotalSeconds,
                         stats.MutationCounter,
-                        mutationDelta/timeDelta,
+                        timeDelta == 0 ? mutationDelta : mutationDelta / timeDelta,
                         DateTime.UtcNow.Subtract(State.TaskStart).ToCompactString(),
                         DateTime.UtcNow.Subtract(State.LastImprovementTime).ToCompactString(),
                         stats.MutationCounter - State.LastImprovementMutationCount);
@@ -230,7 +248,8 @@ SinceImproved: {7} / {6}",
                 State.Shapes = (int)nPolygons.Value;
                 State.Vertices = (int)nVertices.Value;
                 State.Stats.Reset();
-                lastMutationCounter = 0;
+                lastMutationCount = 0;
+                mutationRunningLog.Clear();
                 State.LastImprovementMutationCount = 0;
                 State.CurrentMatch = State.Initializer.Initialize(new Random(), State);
                 State.BestMatch = State.CurrentMatch;
@@ -267,7 +286,9 @@ SinceImproved: {7} / {6}",
             if (reset) {
                 Reset();
             } else {
-                lastMutationCounter = State.Stats.MutationCounter;
+                lastUpdateTime = DateTime.UtcNow;
+                lastMutationCount = State.Stats.MutationCounter;
+                mutationRunningLog.Enqueue(new RunningLogEntry(lastUpdateTime, lastMutationCount));
             }
 
             State.SetEvaluator(State.Evaluator);
