@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -90,12 +90,10 @@ namespace SuperImageEvolver {
             OriginalZoom = OriginalZoom; // force resize
 
             picBestMatch.State = State;
-            picBestMatch.Invalidate();
 
             picDiff.Init(State); // force resize
             picDiff.Invalidate();
         }
-
 
 
         void AutoSave() {
@@ -119,28 +117,22 @@ namespace SuperImageEvolver {
             WorkServer.SendLoad(State);
             WorkServer.SendResume();
 
-            while (!stopped)
-            {
+            while (!stopped) {
                 clientReportSignal.WaitOne(500);
                 clientReportSignal.Reset();
                 bool haveConfigChange = Interlocked.CompareExchange(ref needsConfigChangeFlag, 0, 1) == 1;
-                if (haveConfigChange)
-                {
+                if (haveConfigChange) {
                     WorkServer.SendUpdateConfig(State);
                     WorkServer.SendResume();
-                }
-                else
-                {
+                } else {
                     WorkServer.RequestReports();
                     var dnas = WorkServer.ReadWorkUpdates(State);
                     var newBest = dnas.OrderBy(d => d.Divergence).First();
-                    if (newBest.Divergence < State.BestMatch.Divergence)
-                    {
+                    if (newBest.Divergence < State.BestMatch.Divergence) {
                         State.SetBestMatch(newBest);
                         State.CurrentMatch = State.BestMatch;
-                        picBestMatch.Invalidate();
-                        picDiff.Invalidate();
                         graphWindow1.SetData(State.Stats.MutationDataLog, false, true, false, false, true, true);
+                        RefreshBestMatchDisplay();
                         WorkServer.SendUpdateConfig(State);
                         WorkServer.SendResume();
                         AutoSave();
@@ -151,11 +143,23 @@ namespace SuperImageEvolver {
         }
 
 
+        void RefreshBestMatchDisplay() {
+            picBestMatch.Invalidate();
+            picDiff.Invalidate();
+            RepaintDivergence();
+        }
+
+
+        void RepaintDivergence() {
+            graphWindow1.Invalidate();
+        }
+
+
         void UpdateStatus() {
             while (!stopped) {
                 try {
                     Invoke((Action)UpdateTick);
-                } catch (ObjectDisposedException) {}
+                } catch (ObjectDisposedException) { }
 
                 Thread.Sleep(State.ProjectOptions.RefreshRate);
             }
@@ -184,66 +188,66 @@ namespace SuperImageEvolver {
                     // Keep a 10-second log of mutation counts to get a smooth average speed
                     lastMutationCount = stats.MutationCounter;
                     lastUpdateTime = DateTime.UtcNow;
-                    while(mutationRunningLog.Any() && lastUpdateTime - mutationRunningLog.Peek().Time > averagingInterval)
+                    while (mutationRunningLog.Any() && lastUpdateTime - mutationRunningLog.Peek().Time > averagingInterval)
                         mutationRunningLog.Dequeue();
                     mutationRunningLog.Enqueue(new RunningLogEntry(lastUpdateTime, lastMutationCount));
                     double timeDelta = (lastUpdateTime - mutationRunningLog.Peek().Time).TotalSeconds;
                     long mutationDelta = lastMutationCount - mutationRunningLog.Peek().MutationCount;
 
-                    tMutationStats.Text = String.Format(
-                        @"Fitness: {0:0.00000}%
-Improvements: {1} ({2:0.00}/s)
-Mutations: {3} ({4:0}/s)
-Elapsed: {5}
-SinceImproved: {7} / {6}",
-                        State.CurrentMatch == null ? 0 : 100 - State.CurrentMatch.Divergence*100,
+                    StringBuilder sb = new StringBuilder(Environment.NewLine);
+                    sb.AppendFormat("Fitness: {0:0.00000}%",
+                        State.CurrentMatch == null ? 0 : 100 - State.CurrentMatch.Divergence * 100);
+                    sb.AppendLine();
+                    sb.AppendFormat("Improvements: {0} ({1:0.00}/s)",
                         stats.ImprovementCounter,
-                        stats.ImprovementCounter/DateTime.UtcNow.Subtract(State.TaskStart).TotalSeconds,
+                        stats.ImprovementCounter / DateTime.UtcNow.Subtract(State.TaskStart).TotalSeconds);
+                    sb.AppendLine();
+                    sb.AppendFormat("Mutations: {0} ({1:0}/s)",
                         stats.MutationCounter,
-                        timeDelta == 0 ? mutationDelta : mutationDelta / timeDelta,
-                        DateTime.UtcNow.Subtract(State.TaskStart).ToCompactString(),
+                        timeDelta == 0 ? mutationDelta : mutationDelta / timeDelta);
+                    sb.AppendLine();
+                    sb.AppendFormat("Elapsed: {0}",
+                        DateTime.UtcNow.Subtract(State.TaskStart).ToCompactString());
+                    sb.AppendLine();
+                    sb.AppendFormat("SinceImproved: {0} / {1}",
                         DateTime.UtcNow.Subtract(State.LastImprovementTime).ToCompactString(),
                         stats.MutationCounter - State.LastImprovementMutationCount);
-                    StringBuilder sb = new StringBuilder(Environment.NewLine);
                     sb.AppendLine();
                     double totalImprovements = stats.MutationImprovements.Values.Sum();
                     foreach (MutationType type in Enum.GetValues(typeof(MutationType))) {
                         double rate = 0;
                         if (stats.MutationCounts[type] != 0) {
-                            rate = stats.MutationImprovements[type]/stats.MutationCounts[type];
+                            rate = stats.MutationImprovements[type] / stats.MutationCounts[type];
                         }
                         sb.AppendFormat("{0} - {1}*{2:0.0000} ({3:0.0}%)",
                                         type,
                                         stats.MutationCounts[type],
-                                        rate*100,
-                                        (stats.MutationImprovements[type]/totalImprovements)*100);
+                                        rate * 100,
+                                        (stats.MutationImprovements[type] / totalImprovements) * 100);
                         sb.AppendLine();
                     }
 
                     if (State.CurrentMatch != null) {
                         sb.AppendFormat("Risk: margin {0:0.0000}, rate {1:0.0}%, taken {2} times (paid off {3} times)",
-                                        (State.CurrentMatch.Divergence*State.CurrentMatch.Divergence*
-                                         State.CurrentMatch.Divergence)*
-                                        State.ProjectOptions.RiskMargin*100,
-                                        State.CurrentMatch.Divergence*State.ProjectOptions.RiskRate*100,
+                                        (State.CurrentMatch.Divergence * State.CurrentMatch.Divergence *
+                                         State.CurrentMatch.Divergence) *
+                                        State.ProjectOptions.RiskMargin * 100,
+                                        State.CurrentMatch.Divergence * State.ProjectOptions.RiskRate * 100,
                                         stats.RiskyMoveCounter, stats.RiskyMoveCounter - stats.FailedRiskCounter);
                     }
-                    tMutationStats.Text += sb.ToString();
+                    tMutationStats.Text = sb.ToString();
                 }
+                RepaintDivergence();
 
-                graphWindow1.Invalidate();
-
-            } catch (ObjectDisposedException) {}
+            } catch (ObjectDisposedException) { }
         }
 
 
-        void Reset()
-        {
+        void Reset() {
             //cInitializer_SelectedIndexChanged( cInitializer, EventArgs.Empty );
             //cMutator_SelectedIndexChanged( cMutator, EventArgs.Empty );
             //cEvaluator_SelectedIndexChanged( cEvaluator, EventArgs.Empty );
-            lock (State.ImprovementLock)
-            {
+            lock (State.ImprovementLock) {
                 State.TaskStart = DateTime.UtcNow;
                 State.Shapes = (int)nPolygons.Value;
                 State.Vertices = (int)nVertices.Value;
@@ -280,6 +284,7 @@ SinceImproved: {7} / {6}",
 
 
         void Start(bool reset) {
+            if (!stopped) return;
             cInitializer.Enabled = false;
             nPolygons.Enabled = false;
             nVertices.Enabled = false;
@@ -305,7 +310,8 @@ SinceImproved: {7} / {6}",
         }
 
 
-        void Stop() {
+        bool Stop() {
+            if (stopped) return true;
             stopped = true;
             clientReportSignal.Set();
             workServerThread.Join();
@@ -324,6 +330,7 @@ SinceImproved: {7} / {6}",
             bStart.Enabled = true;
             bRestart.Enabled = true;
             bStop.Enabled = false;
+            return false;
         }
 
 
@@ -427,17 +434,14 @@ SinceImproved: {7} / {6}",
                     State.SetEvaluator(new LumaEvaluator(true));
                     break;
             }
-            picBestMatch.Invalidate();
-            graphWindow1.Invalidate();
+            RefreshBestMatchDisplay();
             SignalStateChange(true);
         }
 
 
-        void SignalStateChange(bool reloadConfig)
-        {
+        void SignalStateChange(bool reloadConfig) {
             State.HasChangedSinceSave = true;
-            if (reloadConfig)
-            {
+            if (reloadConfig) {
                 Volatile.Write(ref needsConfigChangeFlag, 1);
                 clientReportSignal.Set();
             }
@@ -569,9 +573,7 @@ SinceImproved: {7} / {6}",
             var md = new ModuleSettingsDisplay<IInitializer>(State.Initializer);
             if (md.ShowDialog() == DialogResult.OK) {
                 State.Initializer = md.Module;
-                State.HasChangedSinceSave = true;
-                Volatile.Write(ref needsConfigChangeFlag, 1);
-                clientReportSignal.Set();
+                SignalStateChange(false);
             }
         }
 
@@ -580,9 +582,7 @@ SinceImproved: {7} / {6}",
             var md = new ModuleSettingsDisplay<IMutator>(State.Mutator);
             if (md.ShowDialog() == DialogResult.OK) {
                 State.Mutator = md.Module;
-                State.HasChangedSinceSave = true;
-                Volatile.Write(ref needsConfigChangeFlag, 1);
-                clientReportSignal.Set();
+                SignalStateChange(true);
             }
         }
 
@@ -591,10 +591,8 @@ SinceImproved: {7} / {6}",
             var md = new ModuleSettingsDisplay<IEvaluator>(State.Evaluator);
             if (md.ShowDialog() == DialogResult.OK) {
                 State.SetEvaluator(md.Module);
-                graphWindow1.Invalidate();
-                State.HasChangedSinceSave = true;
-                Volatile.Write(ref needsConfigChangeFlag, 1);
-                clientReportSignal.Set();
+                RefreshBestMatchDisplay();
+                SignalStateChange(true);
             }
         }
 
@@ -779,7 +777,7 @@ SinceImproved: {7} / {6}",
                 parts.Add(shape.Color.R.ToString());
                 parts.Add(shape.Color.G.ToString());
                 parts.Add(shape.Color.B.ToString());
-                parts.Add((shape.Color.A/255f).ToString());
+                parts.Add((shape.Color.A / 255f).ToString());
                 foreach (PointF point in shape.Points) {
                     parts.Add(((int)Math.Round(point.X)).ToString());
                     parts.Add(((int)Math.Round(point.Y)).ToString());
@@ -812,7 +810,7 @@ SinceImproved: {7} / {6}",
                         int r = Int32.Parse(parts[offset]);
                         int g = Int32.Parse(parts[offset + 1]);
                         int b = Int32.Parse(parts[offset + 2]);
-                        int a = (int)(float.Parse(parts[offset + 3])*255);
+                        int a = (int)(float.Parse(parts[offset + 3]) * 255);
                         shape.Color = Color.FromArgb(a, r, g, b);
                         offset += 4;
                         for (int v = 0; v < State.Vertices; v++) {
@@ -849,12 +847,11 @@ SinceImproved: {7} / {6}",
                 return;
             }
             State.HasChangedSinceSave = true;
-            bool oldStopped = stopped;
-            if (!oldStopped) Stop();
+            bool oldStopped = Stop();
             bool updateEvaluator = (State.ProjectOptions.Matte != md.Module.Matte && oldStopped);
             State.ProjectOptions = md.Module;
             BackColor = State.ProjectOptions.BackColor;
-            if (BackColor.R*0.2126 + BackColor.G*0.7152 + BackColor.B*0.0722 > 128) {
+            if (BackColor.R * 0.2126 + BackColor.G * 0.7152 + BackColor.B * 0.0722 > 128) {
                 panel1.ForeColor = Color.Black;
             } else {
                 panel1.ForeColor = Color.White;
@@ -865,8 +862,7 @@ SinceImproved: {7} / {6}",
             if (updateEvaluator) {
                 State.SetEvaluator(State.Evaluator);
             }
-            picBestMatch.Invalidate();
-            graphWindow1.Invalidate();
+            RefreshBestMatchDisplay();
             if (!oldStopped) Start(false);
         }
 
@@ -999,20 +995,19 @@ SinceImproved: {7} / {6}",
 
         void bMatteToAverageColor_Click(object sender, EventArgs e) {
             State.HasChangedSinceSave = true;
-            bool oldStopped = stopped;
-            if (!oldStopped) Stop();
+            bool oldStopped = Stop();
             State.ProjectOptions.Matte = CalculateAverageColor(State.WorkingImageData);
             if (State.OriginalImage != null) {
                 SetImage(State.OriginalImage);
+            } else {
+                RefreshBestMatchDisplay();
             }
-            picBestMatch.Invalidate();
-            picDiff.Invalidate();
 
-            UpdateTick();
             if (!oldStopped) {
                 Start(false);
             } else {
                 State.SetEvaluator(State.Evaluator);
+                UpdateTick();
             }
         }
 
@@ -1021,7 +1016,7 @@ SinceImproved: {7} / {6}",
             long totalR = 0, totalG = 0, totalB = 0;
 
             for (int i = 0; i < srcData.Height; i++) {
-                byte* ptr = (byte*)srcData.Scan0 + srcData.Stride*i;
+                byte* ptr = (byte*)srcData.Scan0 + srcData.Stride * i;
                 for (int j = 0; j < srcData.Width; j++) {
                     totalB += ptr[0];
                     totalG += ptr[1];
@@ -1030,11 +1025,11 @@ SinceImproved: {7} / {6}",
                 }
             }
 
-            int pixels = srcData.Width*srcData.Height;
+            int pixels = srcData.Width * srcData.Height;
             return Color.FromArgb(255,
-                                  (int)(totalR/pixels),
-                                  (int)(totalG/pixels),
-                                  (int)(totalB/pixels));
+                                  (int)(totalR / pixels),
+                                  (int)(totalG / pixels),
+                                  (int)(totalB / pixels));
         }
 
 
@@ -1045,7 +1040,7 @@ SinceImproved: {7} / {6}",
             lock (State.ImprovementLock) {
                 ShapeEvaluation[] polys = PolygonValueEvaluator.SortShapes(State);
                 int badPolys = polys.Count(shape => shape.Divergence <= DivergenceEliminationThreshold);
-                int polysToShow = Math.Min(polys.Length/2, Math.Max(3, badPolys));
+                int polysToShow = Math.Min(polys.Length / 2, Math.Max(3, badPolys));
                 var sb = new StringBuilder();
 
                 ClearOutlines();
