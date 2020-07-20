@@ -43,6 +43,7 @@ namespace SuperImageEvolver
             Shapes = tag["Shapes"].GetInt();
             Vertices = tag["Vertices"].GetInt();
             TaskStart = DateTime.UtcNow.Subtract( TimeSpan.FromTicks( tag["ElapsedTime"].GetLong() ) );
+            LastImprovementMutationCount = tag.GetLong("LastImprovementMutationCount", 0);
 
             ReadCoreConfig(tag);
             Stats.Read(tag);
@@ -79,6 +80,7 @@ namespace SuperImageEvolver
             tag.Append( "Shapes", Shapes );
             tag.Append( "Vertices", Vertices );
             tag.Append( "ElapsedTime", DateTime.UtcNow.Subtract( TaskStart ).Ticks );
+            tag.Append( "LastImprovementMutationCount", LastImprovementMutationCount );
 
             StoreCoreConfig(tag);
             Stats.Store(tag);
