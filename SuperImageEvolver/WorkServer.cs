@@ -22,7 +22,6 @@ namespace SuperImageEvolver {
                 for (int i = 0; i < NumClients; i++) {
                     connections[i].Pipe.WaitForConnection();
                 }
-                Debug.WriteLine("NamedPipeServerStream connected");
             } catch {
                 Shutdown();
             }
@@ -35,7 +34,6 @@ namespace SuperImageEvolver {
         }
 
         private static void Broadcast(NBTCompound tag) {
-            Debug.WriteLine("Sending [" + tag.Name + "]");
             foreach (var c in connections) {
                 c.WriteTag(tag);
             }
@@ -79,9 +77,7 @@ namespace SuperImageEvolver {
             var reports = new List<DNA>(NumClients);
             for (int i = 0; i < NumClients; i++) {
                 var cc = connections[i];
-                Debug.WriteLine("Waiting for [workUpdate]...");
                 var tag = cc.ReadTag();
-                Debug.WriteLine("> " + tag.Name);
                 switch (tag.Name) {
                     case "workUpdate":
                         lock (state.ImprovementLock) {

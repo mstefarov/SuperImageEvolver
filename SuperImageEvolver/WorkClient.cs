@@ -13,10 +13,8 @@ namespace SuperImageEvolver {
             ModuleManager.LoadFactories(Assembly.GetExecutingAssembly());
 
             try {
-                Debug.WriteLine("Connecting...");
                 var pipe = new NamedPipeClientStream(".", pipeName);
                 pipe.Connect();
-                Debug.WriteLine("Connected!");
                 var reader = new BinaryReader(pipe);
                 writer = new BinaryWriter(pipe);
                 CancellationTokenSource cts = null;
@@ -25,9 +23,7 @@ namespace SuperImageEvolver {
                 StateRunner runner = null;
                 Task runnerTask = null;
                 while (pipe.IsConnected) {
-                    Debug.WriteLine("Waiting for next tag...");
                     var tag = (NBTCompound)NBTag.ReadTag(reader, (NBTType)reader.ReadByte(), null, null);
-                    Debug.WriteLine("> " + tag.Name);
                     switch (tag.Name) {
                         case "load":
                             cts?.Cancel();
@@ -40,7 +36,6 @@ namespace SuperImageEvolver {
                             break;
 
                         case "report":
-                            Debug.WriteLine("Sending [workUpdate]");
                             var msg = new NBTCompound("workUpdate");
                             var statsTag = new NBTCompound("stats");
                             lock (state.ImprovementLock) {
