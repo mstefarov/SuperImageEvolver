@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -127,8 +127,9 @@ namespace SuperImageEvolver {
                 } else {
                     WorkServer.RequestReports();
                     var dnas = WorkServer.ReadWorkUpdates(State);
-                    var newBest = dnas.OrderBy(d => d.Divergence).First();
-                    if (newBest.Divergence < State.BestMatch.Divergence) {
+                    // It's possible that there are 0, if they were all stale
+                    var newBest = dnas.OrderBy(d => d.Divergence).FirstOrDefault();
+                    if (newBest != null && newBest.Divergence < State.BestMatch.Divergence) {
                         State.SetBestMatch(newBest);
                         State.CurrentMatch = State.BestMatch;
                         graphWindow1.SetData(State.Stats.MutationDataLog, false, true, false, false, true, true);
@@ -258,6 +259,7 @@ namespace SuperImageEvolver {
                 State.CurrentMatch = State.Initializer.Initialize(new Random(), State);
                 State.BestMatch = State.CurrentMatch;
                 State.HasChangedSinceSave = true;
+                State.ConfigVersion = 0;
             }
             clientReportSignal.Set();
         }
@@ -442,6 +444,7 @@ namespace SuperImageEvolver {
         void SignalStateChange(bool reloadConfig) {
             State.HasChangedSinceSave = true;
             if (reloadConfig) {
+                State.ConfigVersion++;
                 Volatile.Write(ref needsConfigChangeFlag, 1);
                 clientReportSignal.Set();
             }
@@ -861,6 +864,7 @@ namespace SuperImageEvolver {
             }
             if (updateEvaluator) {
                 State.SetEvaluator(State.Evaluator);
+                State.ConfigVersion++;
             }
             RefreshBestMatchDisplay();
             if (!oldStopped) Start(false);

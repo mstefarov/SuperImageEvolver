@@ -38,6 +38,7 @@ namespace SuperImageEvolver {
                         case "report":
                             var msg = new NBTCompound("workUpdate");
                             var statsTag = new NBTCompound("stats");
+                            msg.Append("configVersion", state.ConfigVersion);
                             lock (state.ImprovementLock) {
                                 state.Stats.Store(statsTag);
                                 state.Stats.Reset();

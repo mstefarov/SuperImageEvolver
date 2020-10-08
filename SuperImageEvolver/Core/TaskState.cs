@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading;
 using System.Xml.Linq;
 
 namespace SuperImageEvolver
@@ -32,6 +33,7 @@ namespace SuperImageEvolver
         public TaskStatistics Stats { get; } = new TaskStatistics();
 
         public bool HasChangedSinceSave = true;
+        public int ConfigVersion; // Used to ensure that "stale" best-matches are not accepted from clients after Evaluator was changed by server
 
         public const int FormatVersion = 1;
 
@@ -39,7 +41,8 @@ namespace SuperImageEvolver
         
 
         public TaskState( NBTag tag ) {
-            if( FormatVersion != tag["FormatVersion"].GetInt() ) throw new FormatException( "Incompatible format." );
+            if( FormatVersion != tag["FormatVersion"].GetInt() )
+                throw new FormatException( "Incompatible format." );
             Shapes = tag["Shapes"].GetInt();
             Vertices = tag["Vertices"].GetInt();
             TaskStart = DateTime.UtcNow.Subtract( TimeSpan.FromTicks( tag["ElapsedTime"].GetLong() ) );
@@ -106,6 +109,7 @@ namespace SuperImageEvolver
             ProjectOptions = new ProjectOptions(tag["ProjectOptions"]);
 
             BestMatch = new DNA(tag["BestMatch"]);
+            ConfigVersion = tag.GetInt(nameof(ConfigVersion), 0);
             CurrentMatch = BestMatch;
 
             Initializer = (IInitializer)ModuleManager.ReadModule(tag["Initializer"]);
@@ -119,6 +123,7 @@ namespace SuperImageEvolver
             tag.Append(ProjectOptions.SerializeNBT());
 
             tag.Append(BestMatch.SerializeNBT("BestMatch"));
+            tag.Append( nameof(ConfigVersion), ConfigVersion );
 
             NBTag initializerTag = ModuleManager.WriteModule("Initializer", Initializer);
             tag.Append(initializerTag);

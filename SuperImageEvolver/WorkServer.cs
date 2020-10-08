@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -80,6 +80,8 @@ namespace SuperImageEvolver {
                 var tag = cc.ReadTag();
                 switch (tag.Name) {
                     case "workUpdate":
+                        if (tag["configVersion"].GetInt() != state.ConfigVersion)
+                            continue; // Skip stale matches
                         lock (state.ImprovementLock) {
                             state.Stats.Merge(tag["stats"]);
                         }
