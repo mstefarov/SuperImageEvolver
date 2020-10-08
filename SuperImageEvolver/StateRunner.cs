@@ -48,7 +48,7 @@ namespace SuperImageEvolver {
                         mutation.Divergence = state.Evaluator.CalculateDivergence(testCanvas,
                                                                                   mutation,
                                                                                   state,
-                                                                                  1);
+                                                                                  state.CurrentMatch.Divergence - riskMargin);
                         improvement = state.CurrentMatch.Divergence - mutation.Divergence;
 
                         if (improvement > 0 || takeRisk && (improvement > riskMargin)) {
