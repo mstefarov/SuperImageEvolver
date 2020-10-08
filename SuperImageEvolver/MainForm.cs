@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -1086,6 +1086,7 @@ namespace SuperImageEvolver {
                 picBestMatch.Invalidate();
                 State.SetEvaluator(State.Evaluator);
                 UpdateTick();
+                SignalStateChange(true);
                 MessageBox.Show("Redistributed " + shapesToElim + " shapes.", "Least Valuable Polygon elimination");
             }
         }
