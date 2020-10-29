@@ -201,8 +201,14 @@ namespace SuperImageEvolver {
         }
 
 
-        void IModule.ReadSettings( NBTag tag ) {}
+        void IModule.ReadSettings(NBTag tag) {
+            EnableRotation = tag.GetBool(nameof(EnableRotation), EnableRotation);
+            PreserveAspectRatio = tag.GetBool(nameof(PreserveAspectRatio), PreserveAspectRatio);
+        }
 
-        void IModule.WriteSettings( NBTag tag ) {}
+        void IModule.WriteSettings(NBTag tag) {
+            tag.Append(nameof(EnableRotation), EnableRotation);
+            tag.Append(nameof(PreserveAspectRatio), PreserveAspectRatio);
+        }
     }
 }

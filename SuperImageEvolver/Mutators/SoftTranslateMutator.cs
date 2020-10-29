@@ -42,8 +42,8 @@ namespace SuperImageEvolver {
         public bool PreserveAspectRatio { get; set; }
         public bool EnableRotation { get; set; }
 
-        public float MaxColorDelta { get; set; }
-        public float MaxPosDelta { get; set; }
+        public int MaxColorDelta { get; set; }
+        public int MaxPosDelta { get; set; }
 
 
         public SoftTranslateMutator() {
@@ -226,15 +226,25 @@ namespace SuperImageEvolver {
         object ICloneable.Clone() {
             return new SoftTranslateMutator {
                 EnableRotation = EnableRotation,
+                PreserveAspectRatio = PreserveAspectRatio,
                 MaxColorDelta = MaxColorDelta,
                 MaxPosDelta = MaxPosDelta,
-                PreserveAspectRatio = PreserveAspectRatio
             };
         }
 
 
-        void IModule.ReadSettings( NBTag tag ) {}
+        void IModule.ReadSettings(NBTag tag) {
+            EnableRotation = tag.GetBool(nameof(EnableRotation), EnableRotation);
+            PreserveAspectRatio = tag.GetBool(nameof(PreserveAspectRatio), PreserveAspectRatio);
+            MaxColorDelta = tag.GetInt(nameof(MaxColorDelta), MaxColorDelta);
+            MaxPosDelta = tag.GetInt(nameof(MaxPosDelta), MaxPosDelta);
+        }
 
-        void IModule.WriteSettings( NBTag tag ) {}
+        void IModule.WriteSettings(NBTag tag) {
+            tag.Append(nameof(EnableRotation), EnableRotation);
+            tag.Append(nameof(PreserveAspectRatio), PreserveAspectRatio);
+            tag.Append(nameof(MaxColorDelta), MaxColorDelta);
+            tag.Append(nameof(MaxPosDelta), MaxPosDelta);
+        }
     }
 }

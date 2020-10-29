@@ -102,8 +102,24 @@ namespace SuperImageEvolver {
         }
 
 
-        void IModule.ReadSettings( NBTag tag ) {}
+        void IModule.ReadSettings(NBTag tag) {
+            MaxOverlap = tag.GetInt(nameof(MaxOverlap), MaxOverlap);
+            StartingAlpha = tag.GetByte(nameof(StartingAlpha), StartingAlpha);
+            MinRadius = tag.GetInt(nameof(MinRadius), MinRadius);
+            MaxRadiusRatio = tag.GetDouble(nameof(MaxRadiusRatio), MaxRadiusRatio);
+            Angle = tag.GetDouble(nameof(Angle), Angle);
+            AngleDelta = tag.GetDouble(nameof(AngleDelta), AngleDelta);
+            Revolutions = tag.GetDouble(nameof(Revolutions), Revolutions);
+        }
 
-        void IModule.WriteSettings( NBTag tag ) {}
+        void IModule.WriteSettings(NBTag tag) {
+            tag.Append(nameof(MaxOverlap), MaxOverlap);
+            tag.Append(nameof(StartingAlpha), StartingAlpha);
+            tag.Append(nameof(MinRadius), MinRadius);
+            tag.Append(nameof(MaxRadiusRatio), MaxRadiusRatio);
+            tag.Append(nameof(Angle), Angle);
+            tag.Append(nameof(AngleDelta), AngleDelta);
+            tag.Append(nameof(Revolutions), Revolutions);
+        }
     }
 }

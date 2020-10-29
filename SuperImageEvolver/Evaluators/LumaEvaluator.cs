@@ -114,8 +114,12 @@ namespace SuperImageEvolver {
         }
 
 
-        void IModule.ReadSettings( NBTag tag ) {}
+        void IModule.ReadSettings(NBTag tag) {
+            Smooth = tag.GetBool(nameof(Smooth), Smooth);
+        }
 
-        void IModule.WriteSettings( NBTag tag ) {}
+        void IModule.WriteSettings(NBTag tag) {
+            tag.Append(nameof(Smooth), Smooth);
+        }
     }
 }
