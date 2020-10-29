@@ -21,7 +21,7 @@ namespace SuperImageEvolver {
             get {
                 return new[] {
                     new ModulePreset( "RGB (Fast)", () => ( new RGBEvaluator( false ) ), this ),
-                    new ModulePreset( "RGB (Smooth)", () => ( new RGBEvaluator( true ) ), this )
+                    new ModulePreset( "RGB (Smooth)", () => ( new RGBEvaluator( true ) ), this ),
                 };
             }
         }
@@ -160,8 +160,16 @@ namespace SuperImageEvolver {
         }
 
 
-        void IModule.ReadSettings( NBTag tag ) {}
+        void IModule.ReadSettings( NBTag tag ) {
+            Smooth = tag.GetBool(nameof(Smooth), Smooth);
+            Emphasized = tag.GetBool(nameof(Emphasized), Emphasized);
+            EmphasisAmount = tag.GetDouble(nameof(EmphasisAmount), EmphasisAmount);
+        }
 
-        void IModule.WriteSettings( NBTag tag ) {}
+        void IModule.WriteSettings( NBTag tag ) {
+            tag.Append(nameof(Smooth), Smooth);
+            tag.Append(nameof(Emphasized), Emphasized);
+            tag.Append(nameof(EmphasisAmount), EmphasisAmount);
+        }
     }
 }

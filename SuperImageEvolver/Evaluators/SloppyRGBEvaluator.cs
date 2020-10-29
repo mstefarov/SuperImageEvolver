@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -129,13 +129,20 @@ namespace SuperImageEvolver {
             return new SloppyRGBEvaluator {
                 Smooth = Smooth,
                 Emphasized = Emphasized,
-                EmphasisAmount = EmphasisAmount
+                EmphasisAmount = EmphasisAmount,
             };
         }
 
+        void IModule.ReadSettings( NBTag tag ) {
+            Smooth = tag.GetBool(nameof(Smooth), Smooth);
+            Emphasized = tag.GetBool(nameof(Emphasized), Emphasized);
+            EmphasisAmount = tag.GetDouble(nameof(EmphasisAmount), EmphasisAmount);
+        }
 
-        void IModule.ReadSettings( NBTag tag ) {}
-
-        void IModule.WriteSettings( NBTag tag ) {}
+        void IModule.WriteSettings( NBTag tag ) {
+            tag.Append(nameof(Smooth), Smooth);
+            tag.Append(nameof(Emphasized), Emphasized);
+            tag.Append(nameof(EmphasisAmount), EmphasisAmount);
+        }
     }
 }

@@ -81,8 +81,12 @@ namespace SuperImageEvolver {
         }
 
 
-        void IModule.ReadSettings( NBTag tag ) {}
+        void IModule.ReadSettings( NBTag tag ) {
+            MaxPolygonArea = tag.GetDouble(nameof(MaxPolygonArea), MaxPolygonArea);
+        }
 
-        void IModule.WriteSettings( NBTag tag ) {}
+        void IModule.WriteSettings( NBTag tag ) {
+            tag.Append(nameof(MaxPolygonArea), MaxPolygonArea);
+        }
     }
 }

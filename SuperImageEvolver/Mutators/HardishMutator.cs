@@ -159,9 +159,14 @@ namespace SuperImageEvolver {
             };
         }
 
+        void IModule.ReadSettings(NBTag tag) {
+            MaxColorDelta = tag.GetInt(nameof(MaxColorDelta), MaxColorDelta);
+            MaxPosDelta = tag.GetInt(nameof(MaxPosDelta), MaxPosDelta);
+        }
 
-        void IModule.ReadSettings( NBTag tag ) {}
-
-        void IModule.WriteSettings( NBTag tag ) {}
+        void IModule.WriteSettings(NBTag tag) {
+            tag.Append(nameof(MaxColorDelta), MaxColorDelta);
+            tag.Append(nameof(MaxPosDelta), MaxPosDelta);
+        }
     }
 }
