@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
 
 namespace SuperImageEvolver {
     static class WorkServer {
@@ -14,10 +15,7 @@ namespace SuperImageEvolver {
                 NumClients = Environment.ProcessorCount - 1;
                 connections = new ClientConnection[NumClients];
                 for (int i = 0; i < NumClients; i++) {
-                    string pipeName = "SuperImageEvolver." + Process.GetCurrentProcess().Id + "." + i;
-                    var process = Process.Start(Process.GetCurrentProcess().MainModule.FileName, "pipe=" + pipeName);
-                    var pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut);
-                    connections[i] = new ClientConnection(process, pipe);
+                    connections[i] = Connect(i);
                 }
                 for (int i = 0; i < NumClients; i++) {
                     connections[i].Pipe.WaitForConnection();
@@ -27,6 +25,30 @@ namespace SuperImageEvolver {
             }
         }
 
+        private static ClientConnection Connect(int i) {
+            string pipeName = "SuperImageEvolver." + Process.GetCurrentProcess().Id + "." + i;
+            var process = Process.Start(Process.GetCurrentProcess().MainModule.FileName, "pipe=" + pipeName);
+            process.PriorityClass = ProcessPriorityClass.BelowNormal;
+            var pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut);
+            return new ClientConnection(process, pipe, i);
+        }
+
+        private static void CheckForDeadConnections() {
+            foreach (var c in connections.Where(c => c.IsBroken))
+                Restart(c);
+        }
+
+        private static ClientConnection Restart(ClientConnection cc) {
+            try {
+                cc.Process.Kill();
+            } catch { }
+
+            int newId = connections.Max(c => c.Id) + 1;
+            var oldIndex = Array.IndexOf(connections, cc);
+            var newConnection = Connect(newId);
+            connections[oldIndex] = newConnection;
+            return newConnection;
+        }
 
         public static void Shutdown() {
             foreach (var c in connections)
@@ -37,6 +59,7 @@ namespace SuperImageEvolver {
             foreach (var c in connections) {
                 c.WriteTag(tag);
             }
+            CheckForDeadConnections();
         }
 
         public static void SendLoad(TaskState state) {
@@ -77,7 +100,13 @@ namespace SuperImageEvolver {
             var reports = new List<DNA>(NumClients);
             for (int i = 0; i < NumClients; i++) {
                 var cc = connections[i];
-                var tag = cc.ReadTag();
+                NBTag tag;
+                try {
+                    tag = cc.ReadTag();
+                } catch (IOException) {
+                    continue;
+                }
+
                 switch (tag.Name) {
                     case "workUpdate":
                         if (tag["configVersion"].GetInt() != state.ConfigVersion)
@@ -91,16 +120,19 @@ namespace SuperImageEvolver {
                         throw new InvalidDataException();
                 }
             }
+            CheckForDeadConnections();
             return reports;
         }
 
         private class ClientConnection {
+            public int Id { get; }
             public Process Process { get; }
             public NamedPipeServerStream Pipe { get; }
             private BinaryWriter writer;
             private BinaryReader reader;
+            public bool IsBroken { get; private set; }
 
-            public ClientConnection(Process process, NamedPipeServerStream pipe) {
+            public ClientConnection(Process process, NamedPipeServerStream pipe, int id) {
                 Process = process;
                 Pipe = pipe;
                 reader = new BinaryReader(pipe);
@@ -108,12 +140,22 @@ namespace SuperImageEvolver {
             }
 
             public NBTag ReadTag() {
-                return (NBTCompound)NBTag.ReadTag(reader, (NBTType)reader.ReadByte(), null, null);
+                try {
+                    return (NBTCompound)NBTag.ReadTag(reader, (NBTType)reader.ReadByte(), null, null);
+                } catch (IOException) {
+                    IsBroken = true;
+                    throw;
+                }
             }
 
             public void WriteTag(NBTag tag) {
-                tag.WriteTag(writer);
-                writer.Flush();
+                try {
+                    tag.WriteTag(writer);
+                    writer.Flush();
+                } catch (IOException ex) {
+                    Debug.WriteLine(ex);
+                    IsBroken = true;
+                }
             }
         }
     }
