@@ -110,85 +110,87 @@ namespace SuperImageEvolver {
             if( state != null && state.CurrentMatch != null ) {
                 e.Graphics.ScaleTransform( zoom, zoom );
                 DNA tempDNA = state.CurrentMatch;
-                using( Graphics g = Graphics.FromImage( canvasImage ) ) {
-                    g.Clear( state.ProjectOptions.Matte );
+                state.Evaluator.DrawDivergence(canvasImage, tempDNA, state, Invert, Exaggerate);
 
-                    g.SmoothingMode = (state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
-                    for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
-                        g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ),
-                                       tempDNA.Shapes[i].Points,
-                                       FillMode.Alternate );
-                    }
-                }
+                //using( Graphics g = Graphics.FromImage( canvasImage ) ) {
+                //    g.Clear( state.ProjectOptions.Matte );
 
-                BitmapData testData = canvasImage.LockBits( new Rectangle( Point.Empty, canvasImage.Size ),
-                                                            ImageLockMode.ReadOnly,
-                                                            PixelFormat.Format32bppArgb );
-                for( int i = 0; i < canvasImage.Height; i++ ) {
-                    byte* originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride*i;
-                    byte* testPointer = (byte*)testData.Scan0 + testData.Stride*i;
-                    for( int j = 0; j < state.ImageWidth; j++ ) {
-                        if( !showColor ) {
-                            byte val;
-                            int originalLumi =
-                                (Math.Min( Math.Min( originalPointer[2], originalPointer[1] ), *originalPointer ) +
-                                 Math.Max( Math.Max( originalPointer[2], originalPointer[1] ), *originalPointer ))/2;
-                            int testLumi = (Math.Min( Math.Min( testPointer[2], testPointer[1] ), *testPointer ) +
-                                            Math.Max( Math.Max( testPointer[2], testPointer[1] ), *testPointer ))/2;
+                //    g.SmoothingMode = (state.Evaluator.Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
+                //    for( int i = 0; i < tempDNA.Shapes.Length; i++ ) {
+                //        g.FillPolygon( new SolidBrush( tempDNA.Shapes[i].Color ),
+                //                       tempDNA.Shapes[i].Points,
+                //                       FillMode.Alternate );
+                //    }
+                //}
 
-                            if( exaggerate ) {
-                                double exaggeratedVal = 127 -
-                                                        Math.Sign( originalLumi - testLumi )*
-                                                        Math.Sqrt( Math.Abs( originalLumi - testLumi )/255d )*255d;
-                                val = (byte)Math.Max( 0, Math.Min( 255, exaggeratedVal ) );
-                            } else {
-                                val = (byte)Math.Max( 0, Math.Min( 255, 127 - (originalLumi - testLumi) ) );
-                            }
+                //BitmapData testData = canvasImage.LockBits( new Rectangle( Point.Empty, canvasImage.Size ),
+                //                                            ImageLockMode.ReadOnly,
+                //                                            PixelFormat.Format32bppArgb );
+                //for( int i = 0; i < canvasImage.Height; i++ ) {
+                //    byte* originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride*i;
+                //    byte* testPointer = (byte*)testData.Scan0 + testData.Stride*i;
+                //    for( int j = 0; j < state.ImageWidth; j++ ) {
+                //        if( !showColor ) {
+                //            byte val;
+                //            int originalLumi =
+                //                (Math.Min( Math.Min( originalPointer[2], originalPointer[1] ), *originalPointer ) +
+                //                 Math.Max( Math.Max( originalPointer[2], originalPointer[1] ), *originalPointer ))/2;
+                //            int testLumi = (Math.Min( Math.Min( testPointer[2], testPointer[1] ), *testPointer ) +
+                //                            Math.Max( Math.Max( testPointer[2], testPointer[1] ), *testPointer ))/2;
 
-                            if( invert ) val = (byte)(255 - val);
-                            testPointer[2] = val;
-                            testPointer[1] = val;
-                            *testPointer = val;
+                //            if( exaggerate ) {
+                //                double exaggeratedVal = 127 -
+                //                                        Math.Sign( originalLumi - testLumi )*
+                //                                        Math.Sqrt( Math.Abs( originalLumi - testLumi )/255d )*255d;
+                //                val = (byte)Math.Max( 0, Math.Min( 255, exaggeratedVal ) );
+                //            } else {
+                //                val = (byte)Math.Max( 0, Math.Min( 255, 127 - (originalLumi - testLumi) ) );
+                //            }
 
-                        } else if( invert ) {
-                            if( exaggerate ) {
-                                testPointer[2] =
-                                    (byte)
-                                    (255 -
-                                     (int)(255*Math.Sqrt( Math.Abs( originalPointer[2] - testPointer[2] )/255d )));
-                                testPointer[1] =
-                                    (byte)
-                                    (255 -
-                                     (int)(255*Math.Sqrt( Math.Abs( originalPointer[1] - testPointer[1] )/255d )));
-                                *testPointer =
-                                    (byte)
-                                    (255 -
-                                     (int)(255*Math.Sqrt( Math.Abs( *originalPointer - *testPointer )/255d )));
-                            } else {
-                                testPointer[2] = (byte)(255 - Math.Abs( originalPointer[2] - testPointer[2] ));
-                                testPointer[1] = (byte)(255 - Math.Abs( originalPointer[1] - testPointer[1] ));
-                                *testPointer = (byte)(255 - Math.Abs( *originalPointer - *testPointer ));
-                            }
+                //            if( invert ) val = (byte)(255 - val);
+                //            testPointer[2] = val;
+                //            testPointer[1] = val;
+                //            *testPointer = val;
 
-                        } else {
-                            if( exaggerate ) {
-                                testPointer[2] =
-                                    (byte)(255*Math.Sqrt( Math.Abs( originalPointer[2] - testPointer[2] )/255d ));
-                                testPointer[1] =
-                                    (byte)(255*Math.Sqrt( Math.Abs( originalPointer[1] - testPointer[1] )/255d ));
-                                *testPointer =
-                                    (byte)(255*Math.Sqrt( Math.Abs( *originalPointer - *testPointer )/255d ));
-                            } else {
-                                testPointer[2] = (byte)Math.Abs( originalPointer[2] - testPointer[2] );
-                                testPointer[1] = (byte)Math.Abs( originalPointer[1] - testPointer[1] );
-                                *testPointer = (byte)Math.Abs( *originalPointer - *testPointer );
-                            }
-                        }
-                        originalPointer += 4;
-                        testPointer += 4;
-                    }
-                }
-                canvasImage.UnlockBits( testData );
+                //        } else if( invert ) {
+                //            if( exaggerate ) {
+                //                testPointer[2] =
+                //                    (byte)
+                //                    (255 -
+                //                     (int)(255*Math.Sqrt( Math.Abs( originalPointer[2] - testPointer[2] )/255d )));
+                //                testPointer[1] =
+                //                    (byte)
+                //                    (255 -
+                //                     (int)(255*Math.Sqrt( Math.Abs( originalPointer[1] - testPointer[1] )/255d )));
+                //                *testPointer =
+                //                    (byte)
+                //                    (255 -
+                //                     (int)(255*Math.Sqrt( Math.Abs( *originalPointer - *testPointer )/255d )));
+                //            } else {
+                //                testPointer[2] = (byte)(255 - Math.Abs( originalPointer[2] - testPointer[2] ));
+                //                testPointer[1] = (byte)(255 - Math.Abs( originalPointer[1] - testPointer[1] ));
+                //                *testPointer = (byte)(255 - Math.Abs( *originalPointer - *testPointer ));
+                //            }
+
+                //        } else {
+                //            if( exaggerate ) {
+                //                testPointer[2] =
+                //                    (byte)(255*Math.Sqrt( Math.Abs( originalPointer[2] - testPointer[2] )/255d ));
+                //                testPointer[1] =
+                //                    (byte)(255*Math.Sqrt( Math.Abs( originalPointer[1] - testPointer[1] )/255d ));
+                //                *testPointer =
+                //                    (byte)(255*Math.Sqrt( Math.Abs( *originalPointer - *testPointer )/255d ));
+                //            } else {
+                //                testPointer[2] = (byte)Math.Abs( originalPointer[2] - testPointer[2] );
+                //                testPointer[1] = (byte)Math.Abs( originalPointer[1] - testPointer[1] );
+                //                *testPointer = (byte)Math.Abs( *originalPointer - *testPointer );
+                //            }
+                //        }
+                //        originalPointer += 4;
+                //        testPointer += 4;
+                //    }
+                //}
+                //canvasImage.UnlockBits( testData );
                 if( zoom == 2 || zoom == 1 ) {
                     g2.InterpolationMode = InterpolationMode.NearestNeighbor;
                 }

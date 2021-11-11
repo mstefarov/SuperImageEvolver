@@ -124,6 +124,8 @@ namespace SuperImageEvolver {
             }
         }
 
+        public void DrawDivergence(Bitmap testImage, DNA dna, TaskState state, bool invert, bool normalize){ }
+
 
         object ICloneable.Clone() {
             return new SloppyRGBEvaluator {

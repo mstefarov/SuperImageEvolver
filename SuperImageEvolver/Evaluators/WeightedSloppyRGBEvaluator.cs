@@ -160,6 +160,7 @@ namespace SuperImageEvolver {
             testImage.UnlockBits( testData );
             return sum / maxDivergence;
         }
+        public void DrawDivergence(Bitmap testImage, DNA dna, TaskState state, bool invert, bool normalize){ }
         
         public Rectangle GetDebugCenterBoundary() {
             // Everything is "times 2" because internally the sloppy evaluator uses half resolution
