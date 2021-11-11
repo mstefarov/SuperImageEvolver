@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -30,6 +30,7 @@ namespace SuperImageEvolver {
             ModuleManager.LoadFactories(Assembly.GetExecutingAssembly());
 
             Shown += delegate {
+                // TODO: Dynamically populate module list
                 /*
                 cInitializer.Items.Clear();
                 foreach( var preset in ModuleManager.GetPresets( ModuleFunction.Initializer ) ) {
@@ -434,6 +435,9 @@ namespace SuperImageEvolver {
                     break;
                 case 4:
                     State.SetEvaluator(new LumaEvaluator(true));
+                    break;
+                case 5:
+                    State.SetEvaluator(new WeightedSloppyRGBEvaluator());
                     break;
             }
             RefreshBestMatchDisplay();

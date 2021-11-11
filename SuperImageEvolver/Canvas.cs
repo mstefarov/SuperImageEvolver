@@ -102,6 +102,11 @@ namespace SuperImageEvolver {
                         }
                     }
                 }
+
+                if (state.Evaluator is WeightedSloppyRGBEvaluator we) {
+                    g.DrawEllipse(Pens.Red, we.GetDebugCenterBoundary());
+                    g.DrawEllipse(Pens.Red, we.GetDebugOuterBoundary());
+                }
             } else {
                 g.Clear( Color.White );
                 SizeF align = g.MeasureString( PlaceholderText, Font );

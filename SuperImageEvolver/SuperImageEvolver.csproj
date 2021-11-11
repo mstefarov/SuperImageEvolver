@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -76,6 +76,7 @@
     <Compile Include="DNAImportWindow.Designer.cs">
       <DependentUpon>DNAImportWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Evaluators\WeightedSloppyRGBEvaluator.cs" />
     <Compile Include="Evaluators\SloppyRGBEvaluator.cs" />
     <Compile Include="Evaluators\IEvaluator.cs" />
     <Compile Include="Evaluators\LumaEvaluator.cs" />

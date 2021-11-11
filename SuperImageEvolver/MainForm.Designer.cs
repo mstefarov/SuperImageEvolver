@@ -109,12 +109,12 @@
             this.menuOptions = new System.Windows.Forms.ToolStripDropDownButton();
             this.bProjectOptions = new System.Windows.Forms.ToolStripMenuItem();
             this.bMatteToAverageColor = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuHelp = new System.Windows.Forms.ToolStripDropDownButton();
-            this.bHelpListModules = new System.Windows.Forms.ToolStripMenuItem();
             this.polygonValueEvaluationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.evaluateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.redistributeLeastValuableShapesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearOutlinesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuHelp = new System.Windows.Forms.ToolStripDropDownButton();
+            this.bHelpListModules = new System.Windows.Forms.ToolStripMenuItem();
             separator1 = new System.Windows.Forms.ToolStripSeparator();
             separator4 = new System.Windows.Forms.ToolStripSeparator();
             separator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -573,7 +573,8 @@
             "RGB (Fast)",
             "RGB (Smooth)",
             "RGB+Luma (Fast)",
-            "RGB+Luma (Smooth)"});
+            "RGB+Luma (Smooth)",
+            "RGB+Emphasis (Sloppy)"});
             this.cEvaluator.Location = new System.Drawing.Point(61, 187);
             this.cEvaluator.Name = "cEvaluator";
             this.cEvaluator.Size = new System.Drawing.Size(114, 21);
@@ -914,13 +915,13 @@
             this.menuExport.Image = global::SuperImageEvolver.Properties.Resources.document_export;
             this.menuExport.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.menuExport.Name = "menuExport";
-            this.menuExport.Size = new System.Drawing.Size(69, 22);
+            this.menuExport.Size = new System.Drawing.Size(70, 22);
             this.menuExport.Text = "Export";
             // 
             // bExportDNA
             // 
             this.bExportDNA.Name = "bExportDNA";
-            this.bExportDNA.Size = new System.Drawing.Size(175, 22);
+            this.bExportDNA.Size = new System.Drawing.Size(174, 22);
             this.bExportDNA.Text = "DNA";
             this.bExportDNA.Click += new System.EventHandler(this.bExportDNA_Click);
             // 
@@ -928,7 +929,7 @@
             // 
             this.bExportImage.Image = global::SuperImageEvolver.Properties.Resources.image_export;
             this.bExportImage.Name = "bExportImage";
-            this.bExportImage.Size = new System.Drawing.Size(175, 22);
+            this.bExportImage.Size = new System.Drawing.Size(174, 22);
             this.bExportImage.Text = "Best Match Image";
             this.bExportImage.Click += new System.EventHandler(this.bExportImage_Click);
             // 
@@ -936,7 +937,7 @@
             // 
             this.bExportVectors.Image = global::SuperImageEvolver.Properties.Resources.layer_shape_polygon;
             this.bExportVectors.Name = "bExportVectors";
-            this.bExportVectors.Size = new System.Drawing.Size(175, 22);
+            this.bExportVectors.Size = new System.Drawing.Size(174, 22);
             this.bExportVectors.Text = "Best Match Vectors";
             this.bExportVectors.Click += new System.EventHandler(this.bExportVectors_Click);
             // 
@@ -968,24 +969,6 @@
             this.bMatteToAverageColor.Text = "Set Matte to Average Color";
             this.bMatteToAverageColor.Click += new System.EventHandler(this.bMatteToAverageColor_Click);
             // 
-            // menuHelp
-            // 
-            this.menuHelp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.menuHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.bHelpListModules});
-            this.menuHelp.Image = global::SuperImageEvolver.Properties.Resources.information;
-            this.menuHelp.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.menuHelp.Name = "menuHelp";
-            this.menuHelp.Size = new System.Drawing.Size(29, 22);
-            this.menuHelp.ToolTipText = "Help";
-            // 
-            // bHelpListModules
-            // 
-            this.bHelpListModules.Name = "bHelpListModules";
-            this.bHelpListModules.Size = new System.Drawing.Size(141, 22);
-            this.bHelpListModules.Text = "List Modules";
-            this.bHelpListModules.Click += new System.EventHandler(this.bHelpListModules_Click);
-            // 
             // polygonValueEvaluationToolStripMenuItem
             // 
             this.polygonValueEvaluationToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -1016,6 +999,24 @@
             this.clearOutlinesToolStripMenuItem.Size = new System.Drawing.Size(250, 22);
             this.clearOutlinesToolStripMenuItem.Text = "Clear outlines";
             this.clearOutlinesToolStripMenuItem.Click += new System.EventHandler(this.clearOutlinesToolStripMenuItem_Click);
+            // 
+            // menuHelp
+            // 
+            this.menuHelp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.menuHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.bHelpListModules});
+            this.menuHelp.Image = global::SuperImageEvolver.Properties.Resources.information;
+            this.menuHelp.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.menuHelp.Name = "menuHelp";
+            this.menuHelp.Size = new System.Drawing.Size(29, 22);
+            this.menuHelp.ToolTipText = "Help";
+            // 
+            // bHelpListModules
+            // 
+            this.bHelpListModules.Name = "bHelpListModules";
+            this.bHelpListModules.Size = new System.Drawing.Size(141, 22);
+            this.bHelpListModules.Text = "List Modules";
+            this.bHelpListModules.Click += new System.EventHandler(this.bHelpListModules_Click);
             // 
             // MainForm
             // 
