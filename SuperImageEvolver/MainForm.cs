@@ -316,10 +316,14 @@ namespace SuperImageEvolver {
         bool Stop() {
             if (stopped) return true;
             stopped = true;
+
+            Enabled=false;
             clientReportSignal.Set();
-            workServerThread.Join();
-            Application.DoEvents();
-            if (updateThread != null) updateThread.Join();
+            while (!workServerThread.Join(100))
+                Application.DoEvents();
+            if (updateThread != null)
+            while (!updateThread.Join(100))
+                Application.DoEvents();
 
             State.CurrentMatch = State.BestMatch;
             UpdateTick();
@@ -333,6 +337,7 @@ namespace SuperImageEvolver {
             bStart.Enabled = true;
             bRestart.Enabled = true;
             bStop.Enabled = false;
+            Enabled=true;
             return false;
         }
 

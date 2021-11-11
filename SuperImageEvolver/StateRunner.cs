@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,6 +23,7 @@ namespace SuperImageEvolver {
             while (!token.IsCancellationRequested) {
                 Interlocked.Increment(ref state.Stats.MutationCounter);
                 DNA mutation = state.Mutator.Mutate(rand, state.CurrentMatch, state);
+                Debug.Assert(mutation.Shapes.Single(s => s.PreviousState != null) != null, "PreivousState not set");
 
                 bool takeRisk = (rand.NextDouble() < state.ProjectOptions.RiskRate * state.CurrentMatch.Divergence);
                 double riskMargin = -(state.CurrentMatch.Divergence * state.CurrentMatch.Divergence) *
@@ -45,6 +47,8 @@ namespace SuperImageEvolver {
                                      state.ProjectOptions.RiskMargin;
                         if (!takeRisk)
                             riskMargin = 0;
+
+                        // Double-check inside lock, in case CurrentMatch has changed
                         mutation.Divergence = state.Evaluator.CalculateDivergence(testCanvas,
                                                                                   mutation,
                                                                                   state,

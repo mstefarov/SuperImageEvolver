@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SuperImageEvolver {
     static class WorkServer {
@@ -13,13 +14,19 @@ namespace SuperImageEvolver {
         public static void Start() {
             try {
                 NumClients = Environment.ProcessorCount - 1;
+                if (Debugger.IsAttached){
+                    NumClients = 1;
+                }
+
                 connections = new ClientConnection[NumClients];
                 for (int i = 0; i < NumClients; i++) {
                     connections[i] = Connect(i);
                 }
+
                 for (int i = 0; i < NumClients; i++) {
                     connections[i].Pipe.WaitForConnection();
                 }
+                
             } catch {
                 Shutdown();
             }
@@ -27,8 +34,14 @@ namespace SuperImageEvolver {
 
         private static ClientConnection Connect(int i) {
             string pipeName = "SuperImageEvolver." + Process.GetCurrentProcess().Id + "." + i;
-            var process = Process.Start(Process.GetCurrentProcess().MainModule.FileName, "pipe=" + pipeName);
-            process.PriorityClass = ProcessPriorityClass.BelowNormal;
+            Process process;
+            if (Debugger.IsAttached) {
+                process = null;
+                Task.Run(() => WorkClient.Run(pipeName));
+            } else {
+                process = Process.Start(Process.GetCurrentProcess().MainModule.FileName, "pipe=" + pipeName);
+                process.PriorityClass = ProcessPriorityClass.BelowNormal;
+            }
             var pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut);
             return new ClientConnection(process, pipe, i);
         }
@@ -40,7 +53,7 @@ namespace SuperImageEvolver {
 
         private static ClientConnection Restart(ClientConnection cc) {
             try {
-                cc.Process.Kill();
+                cc.Process?.Kill();
             } catch { }
 
             int newId = connections.Max(c => c.Id) + 1;
@@ -52,7 +65,7 @@ namespace SuperImageEvolver {
 
         public static void Shutdown() {
             foreach (var c in connections)
-                c.Process.Kill();
+                c.Process?.Kill();
         }
 
         private static void Broadcast(NBTCompound tag) {
@@ -142,7 +155,7 @@ namespace SuperImageEvolver {
             public NBTag ReadTag() {
                 try {
                     return (NBTCompound)NBTag.ReadTag(reader, (NBTType)reader.ReadByte(), null, null);
-                } catch (IOException) {
+                } catch {
                     IsBroken = true;
                     throw;
                 }

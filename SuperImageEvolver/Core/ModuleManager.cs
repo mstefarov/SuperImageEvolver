@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace SuperImageEvolver {
     public static class ModuleManager {
@@ -24,8 +25,12 @@ namespace SuperImageEvolver {
         }
 
 
+        static int factoriesLoadedFlag = 0;
         public static void LoadFactories( Assembly assembly ) {
-            foreach( Type type in assembly.GetTypes() ) {
+            if (Interlocked.CompareExchange(ref factoriesLoadedFlag, 1, 0) != 0)
+                return;
+
+            foreach ( Type type in assembly.GetTypes() ) {
                 if( type.GetInterfaces().Contains( typeof( IModuleFactory ) ) ) {
                     object newFactory = type.GetConstructor( Type.EmptyTypes ).Invoke( new object[0] );
                     AddModule( newFactory as IModuleFactory );
