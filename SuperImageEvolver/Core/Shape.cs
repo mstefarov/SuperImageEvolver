@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 using System.Text;
 using System.Xml.Linq;
 
@@ -22,36 +21,30 @@ namespace SuperImageEvolver {
         public Color OutlineColor = Color.Transparent;
 
 
-        public Shape( NBTag tag ) {
+        public Shape(NBTag tag) {
             Color = tag["Color"].GetColor();
             var pointsTag = (NBTList)tag["Points"];
             Points = new PointF[pointsTag.Tags.Length];
-            for( int i = 0; i < Points.Length; i++ ) {
+            for (int i = 0; i < Points.Length; i++) {
                 Points[i] = pointsTag[i].GetPointF();
             }
+            if (tag.Contains(nameof(PreviousState)))
+                PreviousState = new Shape(tag[nameof(PreviousState)]);
         }
 
 
-        public NBTag SerializeNBT() {
-            NBTCompound tag = new NBTCompound( "Shape" );
+        public NBTag SerializeNBT(string tagName = "Shape") {
+            NBTCompound tag = new NBTCompound(tagName);
             tag.Append( "Color", Color );
             NBTList points = new NBTList( "Points", NBTType.PointF, Points.Length );
             for( int p = 0; p < Points.Length; p++ ) {
                 points[p] = new NBTag( NBTType.PointF, null, Points[p], points );
             }
             tag.Append( points );
+            if (PreviousState != null)
+                tag.Append(PreviousState.SerializeNBT("PreviousState"));
+
             return tag;
-        }
-
-
-        public Shape( Stream stream, int vertices ) {
-            BinaryReader reader = new BinaryReader( stream );
-            Color = Color.FromArgb( reader.ReadInt32() );
-            Points = new PointF[vertices];
-            for( int p = 0; p < Points.Length; p++ ) {
-                Points[p].X = reader.ReadSingle();
-                Points[p].Y = reader.ReadSingle();
-            }
         }
 
 

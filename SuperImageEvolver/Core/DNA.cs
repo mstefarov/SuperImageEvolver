@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.IO;
 
@@ -46,14 +46,6 @@ namespace SuperImageEvolver {
             }
             compound.Append(tag);
             return compound;
-        }
-
-
-        public DNA(Stream stream, int shapes, int vertices) {
-            Shapes = new Shape[shapes];
-            for (int i = 0; i < Shapes.Length; i++) {
-                Shapes[i] = new Shape(stream, vertices);
-            }
         }
 
 
