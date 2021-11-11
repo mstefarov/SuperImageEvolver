@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.IO;
 
@@ -175,6 +175,7 @@ namespace SuperImageEvolver {
             int s1 = rand.Next(Shapes.Length);
             Shape shape = Shapes[s1];
             shape.PreviousState = shape.Clone() as Shape;
+            if (Shapes.Length < 2) return;
             if (rand.Next(2) == 0) {
                 int s2;
                 do {
