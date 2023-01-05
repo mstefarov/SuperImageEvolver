@@ -21,6 +21,10 @@ namespace SuperImageEvolver {
             Bitmap testCanvas = new Bitmap(state.ImageWidth, state.ImageHeight);
 
             while (!token.IsCancellationRequested) {
+                if (!internalWaiter.IsSet) {
+                    externalWaiter.Set();
+                    internalWaiter.Wait(token);
+                }
                 Interlocked.Increment(ref state.Stats.MutationCounter);
                 DNA mutation = state.Mutator.Mutate(rand, state.CurrentMatch, state);
                 Debug.Assert(mutation.Shapes.Single(s => s.PreviousState != null) != null, "PreviousState not set");
@@ -75,10 +79,6 @@ namespace SuperImageEvolver {
                             }
                         }
                     }
-                }
-                if (!internalWaiter.IsSet) {
-                    externalWaiter.Set();
-                    internalWaiter.Wait(token);
                 }
             }
 
