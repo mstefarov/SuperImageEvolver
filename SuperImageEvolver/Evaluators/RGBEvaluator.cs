@@ -6,7 +6,7 @@ using System.Drawing.Imaging;
 namespace SuperImageEvolver {
     public class RGBEvaluatorFactory : IModuleFactory {
         public Type ModuleType {
-            get { return typeof( RGBEvaluator ); }
+            get { return typeof(RGBEvaluator); }
         }
 
         public string ID {
@@ -47,32 +47,31 @@ namespace SuperImageEvolver {
         }
 
 
-        public RGBEvaluator( bool smooth )
+        public RGBEvaluator(bool smooth)
             : this() {
             Smooth = smooth;
         }
 
 
-        public void Initialize( TaskState state ) {}
+        public void Initialize(TaskState state) { }
 
 
-        public double CalculateDivergence( Bitmap testImage, DNA dna, TaskState state, double maxAcceptableDivergence ) {
+        public double CalculateDivergence(Bitmap testImage, DNA dna, TaskState state, double maxAcceptableDivergence) {
+            long sum = 0;
+            long maxDivergence = RgbEvaluatorUtils.GetMaxDivergence(state.ImageWidth, state.ImageHeight, Emphasized, EmphasisAmount);
+            long roundedMax = (long)Math.Ceiling(maxAcceptableDivergence * maxDivergence + 1);
 
-            var maxDivergence = GetMaxDivergence(state);
-            double sum = 0;
-            double roundedMax = (maxAcceptableDivergence * maxDivergence + 1);
-            byte* originalPointer, testPointer;
-            
             DrawDna(testImage, dna, state);
             BitmapData testData = testImage.LockBits(new Rectangle(Point.Empty, testImage.Size),
                                                       ImageLockMode.ReadOnly,
                                                       PixelFormat.Format32bppArgb);
 
+            // The loop is duplicated to avoid ifs in the hot path
             if (Emphasized) {
                 if (EmphasisAmount == 2) {
                     for (int i = 0; i < state.ImageHeight; i++) {
-                        originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
-                        testPointer = (byte*)testData.Scan0 + testData.Stride * i;
+                        var originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
+                        var testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                         for (int j = 0; j < state.ImageWidth; j++) {
                             int b = Math.Abs(*originalPointer - *testPointer);
                             int g = Math.Abs(originalPointer[1] - testPointer[1]);
@@ -87,28 +86,29 @@ namespace SuperImageEvolver {
                         }
                     }
                 } else {
+                    double doubleSum = 0;
                     for (int i = 0; i < state.ImageHeight; i++) {
-                        originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
-                        testPointer = (byte*)testData.Scan0 + testData.Stride * i;
+                        var originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
+                        var testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                         for (int j = 0; j < state.ImageWidth; j++) {
                             int b = Math.Abs(*originalPointer - *testPointer);
                             int g = Math.Abs(originalPointer[1] - testPointer[1]);
                             int r = Math.Abs(originalPointer[2] - testPointer[2]);
-                            sum += Math.Pow(r, EmphasisAmount) + Math.Pow(g, EmphasisAmount) +
-                                   Math.Pow(b, EmphasisAmount);
+                            doubleSum += Math.Pow(r, EmphasisAmount) + Math.Pow(g, EmphasisAmount) + Math.Pow(b, EmphasisAmount);
                             originalPointer += 4;
                             testPointer += 4;
                         }
-                        if (sum > roundedMax) {
-                            sum = maxDivergence;
+                        if (doubleSum > roundedMax) {
+                            doubleSum = maxDivergence;
                             break;
                         }
                     }
+                    sum = (long)doubleSum;
                 }
             } else {
                 for (int i = 0; i < state.ImageHeight; i++) {
-                    originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
-                    testPointer = (byte*)testData.Scan0 + testData.Stride * i;
+                    var originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
+                    var testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                     for (int j = 0; j < state.ImageWidth; j++) {
                         int b = Math.Abs(*originalPointer - *testPointer);
                         int g = Math.Abs(originalPointer[1] - testPointer[1]);
@@ -128,7 +128,7 @@ namespace SuperImageEvolver {
             if (Emphasized) {
                 return Math.Pow(sum / maxDivergence, 1 / EmphasisAmount);
             } else {
-                return sum / maxDivergence;
+                return sum / (double)maxDivergence;
             }
         }
 
@@ -136,41 +136,27 @@ namespace SuperImageEvolver {
             using (Graphics g = Graphics.FromImage(testImage)) {
                 g.Clear(state.ProjectOptions.Matte);
                 g.SmoothingMode = (Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
-
                 for (int i = 0; i < dna.Shapes.Length; i++) {
                     g.FillPolygon(new SolidBrush(dna.Shapes[i].Color), dna.Shapes[i].Points, FillMode.Alternate);
                 }
             }
         }
 
-        private double GetMaxDivergence(TaskState state) {
-            double maxDivergence;
-            if (Emphasized) {
-                if (EmphasisAmount == 2) {
-                    maxDivergence = Math.Sqrt(3L * state.ImageWidth * state.ImageHeight * 255L * 255L);
-                } else {
-                    maxDivergence = Math.Pow(3L * state.ImageWidth * state.ImageHeight * Math.Pow(255, EmphasisAmount), 1/EmphasisAmount);
-                }
-            } else {
-                maxDivergence = 3L * state.ImageWidth * state.ImageHeight * 255L;
-            }
-
-            return maxDivergence;
-        }
-
         public void DrawDivergence(Bitmap testImage, DNA dna, TaskState state, bool invert, bool normalize) {
             double pixelDivergenceMultiplier;
             if (Emphasized) {
-                pixelDivergenceMultiplier = 255d / Math.Pow(3 * Math.Pow(255 * 3, EmphasisAmount), 1 / EmphasisAmount);
+                pixelDivergenceMultiplier = 255d / (3 * Math.Pow(255, EmphasisAmount));
             } else {
-                pixelDivergenceMultiplier = 255d / (255 * 3);
+                pixelDivergenceMultiplier = 255d / (3 * 255);
             }
 
             DrawDna(testImage, dna, state);
             BitmapData testData = testImage.LockBits(new Rectangle(Point.Empty, testImage.Size),
-                                                      ImageLockMode.ReadOnly,
-                                                      PixelFormat.Format32bppArgb);
-            float maxObservedDivergence = 0.001f;
+                                                     ImageLockMode.ReadOnly,
+                                                     PixelFormat.Format32bppArgb);
+
+            // Compute per-pixel divergence as an array of 32-bit floats, stored raw in the testData buffer.
+            float maxObservedDivergence = 0.001f; // avoid division by zero when normalizing
             byte* originalPointer, testPointer;
             for (int i = 0; i < state.ImageHeight; i++) {
                 originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
@@ -181,9 +167,9 @@ namespace SuperImageEvolver {
                     int r = Math.Abs(originalPointer[2] - testPointer[2]);
                     float divergence;
                     if (Emphasized)
-                        divergence = (float)(Math.Pow(Math.Pow(r, EmphasisAmount) + Math.Pow(g, EmphasisAmount) + Math.Pow(b, EmphasisAmount), 1 / EmphasisAmount)*pixelDivergenceMultiplier);
+                        divergence = (float)((Math.Pow(r, EmphasisAmount) + Math.Pow(g, EmphasisAmount) + Math.Pow(b, EmphasisAmount)) * pixelDivergenceMultiplier);
                     else
-                        divergence = (float)((r + g + b)*pixelDivergenceMultiplier);
+                        divergence = (float)((r + g + b) * pixelDivergenceMultiplier);
 
                     maxObservedDivergence = Math.Max(maxObservedDivergence, divergence);
                     *(float*)testPointer = divergence;
@@ -191,14 +177,15 @@ namespace SuperImageEvolver {
                     testPointer += 4;
                 }
             }
-            
-            float multiplier = 255/maxObservedDivergence;
+
+            // Convert per-pixel divergence from float, scaling or inverting as needed, to grayscale RGBA pixel values.
+            float multiplier = 255 / maxObservedDivergence;
             for (int i = 0; i < state.ImageHeight; i++) {
                 testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                 for (int j = 0; j < state.ImageWidth; j++) {
                     var val = *(float*)testPointer;
-                    if(normalize)
-                        val*=multiplier;
+                    if (normalize)
+                        val *= multiplier;
                     byte divByte = (byte)Math.Min(255, val);
                     if (invert)
                         divByte = (byte)(255 - divByte);
@@ -223,13 +210,13 @@ namespace SuperImageEvolver {
         }
 
 
-        void IModule.ReadSettings( NBTag tag ) {
+        void IModule.ReadSettings(NBTag tag) {
             Smooth = tag.GetBool(nameof(Smooth), Smooth);
             Emphasized = tag.GetBool(nameof(Emphasized), Emphasized);
             EmphasisAmount = tag.GetDouble(nameof(EmphasisAmount), EmphasisAmount);
         }
 
-        void IModule.WriteSettings( NBTag tag ) {
+        void IModule.WriteSettings(NBTag tag) {
             tag.Append(nameof(Smooth), Smooth);
             tag.Append(nameof(Emphasized), Emphasized);
             tag.Append(nameof(EmphasisAmount), EmphasisAmount);
