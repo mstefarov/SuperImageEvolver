@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using System;
 using System.IO;
 using System.IO.Pipes;
 using System.Reflection;
@@ -67,7 +67,8 @@ namespace SuperImageEvolver {
                         case "resume":
                             if (runner == null) {
                                 runner = new StateRunner(state);
-                            } else if (runnerTask == null) {
+                            }
+                            if (runnerTask == null) {
                                 cts = new CancellationTokenSource();
                                 runnerTask = Task.Run(() => runner.RunAsync(cts.Token), cts.Token);
                             } else {
@@ -83,6 +84,8 @@ namespace SuperImageEvolver {
                 }
             } catch (IOException) {
                 // expected if server disconnects
+            } catch (Exception ex) {
+                File.WriteAllText(pipeName + ".log", ex.ToString());
             }
         }
     }

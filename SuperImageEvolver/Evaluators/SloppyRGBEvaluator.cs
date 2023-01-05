@@ -171,24 +171,18 @@ namespace SuperImageEvolver {
                     testWritePointer[1] = divByte;
                     testWritePointer[2] = divByte;
                     testWritePointer[3] = 255;
-                    if (state.ImageWidth % 2 == 0) {
-                        testWritePointer[4] = divByte;
-                        testWritePointer[5] = divByte;
-                        testWritePointer[6] = divByte;
-                        testWritePointer[7] = 255;
-                    }
-                    if (state.ImageHeight % 2 == 0) {
-                        testWritePointer[0 + testData.Stride] = divByte;
-                        testWritePointer[1 + testData.Stride] = divByte;
-                        testWritePointer[2 + testData.Stride] = divByte;
-                        testWritePointer[3 + testData.Stride] = 255;
-                        if (state.ImageWidth % 2 == 0) {
-                            testWritePointer[4 + testData.Stride] = divByte;
-                            testWritePointer[5 + testData.Stride] = divByte;
-                            testWritePointer[6 + testData.Stride] = divByte;
-                            testWritePointer[7 + testData.Stride] = 255;
-                        }
-                    }
+                    testWritePointer[4] = divByte;
+                    testWritePointer[5] = divByte;
+                    testWritePointer[6] = divByte;
+                    testWritePointer[7] = 255;
+                    testWritePointer[0 + testData.Stride] = divByte;
+                    testWritePointer[1 + testData.Stride] = divByte;
+                    testWritePointer[2 + testData.Stride] = divByte;
+                    testWritePointer[3 + testData.Stride] = 255;
+                    testWritePointer[4 + testData.Stride] = divByte;
+                    testWritePointer[5 + testData.Stride] = divByte;
+                    testWritePointer[6 + testData.Stride] = divByte;
+                    testWritePointer[7 + testData.Stride] = 255;
                     testWritePointer += 8;
                     testReadPointer += 4;
                 }

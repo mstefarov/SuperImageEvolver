@@ -1,9 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>SuperImageEvolver</AssemblyName>
     <RootNamespace>SuperImageEvolver</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -18,7 +17,7 @@
     <IntermediateOutputPath>..\obj\Debug</IntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\SuperImageEvolver\**\*.cs" />
+    <Compile Include="..\SuperImageEvolver\**\*.cs" Exclude="..\SuperImageEvolver\Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="..\SuperImageEvolver\**\*.resx" />
   </ItemGroup>
 </Project>

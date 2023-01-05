@@ -23,7 +23,7 @@ namespace SuperImageEvolver {
             while (!token.IsCancellationRequested) {
                 Interlocked.Increment(ref state.Stats.MutationCounter);
                 DNA mutation = state.Mutator.Mutate(rand, state.CurrentMatch, state);
-                Debug.Assert(mutation.Shapes.Single(s => s.PreviousState != null) != null, "PreivousState not set");
+                Debug.Assert(mutation.Shapes.Single(s => s.PreviousState != null) != null, "PreviousState not set");
 
                 bool takeRisk = (rand.NextDouble() < state.ProjectOptions.RiskRate * state.CurrentMatch.Divergence);
                 double riskMargin = -(state.CurrentMatch.Divergence * state.CurrentMatch.Divergence) *
