@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 
 namespace SuperImageEvolver {
@@ -25,7 +25,6 @@ namespace SuperImageEvolver {
                 };
             }
         }
-
 
         public IModule GetInstance() {
             return new RGBEvaluator();
@@ -58,21 +57,21 @@ namespace SuperImageEvolver {
 
         public double CalculateDivergence(Bitmap testImage, DNA dna, TaskState state, double maxAcceptableDivergence) {
             long sum = 0;
-            long maxDivergence = RgbEvaluatorUtils.GetMaxDivergence(state.ImageWidth, state.ImageHeight, Emphasized, EmphasisAmount);
+            long maxDivergence = GetMaxDivergence(state.EvalImageWidth, state.EvalImageHeight, Emphasized, EmphasisAmount);
             long roundedMax = (long)Math.Ceiling(maxAcceptableDivergence * maxDivergence + 1);
 
-            DrawDna(testImage, dna, state);
+            dna.Draw(testImage, state, Smooth);
             BitmapData testData = testImage.LockBits(new Rectangle(Point.Empty, testImage.Size),
-                                                      ImageLockMode.ReadOnly,
-                                                      PixelFormat.Format32bppArgb);
+                                                     ImageLockMode.ReadOnly,
+                                                     PixelFormat.Format32bppArgb);
 
             // The loop is duplicated to avoid ifs in the hot path
             if (Emphasized) {
                 if (EmphasisAmount == 2) {
-                    for (int i = 0; i < state.ImageHeight; i++) {
+                    for (int i = 0; i < state.EvalImageHeight; i++) {
                         var originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
                         var testPointer = (byte*)testData.Scan0 + testData.Stride * i;
-                        for (int j = 0; j < state.ImageWidth; j++) {
+                        for (int j = 0; j < state.EvalImageWidth; j++) {
                             int b = Math.Abs(*originalPointer - *testPointer);
                             int g = Math.Abs(originalPointer[1] - testPointer[1]);
                             int r = Math.Abs(originalPointer[2] - testPointer[2]);
@@ -87,10 +86,10 @@ namespace SuperImageEvolver {
                     }
                 } else {
                     double doubleSum = 0;
-                    for (int i = 0; i < state.ImageHeight; i++) {
+                    for (int i = 0; i < state.EvalImageHeight; i++) {
                         var originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
                         var testPointer = (byte*)testData.Scan0 + testData.Stride * i;
-                        for (int j = 0; j < state.ImageWidth; j++) {
+                        for (int j = 0; j < state.EvalImageWidth; j++) {
                             int b = Math.Abs(*originalPointer - *testPointer);
                             int g = Math.Abs(originalPointer[1] - testPointer[1]);
                             int r = Math.Abs(originalPointer[2] - testPointer[2]);
@@ -106,10 +105,10 @@ namespace SuperImageEvolver {
                     sum = (long)doubleSum;
                 }
             } else {
-                for (int i = 0; i < state.ImageHeight; i++) {
+                for (int i = 0; i < state.EvalImageHeight; i++) {
                     var originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
                     var testPointer = (byte*)testData.Scan0 + testData.Stride * i;
-                    for (int j = 0; j < state.ImageWidth; j++) {
+                    for (int j = 0; j < state.EvalImageWidth; j++) {
                         int b = Math.Abs(*originalPointer - *testPointer);
                         int g = Math.Abs(originalPointer[1] - testPointer[1]);
                         int r = Math.Abs(originalPointer[2] - testPointer[2]);
@@ -132,17 +131,9 @@ namespace SuperImageEvolver {
             }
         }
 
-        private void DrawDna(Bitmap testImage, DNA dna, TaskState state) {
-            using (Graphics g = Graphics.FromImage(testImage)) {
-                g.Clear(state.ProjectOptions.Matte);
-                g.SmoothingMode = (Smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
-                for (int i = 0; i < dna.Shapes.Length; i++) {
-                    g.FillPolygon(new SolidBrush(dna.Shapes[i].Color), dna.Shapes[i].Points, FillMode.Alternate);
-                }
-            }
-        }
-
         public void DrawDivergence(Bitmap testImage, DNA dna, TaskState state, bool invert, bool normalize) {
+            Debug.Assert(testImage.Width == state.EvalImageWidth);
+            Debug.Assert(testImage.Height == state.EvalImageHeight);
             double pixelDivergenceMultiplier;
             if (Emphasized) {
                 pixelDivergenceMultiplier = 255d / (3 * Math.Pow(255, EmphasisAmount));
@@ -150,7 +141,7 @@ namespace SuperImageEvolver {
                 pixelDivergenceMultiplier = 255d / (3 * 255);
             }
 
-            DrawDna(testImage, dna, state);
+            dna.Draw(testImage, state, Smooth);
             BitmapData testData = testImage.LockBits(new Rectangle(Point.Empty, testImage.Size),
                                                      ImageLockMode.ReadOnly,
                                                      PixelFormat.Format32bppArgb);
@@ -158,10 +149,10 @@ namespace SuperImageEvolver {
             // Compute per-pixel divergence as an array of 32-bit floats, stored raw in the testData buffer.
             float maxObservedDivergence = 0.001f; // avoid division by zero when normalizing
             byte* originalPointer, testPointer;
-            for (int i = 0; i < state.ImageHeight; i++) {
+            for (int i = 0; i < state.EvalImageHeight; i++) {
                 originalPointer = (byte*)state.WorkingImageData.Scan0 + state.WorkingImageData.Stride * i;
                 testPointer = (byte*)testData.Scan0 + testData.Stride * i;
-                for (int j = 0; j < state.ImageWidth; j++) {
+                for (int j = 0; j < state.EvalImageWidth; j++) {
                     int b = Math.Abs(*originalPointer - *testPointer);
                     int g = Math.Abs(originalPointer[1] - testPointer[1]);
                     int r = Math.Abs(originalPointer[2] - testPointer[2]);
@@ -180,9 +171,9 @@ namespace SuperImageEvolver {
 
             // Convert per-pixel divergence from float, scaling or inverting as needed, to grayscale RGBA pixel values.
             float multiplier = 255 / maxObservedDivergence;
-            for (int i = 0; i < state.ImageHeight; i++) {
+            for (int i = 0; i < state.EvalImageHeight; i++) {
                 testPointer = (byte*)testData.Scan0 + testData.Stride * i;
-                for (int j = 0; j < state.ImageWidth; j++) {
+                for (int j = 0; j < state.EvalImageWidth; j++) {
                     var val = *(float*)testPointer;
                     if (normalize)
                         val *= multiplier;
@@ -220,6 +211,14 @@ namespace SuperImageEvolver {
             tag.Append(nameof(Smooth), Smooth);
             tag.Append(nameof(Emphasized), Emphasized);
             tag.Append(nameof(EmphasisAmount), EmphasisAmount);
+        }
+
+        static long GetMaxDivergence(int imageWidth, int imageHeight, bool emphasized, double emphasisAmount) {
+            if (emphasized) {
+                return (long)(3L * imageWidth * imageHeight * Math.Pow(255, emphasisAmount));
+            } else {
+                return 3L * imageWidth * imageHeight * 255L;
+            }
         }
     }
 }

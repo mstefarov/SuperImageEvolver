@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 
 namespace SuperImageEvolver {
@@ -180,6 +181,18 @@ namespace SuperImageEvolver {
                 Shapes[s2] = shape;
             }
             LastMutation = MutationType.SwapShapes;
+        }
+
+
+        public void Draw(Bitmap testImage, TaskState state, bool smooth) {
+            using (Graphics g = Graphics.FromImage(testImage)) {
+                g.Clear(state.ProjectOptions.Matte);
+                g.Transform = new Matrix(state.EvalScale, 0, 0, state.EvalScale, 0, 0);
+                g.SmoothingMode = (smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
+                for (int i = 0; i < Shapes.Length; i++) {
+                    g.FillPolygon(new SolidBrush(Shapes[i].Color), Shapes[i].Points, FillMode.Alternate);
+                }
+            }
         }
     }
 }

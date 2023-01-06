@@ -2,14 +2,15 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Threading;
 using System.Xml.Linq;
+using static System.Windows.Forms.AxHost;
 
 namespace SuperImageEvolver
 {
     public sealed class TaskState {
         public int Shapes, Vertices;
         public int ImageWidth, ImageHeight;
+        public int EvalImageWidth, EvalImageHeight;
         
         public volatile DNA CurrentMatch;
         public volatile DNA BestMatch;
@@ -17,14 +18,15 @@ namespace SuperImageEvolver
         public ProjectOptions ProjectOptions = new ProjectOptions();
 
         public Bitmap OriginalImage;
-        public Bitmap WorkingImageCopy;
-        public Bitmap WorkingImageCopyClone;
+        public Bitmap WorkingImageCopy; // Scaled to EvalScale
+        private Bitmap _workingDataProvider; // Scaled to EvalScale
         public BitmapData WorkingImageData;
         public string ProjectFileName;
 
         public volatile IInitializer Initializer = new SegmentedInitializer( Color.Black );
         public volatile IMutator Mutator = new HardMutator();
         public volatile IEvaluator Evaluator = new RGBEvaluator( false );
+        public volatile float EvalScale = 1.0f;
 
         public DateTime TaskStart;
         public DateTime LastImprovementTime;
@@ -35,14 +37,21 @@ namespace SuperImageEvolver
         public bool HasChangedSinceSave = true;
         public int ConfigVersion; // Used to ensure that "stale" best-matches are not accepted from clients after Evaluator was changed by server
 
-        public const int FormatVersion = 1;
+        // V1: original
+        // V2: adds EvalScale, removes Sloppy module, changes stats to long
+        public const int FormatVersion = 2;
 
         public readonly object ImprovementLock = new object();
         
 
         public TaskState( NBTag tag ) {
-            if( FormatVersion != tag["FormatVersion"].GetInt() )
-                throw new FormatException( "Incompatible format." );
+            var format = tag["FormatVersion"].GetInt();
+            if (format > FormatVersion )
+                throw new FormatException( "Incompatible format: " + format);
+
+            if(format == 1)
+                UpgradeFromV1(tag);
+
             Shapes = tag["Shapes"].GetInt();
             Vertices = tag["Vertices"].GetInt();
             TaskStart = DateTime.UtcNow.Subtract( TimeSpan.FromTicks( tag["ElapsedTime"].GetLong() ) );
@@ -57,24 +66,36 @@ namespace SuperImageEvolver
             }
         }
 
-
         public TaskState() {
         }
 
 
         public void SetEvaluator( IEvaluator newEvaluator ) {
-            lock( ImprovementLock ) {
-                if( OriginalImage != null && BestMatch != null ) {
-                    using( Bitmap testCanvas = new Bitmap( ImageWidth, ImageHeight ) ) {
-                        newEvaluator.Initialize( this );
-                        BestMatch.Divergence = newEvaluator.CalculateDivergence( testCanvas, BestMatch, this, 1 );
-                        CurrentMatch = BestMatch;
-                    }
-                }
+            lock ( ImprovementLock ) {
+                newEvaluator.Initialize(this);
                 Evaluator = newEvaluator;
+                RefreshBestMatchDivergence();
+                HasChangedSinceSave = true;
             }
         }
 
+        public void SetEvalScale(float scale) {
+            lock (ImprovementLock) {
+                EvalScale = scale;
+                if (OriginalImage != null) {
+                    SetOriginalImage(OriginalImage);
+                    RefreshBestMatchDivergence();
+                }
+            }
+        }
+
+        private void RefreshBestMatchDivergence() {
+            if (WorkingImageData != null && BestMatch != null && Evaluator != null) {
+                using (Bitmap testCanvas = new Bitmap(EvalImageWidth, EvalImageHeight)) {
+                    BestMatch.Divergence = Evaluator.CalculateDivergence(testCanvas, BestMatch, this, 1);
+                }
+            }
+        }
 
         public NBTCompound SerializeNBT(string rootTag = "SuperImageEvolver") {
             HasChangedSinceSave = false;
@@ -115,6 +136,8 @@ namespace SuperImageEvolver
             Initializer = (IInitializer)ModuleManager.ReadModule(tag["Initializer"]);
             Mutator = (IMutator)ModuleManager.ReadModule(tag["Mutator"]);
             Evaluator = (IEvaluator)ModuleManager.ReadModule(tag["Evaluator"]);
+
+            EvalScale = tag.GetFloat(nameof(EvalScale), 1);
         }
 
 
@@ -124,6 +147,7 @@ namespace SuperImageEvolver
 
             tag.Append(BestMatch.SerializeNBT("BestMatch"));
             tag.Append( nameof(ConfigVersion), ConfigVersion );
+            tag.Append( nameof(EvalScale), EvalScale );
 
             NBTag initializerTag = ModuleManager.WriteModule("Initializer", Initializer);
             tag.Append(initializerTag);
@@ -187,33 +211,53 @@ namespace SuperImageEvolver
         public void SetOriginalImage(Bitmap image)
         {
             OriginalImage = image;
-            if (WorkingImageCopy != null)
-            {
-                WorkingImageCopy.Dispose();
-            }
+            ImageWidth = image.Width;
+            ImageHeight = image.Height;
+            EvalImageWidth = (int)Math.Ceiling(ImageWidth * EvalScale);
+            EvalImageHeight = (int)Math.Ceiling(ImageHeight * EvalScale);
 
-            WorkingImageCopy = new Bitmap(OriginalImage.Width, OriginalImage.Height);
-            WorkingImageCopy.SetResolution(OriginalImage.HorizontalResolution, OriginalImage.VerticalResolution);
+            if (WorkingImageCopy != null)
+                WorkingImageCopy.Dispose();
+
+            WorkingImageCopy = new Bitmap(EvalImageWidth, EvalImageHeight);
             using (Graphics g = Graphics.FromImage(WorkingImageCopy))
             {
                 g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
                 g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
                 g.Clear(ProjectOptions.Matte);
-                g.DrawImageUnscaled(OriginalImage, Point.Empty);
+                g.DrawImage(OriginalImage, 0, 0, EvalImageWidth, EvalImageHeight);
             }
 
             if (WorkingImageData != null)
             {
-                WorkingImageCopyClone.UnlockBits(WorkingImageData);
-                WorkingImageCopyClone.Dispose();
+                _workingDataProvider.UnlockBits(WorkingImageData);
+                _workingDataProvider.Dispose();
             }
-            WorkingImageCopyClone = (Bitmap)WorkingImageCopy.Clone();
+            _workingDataProvider = (Bitmap)WorkingImageCopy.Clone();
             WorkingImageData =
-                WorkingImageCopyClone.LockBits(new Rectangle(Point.Empty, OriginalImage.Size),
-                                                     ImageLockMode.ReadOnly,
-                                                     PixelFormat.Format32bppArgb);
-            ImageWidth = OriginalImage.Width;
-            ImageHeight = OriginalImage.Height;
+                _workingDataProvider.LockBits(new Rectangle(Point.Empty, WorkingImageCopy.Size),
+                                             ImageLockMode.ReadOnly,
+                                             WorkingImageCopy.PixelFormat);
+        }
+
+        private void UpgradeFromV1(NBTag tag) {
+            // Upgrade stat counters to long
+            tag["ImprovementCounter"].Set((long)tag.GetInt("ImprovementCounter", 0), NBTType.Long);
+            tag["MutationCounter"].Set((long)tag.GetInt("MutationCounter", 0), NBTType.Long);
+            tag["RiskyMoveCounter"].Set((long)tag.GetInt("RiskyMoveCounter", 0), NBTType.Long);
+            tag["FailedRiskCounter"].Set((long)tag.GetInt("FailedRiskCounter", 0), NBTType.Long);
+
+            // Replace "sloppyRGB" with "RGB" at 0.5 scale.
+            var evaluator = tag["Evaluator"];
+            string moduleID = evaluator["ID"].GetString();
+            if (moduleID == "std.SloppyRGBEvaluator.1") {
+                evaluator["ID"].Set("std.RGBEvaluator.1");
+                tag.Append(nameof(EvalScale), 0.5f);
+            } else if (moduleID == "std.LumaEvaluator.1") {
+                evaluator["ID"].Set("std.PerceptualEvaluator.1");
+            }
+
+            tag["FormatVersion"].Set(FormatVersion);
         }
     }
 }

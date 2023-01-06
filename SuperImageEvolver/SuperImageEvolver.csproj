@@ -78,9 +78,8 @@
       <DependentUpon>DNAImportWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Evaluators\WeightedSloppyRGBEvaluator.cs" />
-    <Compile Include="Evaluators\SloppyRGBEvaluator.cs" />
     <Compile Include="Evaluators\IEvaluator.cs" />
-    <Compile Include="Evaluators\LumaEvaluator.cs" />
+    <Compile Include="Evaluators\LabEvaluator.cs" />
     <Compile Include="Evaluators\RGBEvaluator.cs" />
     <Compile Include="GraphWindow.cs">
       <SubType>UserControl</SubType>

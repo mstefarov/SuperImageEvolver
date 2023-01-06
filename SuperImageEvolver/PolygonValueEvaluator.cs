@@ -7,7 +7,7 @@ namespace SuperImageEvolver {
         public static ShapeEvaluation[] SortShapes(TaskState state) {
             var results = new List<ShapeEvaluation>();
 
-            using (var testCanvas = new Bitmap(state.ImageWidth, state.ImageHeight)) {
+            using (var testCanvas = new Bitmap(state.EvalImageWidth, state.EvalImageHeight)) {
                 double baseDivergence = state.Evaluator.CalculateDivergence(testCanvas, state.BestMatch, state, 1);
                 for (int i = 0; i < state.BestMatch.Shapes.Length; i++) {
                     var dnaWithoutShape = new DNA(state.BestMatch);

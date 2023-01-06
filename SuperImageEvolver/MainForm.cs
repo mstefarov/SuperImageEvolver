@@ -87,13 +87,12 @@ namespace SuperImageEvolver {
         void SetImage(Bitmap image) {
             State.SetOriginalImage(image);
 
-            picOriginal.Image = State.WorkingImageCopy;
+            picOriginal.Image = State.OriginalImage;
             OriginalZoom = OriginalZoom; // force resize
 
             picBestMatch.State = State;
 
-            picDiff.Init(State); // force resize
-            picDiff.Invalidate();
+            picDiff.Init(State); // force resize. Also invalidates.
         }
 
 
@@ -254,6 +253,7 @@ namespace SuperImageEvolver {
                 State.Shapes = (int)nPolygons.Value;
                 State.Vertices = (int)nVertices.Value;
                 State.Stats.Reset();
+                State.EvalScale = 1;
                 lastMutationCount = 0;
                 mutationRunningLog.Clear();
                 State.LastImprovementMutationCount = 0;
@@ -427,21 +427,18 @@ namespace SuperImageEvolver {
         void cEvaluator_SelectedIndexChanged(object sender, EventArgs e) {
             switch (cEvaluator.SelectedIndex) {
                 case 0:
-                    State.SetEvaluator(new SloppyRGBEvaluator());
-                    break;
-                case 1:
                     State.SetEvaluator(new RGBEvaluator(false));
                     break;
-                case 2:
+                case 1:
                     State.SetEvaluator(new RGBEvaluator(true));
                     break;
+                case 2:
+                    State.SetEvaluator(new PerceptualEvaluator(false));
+                    break;
                 case 3:
-                    State.SetEvaluator(new LumaEvaluator(false));
+                    State.SetEvaluator(new PerceptualEvaluator(true));
                     break;
                 case 4:
-                    State.SetEvaluator(new LumaEvaluator(true));
-                    break;
-                case 5:
                     State.SetEvaluator(new WeightedSloppyRGBEvaluator());
                     break;
             }
@@ -907,13 +904,14 @@ namespace SuperImageEvolver {
             State = new TaskState(taskData);
             BackColor = State.ProjectOptions.BackColor;
             if (filename.EndsWith(".autosave.sie")) {
-                State.ProjectFileName = filename.Substring(0, filename.Length - 13);
+                State.ProjectFileName = filename.Substring(0, filename.Length - ".autosave.sie".Length);
             } else {
                 State.ProjectFileName = filename;
             }
             Text = Path.GetFileName(State.ProjectFileName) + " | SuperImageEvolver";
             nVertices.Value = State.Vertices;
             nPolygons.Value = State.Shapes;
+            tbEvalScale.Value = EvalScaleToTrackValue(State.EvalScale);
             SetImage(State.OriginalImage);
 
             if (taskData.Contains("Presentation")) {
@@ -932,7 +930,7 @@ namespace SuperImageEvolver {
                 picDiff.Zoom = presentationTag.GetFloat("DiffZoom", picDiff.Zoom);
                 picDiff.ShowLastChange = presentationTag.GetBool("DiffShowLastChange", picDiff.ShowLastChange);
             }
-            State.SetEvaluator(State.Evaluator);
+            State.SetEvaluator(State.Evaluator); // forces initialization
             UpdateTick();
             picDiff.Invalidate();
             picBestMatch.Invalidate();
@@ -1009,7 +1007,7 @@ namespace SuperImageEvolver {
         void bMatteToAverageColor_Click(object sender, EventArgs e) {
             State.HasChangedSinceSave = true;
             bool oldStopped = Stop();
-            State.ProjectOptions.Matte = CalculateAverageColor(State.WorkingImageData);
+            State.ProjectOptions.Matte = CalculateAverageColor(State.WorkingImageCopy);
             if (State.OriginalImage != null) {
                 SetImage(State.OriginalImage);
             } else {
@@ -1025,7 +1023,11 @@ namespace SuperImageEvolver {
         }
 
 
-        unsafe Color CalculateAverageColor(BitmapData srcData) {
+        unsafe Color CalculateAverageColor(Bitmap src) {
+            var srcData = src.LockBits(new Rectangle(Point.Empty, src.Size),
+                                       ImageLockMode.ReadOnly,
+                                       PixelFormat.Format32bppArgb);
+
             long totalR = 0, totalG = 0, totalB = 0;
 
             for (int i = 0; i < srcData.Height; i++) {
@@ -1039,6 +1041,7 @@ namespace SuperImageEvolver {
             }
 
             int pixels = srcData.Width * srcData.Height;
+            src.UnlockBits(srcData);
             return Color.FromArgb(255,
                                   (int)(totalR / pixels),
                                   (int)(totalG / pixels),
@@ -1117,6 +1120,27 @@ namespace SuperImageEvolver {
                 State.BestMatch.Shapes[i].OutlineColor = Color.Transparent;
             }
             picBestMatch.Invalidate();
+        }
+
+        // TrackValue   EvalScale
+        // 100%         1
+        // 75%          1/2
+        // 50%          1/4
+        // 25%          1/8
+        // 0%           1/16
+        private static float TrackValueToEvalScale(int trackValue)
+            => 1 / (float)Math.Pow(2, 4 - trackValue / 25d);
+
+        private static int EvalScaleToTrackValue(float evalScale)
+            => Math.Min(100, Math.Max(0, (int)Math.Round(25 * Math.Log(16 * evalScale) / Math.Log(2))));
+
+        private void tbEvalScale_ValueChanged(object sender, EventArgs e) {
+
+            lock (State.ImprovementLock) {
+                State.SetEvalScale(TrackValueToEvalScale(tbEvalScale.Value));
+                SignalStateChange(true);
+            }
+            picDiff.Init(State); // force canvas resize and invalidate
         }
     }
 }

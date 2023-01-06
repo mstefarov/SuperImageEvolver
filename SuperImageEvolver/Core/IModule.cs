@@ -48,7 +48,4 @@ namespace SuperImageEvolver {
         Initializer,
         Mutator
     }
-
-
-    public sealed class DisableAutoSerializationAttribute : Attribute {}
 }

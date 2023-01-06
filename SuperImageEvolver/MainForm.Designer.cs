@@ -70,6 +70,8 @@
             this.cmDiffExaggerate = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDiffShowLastChange = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.lScale = new System.Windows.Forms.Label();
+            this.tbEvalScale = new System.Windows.Forms.TrackBar();
             this.bEditEvaluatorSettings = new System.Windows.Forms.Button();
             this.bEditMutatorSettings = new System.Windows.Forms.Button();
             this.bEditInitializerSetting = new System.Windows.Forms.Button();
@@ -126,6 +128,7 @@
             this.cmBestMatch.SuspendLayout();
             this.cmDiff.SuspendLayout();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tbEvalScale)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPolygons)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nVertices)).BeginInit();
             this.pStatistics.SuspendLayout();
@@ -384,7 +387,6 @@
             this.picDiff.ShowColor = true;
             this.picDiff.ShowLastChange = false;
             this.picDiff.Size = new System.Drawing.Size(80, 30);
-            this.picDiff.State = null;
             this.picDiff.TabIndex = 8;
             this.picDiff.Zoom = 1F;
             // 
@@ -508,6 +510,8 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.lScale);
+            this.panel1.Controls.Add(this.tbEvalScale);
             this.panel1.Controls.Add(this.bEditEvaluatorSettings);
             this.panel1.Controls.Add(this.bEditMutatorSettings);
             this.panel1.Controls.Add(this.bEditInitializerSetting);
@@ -525,11 +529,37 @@
             this.panel1.ForeColor = System.Drawing.Color.White;
             this.panel1.Location = new System.Drawing.Point(261, 5);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(203, 215);
+            this.panel1.Size = new System.Drawing.Size(203, 252);
             this.panel1.TabIndex = 6;
+            // 
+            // lScale
+            // 
+            this.lScale.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lScale.AutoSize = true;
+            this.lScale.Location = new System.Drawing.Point(7, 217);
+            this.lScale.Name = "lScale";
+            this.lScale.Size = new System.Drawing.Size(55, 13);
+            this.lScale.TabIndex = 18;
+            this.lScale.Text = "EvalScale";
+            // 
+            // tbEvalScale
+            // 
+            this.tbEvalScale.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbEvalScale.LargeChange = 25;
+            this.tbEvalScale.Location = new System.Drawing.Point(61, 212);
+            this.tbEvalScale.Maximum = 100;
+            this.tbEvalScale.Name = "tbEvalScale";
+            this.tbEvalScale.Size = new System.Drawing.Size(139, 45);
+            this.tbEvalScale.SmallChange = 5;
+            this.tbEvalScale.TabIndex = 17;
+            this.tbEvalScale.TickFrequency = 10;
+            this.tbEvalScale.Value = 100;
+            this.tbEvalScale.ValueChanged += new System.EventHandler(this.tbEvalScale_ValueChanged);
             // 
             // bEditEvaluatorSettings
             // 
+            this.bEditEvaluatorSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bEditEvaluatorSettings.Location = new System.Drawing.Point(181, 187);
             this.bEditEvaluatorSettings.Name = "bEditEvaluatorSettings";
             this.bEditEvaluatorSettings.Size = new System.Drawing.Size(19, 21);
@@ -539,6 +569,7 @@
             // 
             // bEditMutatorSettings
             // 
+            this.bEditMutatorSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bEditMutatorSettings.Location = new System.Drawing.Point(181, 160);
             this.bEditMutatorSettings.Name = "bEditMutatorSettings";
             this.bEditMutatorSettings.Size = new System.Drawing.Size(19, 21);
@@ -548,6 +579,7 @@
             // 
             // bEditInitializerSetting
             // 
+            this.bEditInitializerSetting.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bEditInitializerSetting.Location = new System.Drawing.Point(181, 133);
             this.bEditInitializerSetting.Name = "bEditInitializerSetting";
             this.bEditInitializerSetting.Size = new System.Drawing.Size(19, 21);
@@ -557,8 +589,9 @@
             // 
             // lEvaluator
             // 
+            this.lEvaluator.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lEvaluator.AutoSize = true;
-            this.lEvaluator.Location = new System.Drawing.Point(3, 190);
+            this.lEvaluator.Location = new System.Drawing.Point(6, 192);
             this.lEvaluator.Name = "lEvaluator";
             this.lEvaluator.Size = new System.Drawing.Size(52, 13);
             this.lEvaluator.TabIndex = 13;
@@ -566,10 +599,11 @@
             // 
             // cEvaluator
             // 
+            this.cEvaluator.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cEvaluator.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cEvaluator.FormattingEnabled = true;
             this.cEvaluator.Items.AddRange(new object[] {
-            "RGB (Sloppy)",
             "RGB (Fast)",
             "RGB (Smooth)",
             "RGB+Luma (Fast)",
@@ -583,8 +617,9 @@
             // 
             // lMutator
             // 
+            this.lMutator.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lMutator.AutoSize = true;
-            this.lMutator.Location = new System.Drawing.Point(12, 163);
+            this.lMutator.Location = new System.Drawing.Point(11, 165);
             this.lMutator.Name = "lMutator";
             this.lMutator.Size = new System.Drawing.Size(43, 13);
             this.lMutator.TabIndex = 11;
@@ -592,8 +627,9 @@
             // 
             // lInitializer
             // 
+            this.lInitializer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lInitializer.AutoSize = true;
-            this.lInitializer.Location = new System.Drawing.Point(8, 136);
+            this.lInitializer.Location = new System.Drawing.Point(8, 137);
             this.lInitializer.Name = "lInitializer";
             this.lInitializer.Size = new System.Drawing.Size(47, 13);
             this.lInitializer.TabIndex = 10;
@@ -601,6 +637,8 @@
             // 
             // cMutator
             // 
+            this.cMutator.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cMutator.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cMutator.FormattingEnabled = true;
             this.cMutator.Items.AddRange(new object[] {
@@ -626,6 +664,8 @@
             // 
             // cInitializer
             // 
+            this.cInitializer.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cInitializer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cInitializer.FormattingEnabled = true;
             this.cInitializer.Items.AddRange(new object[] {
@@ -640,6 +680,9 @@
             // 
             // graphWindow1
             // 
+            this.graphWindow1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.graphWindow1.BackColor = System.Drawing.Color.White;
             this.graphWindow1.Location = new System.Drawing.Point(3, 3);
             this.graphWindow1.Name = "graphWindow1";
@@ -648,8 +691,9 @@
             // 
             // lPoints
             // 
+            this.lPoints.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lPoints.AutoSize = true;
-            this.lPoints.Location = new System.Drawing.Point(19, 109);
+            this.lPoints.Location = new System.Drawing.Point(20, 109);
             this.lPoints.Name = "lPoints";
             this.lPoints.Size = new System.Drawing.Size(36, 13);
             this.lPoints.TabIndex = 7;
@@ -657,8 +701,9 @@
             // 
             // lShapes
             // 
+            this.lShapes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.lShapes.AutoSize = true;
-            this.lShapes.Location = new System.Drawing.Point(107, 109);
+            this.lShapes.Location = new System.Drawing.Point(111, 109);
             this.lShapes.Name = "lShapes";
             this.lShapes.Size = new System.Drawing.Size(43, 13);
             this.lShapes.TabIndex = 6;
@@ -666,6 +711,7 @@
             // 
             // nPolygons
             // 
+            this.nPolygons.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.nPolygons.Location = new System.Drawing.Point(156, 107);
             this.nPolygons.Maximum = new decimal(new int[] {
             1000,
@@ -713,17 +759,20 @@
             this.pStatistics.Controls.Add(this.tMutationStats);
             this.pStatistics.Location = new System.Drawing.Point(470, 5);
             this.pStatistics.Name = "pStatistics";
-            this.pStatistics.Size = new System.Drawing.Size(200, 215);
+            this.pStatistics.Size = new System.Drawing.Size(206, 251);
             this.pStatistics.TabIndex = 9;
             // 
             // tMutationStats
             // 
-            this.tMutationStats.Font = new System.Drawing.Font("Consolas", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tMutationStats.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tMutationStats.Font = new System.Drawing.Font("Consolas", 6.75F);
             this.tMutationStats.Location = new System.Drawing.Point(3, 3);
             this.tMutationStats.Multiline = true;
             this.tMutationStats.Name = "tMutationStats";
             this.tMutationStats.ReadOnly = true;
-            this.tMutationStats.Size = new System.Drawing.Size(194, 209);
+            this.tMutationStats.Size = new System.Drawing.Size(199, 247);
             this.tMutationStats.TabIndex = 7;
             // 
             // toolStrip
@@ -1036,6 +1085,7 @@
             this.cmDiff.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tbEvalScale)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nPolygons)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nVertices)).EndInit();
             this.pStatistics.ResumeLayout(false);
@@ -1135,6 +1185,8 @@
         private System.Windows.Forms.ToolStripMenuItem evaluateToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem redistributeLeastValuableShapesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clearOutlinesToolStripMenuItem;
+        private System.Windows.Forms.TrackBar tbEvalScale;
+        private System.Windows.Forms.Label lScale;
     }
 }
 

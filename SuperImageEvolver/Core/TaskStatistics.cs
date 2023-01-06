@@ -12,10 +12,10 @@ namespace SuperImageEvolver {
         }
 
         public void Read(NBTag tag) {
-            ImprovementCounter = tag.GetInt("ImprovementCounter", 0);
-            MutationCounter = tag.GetInt("MutationCounter", 0);
-            RiskyMoveCounter = tag.GetInt("RiskyMoveCounter", 0);
-            FailedRiskCounter = tag.GetInt("FailedRiskCounter", 0);
+            ImprovementCounter = tag.GetLong("ImprovementCounter", 0);
+            MutationCounter = tag.GetLong("MutationCounter", 0);
+            RiskyMoveCounter = tag.GetLong("RiskyMoveCounter", 0);
+            FailedRiskCounter = tag.GetLong("FailedRiskCounter", 0);
 
             var statsTag = (NBTList)tag["MutationStats"];
             foreach (NBTag stat in statsTag) {
@@ -26,9 +26,9 @@ namespace SuperImageEvolver {
         }
 
         public void Merge(NBTag tag) {
-            MutationCounter += tag.GetInt("MutationCounter", 0);
-            RiskyMoveCounter += tag.GetInt("RiskyMoveCounter", 0);
-            FailedRiskCounter += tag.GetInt("FailedRiskCounter", 0);
+            MutationCounter += tag.GetLong("MutationCounter", 0);
+            RiskyMoveCounter += tag.GetLong("RiskyMoveCounter", 0);
+            FailedRiskCounter += tag.GetLong("FailedRiskCounter", 0);
 
             var statsTag = (NBTList)tag["MutationStats"];
             foreach (NBTag stat in statsTag) {
@@ -68,7 +68,7 @@ namespace SuperImageEvolver {
             }
         }
 
-        public int ImprovementCounter, MutationCounter, RiskyMoveCounter, FailedRiskCounter;
+        public long ImprovementCounter, MutationCounter, RiskyMoveCounter, FailedRiskCounter;
         public readonly List<PointF> MutationDataLog = new List<PointF>();
         public readonly Dictionary<MutationType, int> MutationCounts = new Dictionary<MutationType, int>();
         public readonly Dictionary<MutationType, double> MutationImprovements = new Dictionary<MutationType, double>();

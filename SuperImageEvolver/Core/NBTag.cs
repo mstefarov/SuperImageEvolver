@@ -509,7 +509,15 @@ namespace SuperImageEvolver {
         }
 
 
-        public void Set( object payload ) {
+        public void Set(object payload) {
+            Payload = payload;
+        }
+
+
+        public void Set(object payload, NBTType newType) {
+            if (this is NBTCompound || this is NBTList)
+                throw new NotSupportedException();
+            Type = newType;
             Payload = payload;
         }
 
