@@ -13,6 +13,7 @@ namespace SuperImageEvolver {
     public sealed partial class MainForm : Form {
         public static TaskState State = new TaskState();
         bool stopped = true;
+        bool isLoading = false;
 
         Thread workServerThread;
         Thread updateThread;
@@ -130,19 +131,25 @@ namespace SuperImageEvolver {
                     // It's possible that there are 0, if they were all stale
                     var newBest = dnas.OrderBy(d => d.Divergence).FirstOrDefault();
                     if (newBest != null && newBest.Divergence < State.BestMatch.Divergence) {
-                        State.SetBestMatch(newBest);
-                        State.CurrentMatch = State.BestMatch;
-                        graphWindow1.SetData(State.Stats.MutationDataLog, false, true, false, false, true, true);
-                        RefreshBestMatchDisplay();
-                        WorkServer.SendUpdateConfig(State);
-                        WorkServer.SendResume();
-                        AutoSave();
+                        ReplaceBestMatch(newBest);
                     }
                 }
             }
             WorkServer.SendPause();
         }
 
+
+        void ReplaceBestMatch(DNA newBest) {
+            State.SetBestMatch(newBest);
+            State.CurrentMatch = State.BestMatch;
+            graphWindow1.SetData(State.Stats.MutationDataLog, false, true, false, false, true, true);
+            RefreshBestMatchDisplay();
+            if (!stopped) {
+                WorkServer.SendUpdateConfig(State);
+                WorkServer.SendResume();
+            }
+            AutoSave();
+        }
 
         void RefreshBestMatchDisplay() {
             picBestMatch.Invalidate();
@@ -619,7 +626,7 @@ namespace SuperImageEvolver {
         #region Zoom
 
         void cmOriginalZoom_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            if (e.ClickedItem is ToolStripSeparator) return;
+            if (isLoading || e.ClickedItem is ToolStripSeparator) return;
             if (e.ClickedItem == cmOriginalZoomSync) {
                 cmOriginalZoomSync.Checked = !cmOriginalZoomSync.Checked;
                 cmBestMatchZoomSync.Checked = cmOriginalZoom.Checked;
@@ -900,6 +907,7 @@ namespace SuperImageEvolver {
 
         void OpenProject(string filename) {
             if (!stopped) Stop();
+            isLoading = true;
             NBTag taskData = NBTag.ReadFile(filename);
             State = new TaskState(taskData);
             BackColor = State.ProjectOptions.BackColor;
@@ -916,21 +924,55 @@ namespace SuperImageEvolver {
 
             if (taskData.Contains("Presentation")) {
                 NBTag presentationTag = taskData["Presentation"];
+
+                cmOriginalZoomSync.Checked = presentationTag.GetBool("SyncZoom", false);
+                cmBestMatchZoomSync.Checked = cmOriginalZoomSync.Checked;
+                cmDiffZoomSync.Checked = cmOriginalZoomSync.Checked;
+
                 picOriginal.Visible = presentationTag.GetBool("OriginalVisible", picOriginal.Visible);
+                bViewOriginalImage.Checked = picOriginal.Visible;
                 OriginalZoom = presentationTag.GetFloat("OriginalZoom", OriginalZoom);
+                cmOriginalZoom50.Checked = (OriginalZoom == 0.50);
+                cmOriginalZoom75.Checked = (OriginalZoom == 0.75);
+                cmOriginalZoom100.Checked = (OriginalZoom == 1.00);
+                cmOriginalZoom125.Checked = (OriginalZoom == 1.25);
+                cmOriginalZoom150.Checked = (OriginalZoom == 1.50);
+                cmOriginalZoom200.Checked = (OriginalZoom == 2.00);
+
                 picBestMatch.Visible = presentationTag.GetBool("BestMatchVisible", picBestMatch.Visible);
+                bViewBestMatchImage.Checked = picBestMatch.Visible;
                 picBestMatch.Zoom = presentationTag.GetFloat("BestMatchZoom", picBestMatch.Zoom);
+                cmBestMatchZoom50.Checked = (picBestMatch.Zoom == 0.50);
+                cmBestMatchZoom75.Checked = (picBestMatch.Zoom == 0.75);
+                cmBestMatchZoom100.Checked = (picBestMatch.Zoom == 1.00);
+                cmBestMatchZoom125.Checked = (picBestMatch.Zoom == 1.25);
+                cmBestMatchZoom150.Checked = (picBestMatch.Zoom == 1.50);
+                cmBestMatchZoom200.Checked = (picBestMatch.Zoom == 2.00);
                 picBestMatch.Wireframe = presentationTag.GetBool("BestMatchWireframe", picBestMatch.Wireframe);
-                picBestMatch.ShowLastChange = presentationTag.GetBool("BestMatchShowLastChange",
-                                                                      picBestMatch.ShowLastChange);
+                cmBestMatchWireframe.Checked = picBestMatch.Wireframe;
+                picBestMatch.ShowLastChange = presentationTag.GetBool("BestMatchShowLastChange", picBestMatch.ShowLastChange);
+                cmBestMatchShowLastChange.Checked = picBestMatch.ShowLastChange;
+
                 picDiff.Visible = presentationTag.GetBool("DiffVisible", picDiff.Visible);
+                bViewDifferenceImage.Checked = picDiff.Visible;
                 picDiff.Invert = presentationTag.GetBool("DiffInvert", picDiff.Invert);
+                cmDiffInvert.Checked = picDiff.Invert;
                 picDiff.Exaggerate = presentationTag.GetBool("DiffExaggerate", picDiff.Exaggerate);
+                cmDiffExaggerate.Checked = picDiff.Exaggerate;
                 picDiff.ShowColor = presentationTag.GetBool("DiffShowColor", picDiff.ShowColor);
+                cmDiffShowColor.Checked = picDiff.ShowColor;
                 picDiff.Zoom = presentationTag.GetFloat("DiffZoom", picDiff.Zoom);
+                cmDiffZoom50.Checked = (picDiff.Zoom == 0.50);
+                cmDiffZoom75.Checked = (picDiff.Zoom == 0.75);
+                cmDiffZoom100.Checked = (picDiff.Zoom == 1.00);
+                cmDiffZoom125.Checked = (picDiff.Zoom == 1.25);
+                cmDiffZoom150.Checked = (picDiff.Zoom == 1.50);
+                cmDiffZoom200.Checked = (picDiff.Zoom == 2.00);
                 picDiff.ShowLastChange = presentationTag.GetBool("DiffShowLastChange", picDiff.ShowLastChange);
+                cmDiffShowLastChange.Checked = picDiff.ShowLastChange;
             }
             State.SetEvaluator(State.Evaluator); // forces initialization
+            isLoading = false;
             UpdateTick();
             picDiff.Invalidate();
             picBestMatch.Invalidate();
@@ -1076,35 +1118,36 @@ namespace SuperImageEvolver {
 
 
         void eliminateLVPToolStripMenuItem_Click(object sender, EventArgs e) {
+            int shapesToElim;
             lock (State.ImprovementLock) {
                 ShapeEvaluation[] polys = PolygonValueEvaluator.SortShapes(State);
                 Random rand = new Random();
                 ClearOutlines();
-                int shapesToElim = polys.Count(shape => shape.Divergence <= DivergenceEliminationThreshold);
+                shapesToElim = polys.Count(shape => shape.Divergence <= DivergenceEliminationThreshold);
                 if (shapesToElim == 0) {
                     shapesToElim = Math.Min(polys.Length / 2, Math.Max(3, shapesToElim));
                     foreach (var kvp in polys.Reverse().Take(shapesToElim).Reverse()) {
                         State.BestMatch.Shapes[kvp.Ordinal].OutlineColor = Color.Red;
                     }
+                    picBestMatch.Invalidate();
                     var dialogResult = MessageBox.Show(
-                        "None of the shapes are below the threshold-of-value (" + shapesToElim + ")." + Environment.NewLine
+                        "None of the shapes are below the threshold-of-value (" + DivergenceEliminationThreshold + ")." + Environment.NewLine
                         + "Try redistributing these " + shapesToElim + " least-valuable ones anyway?",
                         "Least Valuable Polygon elimination", MessageBoxButtons.YesNo);
-                    ClearOutlines();
+                    //ClearOutlines();
                     if (dialogResult != DialogResult.Yes)
                         return;
                 }
+                var dividedMatch = (DNA)State.BestMatch.Clone();
                 for (int i = 0; i < shapesToElim; i++) {
-                    State.BestMatch.DivideShape(rand,
-                        polys[i + 1].Ordinal,
+                    dividedMatch.DivideShape(rand,
+                        polys[i].Ordinal,
                         polys[polys.Length - 1 - i].Ordinal);
                 }
-                picBestMatch.Invalidate();
-                State.SetEvaluator(State.Evaluator);
-                UpdateTick();
-                SignalStateChange(true);
-                MessageBox.Show("Redistributed " + shapesToElim + " shapes.", "Least Valuable Polygon elimination");
+                ReplaceBestMatch(dividedMatch);
             }
+            UpdateTick();
+            MessageBox.Show("Redistributed " + shapesToElim + " shapes.", "Least Valuable Polygon elimination");
         }
 
 
@@ -1135,12 +1178,14 @@ namespace SuperImageEvolver {
             => Math.Min(100, Math.Max(0, (int)Math.Round(25 * Math.Log(16 * evalScale) / Math.Log(2))));
 
         private void tbEvalScale_ValueChanged(object sender, EventArgs e) {
-
+            var scale = TrackValueToEvalScale(tbEvalScale.Value);
             lock (State.ImprovementLock) {
-                State.SetEvalScale(TrackValueToEvalScale(tbEvalScale.Value));
+                State.SetEvalScale(scale);
                 SignalStateChange(true);
             }
             picDiff.Init(State); // force canvas resize and invalidate
+            RepaintDivergence();
+            ttEvalScale.SetToolTip(tbEvalScale, $"1:{1/scale:0.#} ({100 * scale:0}%)");
         }
     }
 }

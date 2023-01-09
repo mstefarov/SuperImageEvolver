@@ -117,6 +117,7 @@
             this.clearOutlinesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuHelp = new System.Windows.Forms.ToolStripDropDownButton();
             this.bHelpListModules = new System.Windows.Forms.ToolStripMenuItem();
+            this.ttEvalScale = new System.Windows.Forms.ToolTip(this.components);
             separator1 = new System.Windows.Forms.ToolStripSeparator();
             separator4 = new System.Windows.Forms.ToolStripSeparator();
             separator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -173,20 +174,21 @@
             this.flowLayoutPanel1.Controls.Add(this.picDiff);
             this.flowLayoutPanel1.Controls.Add(this.panel1);
             this.flowLayoutPanel1.Controls.Add(this.pStatistics);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 24);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 28);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 2, 0, 0);
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(882, 461);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(1029, 532);
             this.flowLayoutPanel1.TabIndex = 3;
             // 
             // picOriginal
             // 
             this.picOriginal.ContextMenuStrip = this.cmOriginal;
             this.picOriginal.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-            this.picOriginal.Location = new System.Drawing.Point(3, 5);
+            this.picOriginal.Location = new System.Drawing.Point(4, 5);
+            this.picOriginal.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.picOriginal.Name = "picOriginal";
-            this.picOriginal.Size = new System.Drawing.Size(80, 30);
+            this.picOriginal.Size = new System.Drawing.Size(93, 35);
             this.picOriginal.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picOriginal.TabIndex = 10;
             this.picOriginal.TabStop = false;
@@ -272,10 +274,11 @@
             // picBestMatch
             // 
             this.picBestMatch.ContextMenuStrip = this.cmBestMatch;
-            this.picBestMatch.Location = new System.Drawing.Point(89, 5);
+            this.picBestMatch.Location = new System.Drawing.Point(105, 5);
+            this.picBestMatch.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.picBestMatch.Name = "picBestMatch";
             this.picBestMatch.ShowLastChange = false;
-            this.picBestMatch.Size = new System.Drawing.Size(80, 30);
+            this.picBestMatch.Size = new System.Drawing.Size(93, 35);
             this.picBestMatch.State = null;
             this.picBestMatch.TabIndex = 0;
             this.picBestMatch.Wireframe = false;
@@ -382,11 +385,12 @@
             this.picDiff.ContextMenuStrip = this.cmDiff;
             this.picDiff.Exaggerate = true;
             this.picDiff.Invert = false;
-            this.picDiff.Location = new System.Drawing.Point(175, 5);
+            this.picDiff.Location = new System.Drawing.Point(206, 5);
+            this.picDiff.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.picDiff.Name = "picDiff";
             this.picDiff.ShowColor = true;
             this.picDiff.ShowLastChange = false;
-            this.picDiff.Size = new System.Drawing.Size(80, 30);
+            this.picDiff.Size = new System.Drawing.Size(93, 35);
             this.picDiff.TabIndex = 8;
             this.picDiff.Zoom = 1F;
             // 
@@ -527,18 +531,20 @@
             this.panel1.Controls.Add(this.nPolygons);
             this.panel1.Controls.Add(this.nVertices);
             this.panel1.ForeColor = System.Drawing.Color.White;
-            this.panel1.Location = new System.Drawing.Point(261, 5);
+            this.panel1.Location = new System.Drawing.Point(307, 5);
+            this.panel1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(203, 252);
+            this.panel1.Size = new System.Drawing.Size(237, 291);
             this.panel1.TabIndex = 6;
             // 
             // lScale
             // 
             this.lScale.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lScale.AutoSize = true;
-            this.lScale.Location = new System.Drawing.Point(7, 217);
+            this.lScale.Location = new System.Drawing.Point(8, 250);
+            this.lScale.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lScale.Name = "lScale";
-            this.lScale.Size = new System.Drawing.Size(55, 13);
+            this.lScale.Size = new System.Drawing.Size(55, 15);
             this.lScale.TabIndex = 18;
             this.lScale.Text = "EvalScale";
             // 
@@ -547,10 +553,11 @@
             this.tbEvalScale.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbEvalScale.LargeChange = 25;
-            this.tbEvalScale.Location = new System.Drawing.Point(61, 212);
+            this.tbEvalScale.Location = new System.Drawing.Point(71, 245);
+            this.tbEvalScale.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.tbEvalScale.Maximum = 100;
             this.tbEvalScale.Name = "tbEvalScale";
-            this.tbEvalScale.Size = new System.Drawing.Size(139, 45);
+            this.tbEvalScale.Size = new System.Drawing.Size(162, 45);
             this.tbEvalScale.SmallChange = 5;
             this.tbEvalScale.TabIndex = 17;
             this.tbEvalScale.TickFrequency = 10;
@@ -560,9 +567,10 @@
             // bEditEvaluatorSettings
             // 
             this.bEditEvaluatorSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bEditEvaluatorSettings.Location = new System.Drawing.Point(181, 187);
+            this.bEditEvaluatorSettings.Location = new System.Drawing.Point(211, 216);
+            this.bEditEvaluatorSettings.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.bEditEvaluatorSettings.Name = "bEditEvaluatorSettings";
-            this.bEditEvaluatorSettings.Size = new System.Drawing.Size(19, 21);
+            this.bEditEvaluatorSettings.Size = new System.Drawing.Size(22, 24);
             this.bEditEvaluatorSettings.TabIndex = 16;
             this.bEditEvaluatorSettings.UseVisualStyleBackColor = true;
             this.bEditEvaluatorSettings.Click += new System.EventHandler(this.bEditEvaluatorSettings_Click);
@@ -570,9 +578,10 @@
             // bEditMutatorSettings
             // 
             this.bEditMutatorSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bEditMutatorSettings.Location = new System.Drawing.Point(181, 160);
+            this.bEditMutatorSettings.Location = new System.Drawing.Point(211, 185);
+            this.bEditMutatorSettings.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.bEditMutatorSettings.Name = "bEditMutatorSettings";
-            this.bEditMutatorSettings.Size = new System.Drawing.Size(19, 21);
+            this.bEditMutatorSettings.Size = new System.Drawing.Size(22, 24);
             this.bEditMutatorSettings.TabIndex = 15;
             this.bEditMutatorSettings.UseVisualStyleBackColor = true;
             this.bEditMutatorSettings.Click += new System.EventHandler(this.bEditMutatorSettings_Click);
@@ -580,9 +589,10 @@
             // bEditInitializerSetting
             // 
             this.bEditInitializerSetting.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bEditInitializerSetting.Location = new System.Drawing.Point(181, 133);
+            this.bEditInitializerSetting.Location = new System.Drawing.Point(211, 153);
+            this.bEditInitializerSetting.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.bEditInitializerSetting.Name = "bEditInitializerSetting";
-            this.bEditInitializerSetting.Size = new System.Drawing.Size(19, 21);
+            this.bEditInitializerSetting.Size = new System.Drawing.Size(22, 24);
             this.bEditInitializerSetting.TabIndex = 14;
             this.bEditInitializerSetting.UseVisualStyleBackColor = true;
             this.bEditInitializerSetting.Click += new System.EventHandler(this.bEditInitializerSetting_Click);
@@ -591,9 +601,10 @@
             // 
             this.lEvaluator.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lEvaluator.AutoSize = true;
-            this.lEvaluator.Location = new System.Drawing.Point(6, 192);
+            this.lEvaluator.Location = new System.Drawing.Point(7, 222);
+            this.lEvaluator.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lEvaluator.Name = "lEvaluator";
-            this.lEvaluator.Size = new System.Drawing.Size(52, 13);
+            this.lEvaluator.Size = new System.Drawing.Size(56, 15);
             this.lEvaluator.TabIndex = 13;
             this.lEvaluator.Text = "Evaluator";
             // 
@@ -609,9 +620,10 @@
             "RGB+Luma (Fast)",
             "RGB+Luma (Smooth)",
             "RGB+Emphasis (Sloppy)"});
-            this.cEvaluator.Location = new System.Drawing.Point(61, 187);
+            this.cEvaluator.Location = new System.Drawing.Point(71, 216);
+            this.cEvaluator.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.cEvaluator.Name = "cEvaluator";
-            this.cEvaluator.Size = new System.Drawing.Size(114, 21);
+            this.cEvaluator.Size = new System.Drawing.Size(132, 23);
             this.cEvaluator.TabIndex = 12;
             this.cEvaluator.SelectedIndexChanged += new System.EventHandler(this.cEvaluator_SelectedIndexChanged);
             // 
@@ -619,9 +631,10 @@
             // 
             this.lMutator.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lMutator.AutoSize = true;
-            this.lMutator.Location = new System.Drawing.Point(11, 165);
+            this.lMutator.Location = new System.Drawing.Point(13, 190);
+            this.lMutator.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lMutator.Name = "lMutator";
-            this.lMutator.Size = new System.Drawing.Size(43, 13);
+            this.lMutator.Size = new System.Drawing.Size(50, 15);
             this.lMutator.TabIndex = 11;
             this.lMutator.Text = "Mutator";
             // 
@@ -629,9 +642,10 @@
             // 
             this.lInitializer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lInitializer.AutoSize = true;
-            this.lInitializer.Location = new System.Drawing.Point(8, 137);
+            this.lInitializer.Location = new System.Drawing.Point(9, 158);
+            this.lInitializer.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lInitializer.Name = "lInitializer";
-            this.lInitializer.Size = new System.Drawing.Size(47, 13);
+            this.lInitializer.Size = new System.Drawing.Size(54, 15);
             this.lInitializer.TabIndex = 10;
             this.lInitializer.Text = "Initializer";
             // 
@@ -656,9 +670,10 @@
             "Soft Translate/Rotate",
             "Soft Transform",
             "Hardish"});
-            this.cMutator.Location = new System.Drawing.Point(61, 160);
+            this.cMutator.Location = new System.Drawing.Point(71, 185);
+            this.cMutator.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.cMutator.Name = "cMutator";
-            this.cMutator.Size = new System.Drawing.Size(114, 21);
+            this.cMutator.Size = new System.Drawing.Size(132, 23);
             this.cMutator.TabIndex = 9;
             this.cMutator.SelectedIndexChanged += new System.EventHandler(this.cMutator_SelectedIndexChanged);
             // 
@@ -672,9 +687,10 @@
             "FullRandom",
             "Segmented",
             "Radial"});
-            this.cInitializer.Location = new System.Drawing.Point(61, 133);
+            this.cInitializer.Location = new System.Drawing.Point(71, 153);
+            this.cInitializer.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.cInitializer.Name = "cInitializer";
-            this.cInitializer.Size = new System.Drawing.Size(114, 21);
+            this.cInitializer.Size = new System.Drawing.Size(132, 23);
             this.cInitializer.TabIndex = 8;
             this.cInitializer.SelectedIndexChanged += new System.EventHandler(this.cInitializer_SelectedIndexChanged);
             // 
@@ -684,18 +700,20 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.graphWindow1.BackColor = System.Drawing.Color.White;
-            this.graphWindow1.Location = new System.Drawing.Point(3, 3);
+            this.graphWindow1.Location = new System.Drawing.Point(4, 3);
+            this.graphWindow1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.graphWindow1.Name = "graphWindow1";
-            this.graphWindow1.Size = new System.Drawing.Size(197, 98);
+            this.graphWindow1.Size = new System.Drawing.Size(230, 113);
             this.graphWindow1.TabIndex = 9;
             // 
             // lPoints
             // 
             this.lPoints.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lPoints.AutoSize = true;
-            this.lPoints.Location = new System.Drawing.Point(20, 109);
+            this.lPoints.Location = new System.Drawing.Point(23, 126);
+            this.lPoints.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lPoints.Name = "lPoints";
-            this.lPoints.Size = new System.Drawing.Size(36, 13);
+            this.lPoints.Size = new System.Drawing.Size(40, 15);
             this.lPoints.TabIndex = 7;
             this.lPoints.Text = "Points";
             // 
@@ -703,16 +721,18 @@
             // 
             this.lShapes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.lShapes.AutoSize = true;
-            this.lShapes.Location = new System.Drawing.Point(111, 109);
+            this.lShapes.Location = new System.Drawing.Point(130, 126);
+            this.lShapes.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lShapes.Name = "lShapes";
-            this.lShapes.Size = new System.Drawing.Size(43, 13);
+            this.lShapes.Size = new System.Drawing.Size(44, 15);
             this.lShapes.TabIndex = 6;
             this.lShapes.Text = "Shapes";
             // 
             // nPolygons
             // 
             this.nPolygons.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.nPolygons.Location = new System.Drawing.Point(156, 107);
+            this.nPolygons.Location = new System.Drawing.Point(182, 123);
+            this.nPolygons.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.nPolygons.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -724,7 +744,7 @@
             0,
             0});
             this.nPolygons.Name = "nPolygons";
-            this.nPolygons.Size = new System.Drawing.Size(44, 20);
+            this.nPolygons.Size = new System.Drawing.Size(51, 23);
             this.nPolygons.TabIndex = 4;
             this.nPolygons.Value = new decimal(new int[] {
             50,
@@ -734,7 +754,8 @@
             // 
             // nVertices
             // 
-            this.nVertices.Location = new System.Drawing.Point(61, 107);
+            this.nVertices.Location = new System.Drawing.Point(71, 123);
+            this.nVertices.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.nVertices.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -746,7 +767,7 @@
             0,
             0});
             this.nVertices.Name = "nVertices";
-            this.nVertices.Size = new System.Drawing.Size(40, 20);
+            this.nVertices.Size = new System.Drawing.Size(47, 23);
             this.nVertices.TabIndex = 5;
             this.nVertices.Value = new decimal(new int[] {
             6,
@@ -757,9 +778,10 @@
             // pStatistics
             // 
             this.pStatistics.Controls.Add(this.tMutationStats);
-            this.pStatistics.Location = new System.Drawing.Point(470, 5);
+            this.pStatistics.Location = new System.Drawing.Point(552, 5);
+            this.pStatistics.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.pStatistics.Name = "pStatistics";
-            this.pStatistics.Size = new System.Drawing.Size(206, 251);
+            this.pStatistics.Size = new System.Drawing.Size(240, 290);
             this.pStatistics.TabIndex = 9;
             // 
             // tMutationStats
@@ -767,12 +789,13 @@
             this.tMutationStats.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tMutationStats.Font = new System.Drawing.Font("Consolas", 6.75F);
-            this.tMutationStats.Location = new System.Drawing.Point(3, 3);
+            this.tMutationStats.Font = new System.Drawing.Font("Consolas", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.tMutationStats.Location = new System.Drawing.Point(4, 3);
+            this.tMutationStats.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.tMutationStats.Multiline = true;
             this.tMutationStats.Name = "tMutationStats";
             this.tMutationStats.ReadOnly = true;
-            this.tMutationStats.Size = new System.Drawing.Size(199, 247);
+            this.tMutationStats.Size = new System.Drawing.Size(231, 284);
             this.tMutationStats.TabIndex = 7;
             // 
             // toolStrip
@@ -797,7 +820,7 @@
             this.menuHelp});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(882, 25);
+            this.toolStrip.Size = new System.Drawing.Size(1029, 25);
             this.toolStrip.TabIndex = 5;
             // 
             // bNewProject
@@ -1069,12 +1092,13 @@
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.ClientSize = new System.Drawing.Size(882, 485);
+            this.ClientSize = new System.Drawing.Size(1029, 560);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.flowLayoutPanel1);
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "MainForm";
             this.Text = "Super Image Evolver";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
@@ -1187,6 +1211,7 @@
         private System.Windows.Forms.ToolStripMenuItem clearOutlinesToolStripMenuItem;
         private System.Windows.Forms.TrackBar tbEvalScale;
         private System.Windows.Forms.Label lScale;
+        private System.Windows.Forms.ToolTip ttEvalScale;
     }
 }
 
