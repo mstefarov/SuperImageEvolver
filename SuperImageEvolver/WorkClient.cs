@@ -51,7 +51,7 @@ namespace SuperImageEvolver {
                             break;
 
                         case "updateConfig":
-                            runner.Pause();
+                            runner?.Pause();
                             lock (state.ImprovementLock) {
                                 var oldScale = state.EvalScale;
                                 state.ReadCoreConfig(tag["stateChanges"]);
