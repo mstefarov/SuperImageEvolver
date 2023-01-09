@@ -188,7 +188,10 @@ namespace SuperImageEvolver {
             using (Graphics g = Graphics.FromImage(testImage)) {
                 g.Clear(state.ProjectOptions.Matte);
                 g.Transform = new Matrix(state.EvalScale, 0, 0, state.EvalScale, 0, 0);
-                g.SmoothingMode = (smooth ? SmoothingMode.HighQuality : SmoothingMode.HighSpeed);
+                if (smooth) {
+                    g.SmoothingMode = SmoothingMode.HighQuality;
+                    g.CompositingQuality = CompositingQuality.HighQuality;
+                }
                 for (int i = 0; i < Shapes.Length; i++) {
                     g.FillPolygon(new SolidBrush(Shapes[i].Color), Shapes[i].Points, FillMode.Alternate);
                 }
