@@ -224,6 +224,7 @@ namespace SuperImageEvolver
             {
                 g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
                 g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBilinear;
                 g.Clear(ProjectOptions.Matte);
                 g.DrawImage(OriginalImage, 0, 0, EvalImageWidth, EvalImageHeight);
             }
