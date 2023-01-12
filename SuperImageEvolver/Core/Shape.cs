@@ -10,7 +10,7 @@ namespace SuperImageEvolver {
 
         public Shape( Shape other ) {
             Color = other.Color;
-            Points = (PointF[])other.Points.Clone();
+            Points = (PointF[])other.Points.Clone(); // it ends up being a deep clone, because PointF is a struct
             OutlineColor = other.OutlineColor;
         }
 

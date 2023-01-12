@@ -7,16 +7,17 @@ namespace SuperImageEvolver {
         public static ShapeEvaluation[] SortShapes(TaskState state) {
             var results = new List<ShapeEvaluation>();
 
+            var bestMatch = state.BestMatch;
             using (var testCanvas = new Bitmap(state.EvalImageWidth, state.EvalImageHeight)) {
-                double baseDivergence = state.Evaluator.CalculateDivergence(testCanvas, state.BestMatch, state, 1);
-                for (int i = 0; i < state.BestMatch.Shapes.Length; i++) {
-                    var dnaWithoutShape = new DNA(state.BestMatch);
+                double baseDivergence = state.Evaluator.CalculateDivergence(testCanvas, bestMatch, state, 1);
+                for (int i = 0; i < bestMatch.Shapes.Length; i++) {
+                    var dnaWithoutShape = new DNA(bestMatch);
                     dnaWithoutShape.Shapes[i].Color = Color.Transparent;
                     double diffDivergence = state.Evaluator.CalculateDivergence(testCanvas, dnaWithoutShape, state, 1);
                     results.Add(new ShapeEvaluation {
                         Ordinal = i,
                         Divergence = diffDivergence - baseDivergence,
-                        Shape = state.BestMatch.Shapes[i]
+                        Shape = bestMatch.Shapes[i]
                     });
                 }
             }

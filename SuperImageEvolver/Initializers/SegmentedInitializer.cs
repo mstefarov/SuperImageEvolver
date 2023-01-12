@@ -49,16 +49,14 @@ namespace SuperImageEvolver {
             };
             int shapesPerSegment = task.Shapes / 9;
             int shapeCounter = 0;
+            int remainder = task.Shapes - shapesPerSegment * 9;
 
-            for( int i = 0; i < task.Shapes - shapesPerSegment * 9; i++ ) {
+            // shapes that did not fit into any of the 9 buckets
+            for ( int i = 0; i < remainder; i++ ) {
                 Shape shape = new Shape {
-                    Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B ),
                     Points = new PointF[task.Vertices]
                 };
-                for( int j = 0; j < shape.Points.Length; j++ ) {
-                    shape.Points[j] = new PointF( rand.NextFloat( -MaxOverlap, task.ImageWidth + MaxOverlap ),
-                                                  rand.NextFloat( -MaxOverlap, task.ImageHeight + MaxOverlap ) );
-                }
+                ReInitShape(rand, task, shape, i);
                 dna.Shapes[i] = shape;
                 shapeCounter++;
             }
@@ -87,6 +85,15 @@ namespace SuperImageEvolver {
         }
 
 
+        public void ReInitShape(Random rand, TaskState task, Shape shape, int shapeIndex) {
+            shape.Color = Color.FromArgb(StartingAlpha, Color.R, Color.G, Color.B);
+            for (int j = 0; j < shape.Points.Length; j++) {
+                shape.Points[j] = new PointF(rand.NextFloat(-MaxOverlap, task.ImageWidth + MaxOverlap),
+                                              rand.NextFloat(-MaxOverlap, task.ImageHeight + MaxOverlap));
+            }
+        }
+
+
         object ICloneable.Clone() {
             return new SegmentedInitializer( Color ) {
                 MaxOverlap = MaxOverlap
@@ -97,5 +104,6 @@ namespace SuperImageEvolver {
         void IModule.ReadSettings( NBTag tag ) {}
 
         void IModule.WriteSettings( NBTag tag ) {}
+
     }
 }

@@ -134,12 +134,6 @@ namespace SuperImageEvolver {
         public void DrawDivergence(Bitmap testImage, DNA dna, TaskState state, bool invert, bool normalize) {
             Debug.Assert(testImage.Width == state.EvalImageWidth);
             Debug.Assert(testImage.Height == state.EvalImageHeight);
-            double pixelDivergenceMultiplier;
-            if (Emphasized) {
-                pixelDivergenceMultiplier = 255d / (3 * Math.Pow(255, EmphasisAmount));
-            } else {
-                pixelDivergenceMultiplier = 255d / (3 * 255);
-            }
 
             dna.Draw(testImage, state, Smooth);
             BitmapData testData = testImage.LockBits(new Rectangle(Point.Empty, testImage.Size),
@@ -158,9 +152,9 @@ namespace SuperImageEvolver {
                     int r = Math.Abs(originalPointer[2] - testPointer[2]);
                     float divergence;
                     if (Emphasized)
-                        divergence = (float)((Math.Pow(r, EmphasisAmount) + Math.Pow(g, EmphasisAmount) + Math.Pow(b, EmphasisAmount)) * pixelDivergenceMultiplier);
+                        divergence = (float)(Math.Pow(r, EmphasisAmount) + Math.Pow(g, EmphasisAmount) + Math.Pow(b, EmphasisAmount));
                     else
-                        divergence = (float)((r + g + b) * pixelDivergenceMultiplier);
+                        divergence = r + g + b;
 
                     maxObservedDivergence = Math.Max(maxObservedDivergence, divergence);
                     *(float*)testPointer = divergence;
@@ -170,13 +164,18 @@ namespace SuperImageEvolver {
             }
 
             // Convert per-pixel divergence from float, scaling or inverting as needed, to grayscale RGBA pixel values.
-            float multiplier = 255 / maxObservedDivergence;
+            double maxDivergencePerPixel;
+            if (normalize)
+                maxDivergencePerPixel = maxObservedDivergence;
+            else if (Emphasized)
+                maxDivergencePerPixel = (3 * Math.Pow(255, EmphasisAmount));
+            else
+                maxDivergencePerPixel = 3d * 255d;
+
             for (int i = 0; i < state.EvalImageHeight; i++) {
                 testPointer = (byte*)testData.Scan0 + testData.Stride * i;
                 for (int j = 0; j < state.EvalImageWidth; j++) {
-                    var val = *(float*)testPointer;
-                    if (normalize)
-                        val *= multiplier;
+                    var val = 255 * (*(float*)testPointer) / maxDivergencePerPixel;
                     byte divByte = (byte)Math.Min(255, val);
                     if (invert)
                         divByte = (byte)(255 - divByte);

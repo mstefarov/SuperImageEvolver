@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -276,7 +276,7 @@ namespace SuperImageEvolver {
         void ResetUI() {
             cInitializer.SelectedIndex = 1;
             cMutator.SelectedIndex = 1;
-            cEvaluator.SelectedIndex = 2;
+            cEvaluator.SelectedIndex = 1;
 
             if (cmBestMatchWireframe.Checked) cmBestMatchWireframe.PerformClick();
             if (cmBestMatchShowLastChange.Checked) cmBestMatchShowLastChange.PerformClick();
@@ -1125,7 +1125,7 @@ namespace SuperImageEvolver {
                 ClearOutlines();
                 shapesToElim = polys.Count(shape => shape.Divergence <= DivergenceEliminationThreshold);
                 if (shapesToElim == 0) {
-                    shapesToElim = Math.Min(polys.Length / 2, Math.Max(3, shapesToElim));
+                    shapesToElim = Math.Min(polys.Length / 2, 3);
                     foreach (var kvp in polys.Reverse().Take(shapesToElim).Reverse()) {
                         State.BestMatch.Shapes[kvp.Ordinal].OutlineColor = Color.Red;
                     }
@@ -1134,7 +1134,7 @@ namespace SuperImageEvolver {
                         "None of the shapes are below the threshold-of-value (" + DivergenceEliminationThreshold + ")." + Environment.NewLine
                         + "Try redistributing these " + shapesToElim + " least-valuable ones anyway?",
                         "Least Valuable Polygon elimination", MessageBoxButtons.YesNo);
-                    //ClearOutlines();
+                    ClearOutlines();
                     if (dialogResult != DialogResult.Yes)
                         return;
                 }
@@ -1186,6 +1186,45 @@ namespace SuperImageEvolver {
             picDiff.Init(State); // force canvas resize and invalidate
             RepaintDivergence();
             ttEvalScale.SetToolTip(tbEvalScale, $"1:{1/scale:0.#} ({100 * scale:0}%)");
+        }
+
+        private void reinitLeastValuableShapesToolStripMenuItem_Click(object sender, EventArgs e) {
+            List<ShapeEvaluation> badShapeEvals;
+            lock (State.ImprovementLock) {
+                ShapeEvaluation[] polys = PolygonValueEvaluator.SortShapes(State);
+                ClearOutlines();
+                badShapeEvals = polys.Where(shape => shape.Divergence <= DivergenceEliminationThreshold).ToList();
+                if (badShapeEvals.Count == 0) {
+                    badShapeEvals = polys.Skip(polys.Length - Math.Min(polys.Length / 2, 3)).ToList();
+                    foreach (var se in badShapeEvals) {
+                        State.BestMatch.Shapes[se.Ordinal].OutlineColor = Color.Red;
+                    }
+                    picBestMatch.Invalidate();
+                    var dialogResult = MessageBox.Show(
+                        $"None of the shapes are below the threshold-of-value ({DivergenceEliminationThreshold}).{Environment.NewLine}Try redistributing these {badShapeEvals.Count} least-valuable ones anyway?",
+                        "Least Valuable Polygon elimination", MessageBoxButtons.YesNo);
+                    //ClearOutlines();
+                    if (dialogResult != DialogResult.Yes)
+                        return;
+                }
+                Random rand = new Random();
+
+                var replacedShapes = badShapeEvals.Select(se => se.Shape).ToList();
+                var keptShapes = State.BestMatch.Shapes.Except(replacedShapes).ToList();
+
+                for (int i = 0; i< replacedShapes.Count; i++) {
+                    var newShape = (Shape)replacedShapes[i].Clone();
+                    State.Initializer.ReInitShape(rand, State, newShape, State.Shapes - replacedShapes.Count + i);
+                    replacedShapes[i] = newShape;
+                }
+
+                var updatedMatch = (DNA)State.BestMatch.Clone();
+                updatedMatch.Shapes = keptShapes.Concat(replacedShapes).ToArray();
+                updatedMatch.LastMutation = MutationType.ReplaceShape;
+                ReplaceBestMatch(updatedMatch);
+            }
+            UpdateTick();
+            MessageBox.Show($"Redistributed {badShapeEvals.Count} shapes.", "Least Valuable Polygon elimination");
         }
     }
 }

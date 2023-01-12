@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.IO;
 
 namespace SuperImageEvolver {
     public sealed class DNA : ICloneable {
@@ -149,7 +148,7 @@ namespace SuperImageEvolver {
         }
 
 
-        void ShiftShapeIndex(int source, int dest) {
+        public void ShiftShapeIndex(int source, int dest) {
             Shape shape = Shapes[source];
             if (source < dest) {
                 for (int i = source; i < dest; i++) {

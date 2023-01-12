@@ -49,18 +49,21 @@ namespace SuperImageEvolver {
             };
             for( int i = 0; i < dna.Shapes.Length; i++ ) {
                 Shape shape = new Shape {
-                    Color = Color.FromArgb( StartingAlpha, Color.R, Color.G, Color.B ),
                     Points = new PointF[task.Vertices]
                 };
-                for( int j = 0; j < shape.Points.Length; j++ ) {
-                    shape.Points[j] = new PointF( rand.NextFloat( -MaxOverlap, task.ImageWidth + MaxOverlap ),
-                                                  rand.NextFloat( -MaxOverlap, task.ImageHeight + MaxOverlap ) );
-                }
+                ReInitShape(rand, task, shape, i);
                 dna.Shapes[i] = shape;
             }
             return dna;
         }
 
+        public void ReInitShape(Random rand, TaskState task, Shape shape, int shapeIndex) {
+            shape.Color = Color.FromArgb(StartingAlpha, Color.R, Color.G, Color.B);
+            for (int j = 0; j < shape.Points.Length; j++) {
+                shape.Points[j] = new PointF(rand.NextFloat(-MaxOverlap, task.ImageWidth + MaxOverlap),
+                                              rand.NextFloat(-MaxOverlap, task.ImageHeight + MaxOverlap));
+            }
+        }
 
         object ICloneable.Clone() {
             return new SolidColorInitializer( Color ) {

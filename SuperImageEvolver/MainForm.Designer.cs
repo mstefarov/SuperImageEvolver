@@ -118,6 +118,7 @@
             this.menuHelp = new System.Windows.Forms.ToolStripDropDownButton();
             this.bHelpListModules = new System.Windows.Forms.ToolStripMenuItem();
             this.ttEvalScale = new System.Windows.Forms.ToolTip(this.components);
+            this.reinitLeastValuableShapesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             separator1 = new System.Windows.Forms.ToolStripSeparator();
             separator4 = new System.Windows.Forms.ToolStripSeparator();
             separator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -140,28 +141,28 @@
             // 
             separator1.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
             separator1.Name = "separator1";
-            separator1.Size = new System.Drawing.Size(6, 25);
+            separator1.Size = new System.Drawing.Size(6, 34);
             // 
             // separator4
             // 
             separator4.Name = "separator4";
-            separator4.Size = new System.Drawing.Size(6, 25);
+            separator4.Size = new System.Drawing.Size(6, 34);
             // 
             // separator2
             // 
             separator2.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
             separator2.Name = "separator2";
-            separator2.Size = new System.Drawing.Size(6, 25);
+            separator2.Size = new System.Drawing.Size(6, 34);
             // 
             // separator3
             // 
             separator3.Name = "separator3";
-            separator3.Size = new System.Drawing.Size(6, 25);
+            separator3.Size = new System.Drawing.Size(6, 34);
             // 
             // separator5
             // 
             separator5.Name = "separator5";
-            separator5.Size = new System.Drawing.Size(6, 25);
+            separator5.Size = new System.Drawing.Size(6, 34);
             // 
             // flowLayoutPanel1
             // 
@@ -174,31 +175,32 @@
             this.flowLayoutPanel1.Controls.Add(this.picDiff);
             this.flowLayoutPanel1.Controls.Add(this.panel1);
             this.flowLayoutPanel1.Controls.Add(this.pStatistics);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 28);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 37);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 2, 0, 0);
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(1029, 532);
+            this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(1323, 709);
             this.flowLayoutPanel1.TabIndex = 3;
             // 
             // picOriginal
             // 
             this.picOriginal.ContextMenuStrip = this.cmOriginal;
             this.picOriginal.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-            this.picOriginal.Location = new System.Drawing.Point(4, 5);
-            this.picOriginal.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.picOriginal.Location = new System.Drawing.Point(5, 7);
+            this.picOriginal.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.picOriginal.Name = "picOriginal";
-            this.picOriginal.Size = new System.Drawing.Size(93, 35);
+            this.picOriginal.Size = new System.Drawing.Size(120, 47);
             this.picOriginal.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picOriginal.TabIndex = 10;
             this.picOriginal.TabStop = false;
             // 
             // cmOriginal
             // 
+            this.cmOriginal.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.cmOriginal.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cmOriginalZoom});
             this.cmOriginal.Name = "cmOriginal";
-            this.cmOriginal.Size = new System.Drawing.Size(107, 26);
+            this.cmOriginal.Size = new System.Drawing.Size(133, 36);
             // 
             // cmOriginalZoom
             // 
@@ -212,21 +214,21 @@
             this.cmOriginalZoomSeparator,
             this.cmOriginalZoomSync});
             this.cmOriginalZoom.Name = "cmOriginalZoom";
-            this.cmOriginalZoom.Size = new System.Drawing.Size(106, 22);
+            this.cmOriginalZoom.Size = new System.Drawing.Size(132, 32);
             this.cmOriginalZoom.Text = "Zoom";
             this.cmOriginalZoom.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.cmOriginalZoom_DropDownItemClicked);
             // 
             // cmOriginalZoom50
             // 
             this.cmOriginalZoom50.Name = "cmOriginalZoom50";
-            this.cmOriginalZoom50.Size = new System.Drawing.Size(146, 22);
+            this.cmOriginalZoom50.Size = new System.Drawing.Size(220, 34);
             this.cmOriginalZoom50.Tag = ".5";
             this.cmOriginalZoom50.Text = "50%";
             // 
             // cmOriginalZoom75
             // 
             this.cmOriginalZoom75.Name = "cmOriginalZoom75";
-            this.cmOriginalZoom75.Size = new System.Drawing.Size(146, 22);
+            this.cmOriginalZoom75.Size = new System.Drawing.Size(220, 34);
             this.cmOriginalZoom75.Tag = ".75";
             this.cmOriginalZoom75.Text = "75%";
             // 
@@ -235,50 +237,50 @@
             this.cmOriginalZoom100.Checked = true;
             this.cmOriginalZoom100.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cmOriginalZoom100.Name = "cmOriginalZoom100";
-            this.cmOriginalZoom100.Size = new System.Drawing.Size(146, 22);
+            this.cmOriginalZoom100.Size = new System.Drawing.Size(220, 34);
             this.cmOriginalZoom100.Tag = "1";
             this.cmOriginalZoom100.Text = "100%";
             // 
             // cmOriginalZoom125
             // 
             this.cmOriginalZoom125.Name = "cmOriginalZoom125";
-            this.cmOriginalZoom125.Size = new System.Drawing.Size(146, 22);
+            this.cmOriginalZoom125.Size = new System.Drawing.Size(220, 34);
             this.cmOriginalZoom125.Tag = "1.25";
             this.cmOriginalZoom125.Text = "125%";
             // 
             // cmOriginalZoom150
             // 
             this.cmOriginalZoom150.Name = "cmOriginalZoom150";
-            this.cmOriginalZoom150.Size = new System.Drawing.Size(146, 22);
+            this.cmOriginalZoom150.Size = new System.Drawing.Size(220, 34);
             this.cmOriginalZoom150.Tag = "1.5";
             this.cmOriginalZoom150.Text = "150%";
             // 
             // cmOriginalZoom200
             // 
             this.cmOriginalZoom200.Name = "cmOriginalZoom200";
-            this.cmOriginalZoom200.Size = new System.Drawing.Size(146, 22);
+            this.cmOriginalZoom200.Size = new System.Drawing.Size(220, 34);
             this.cmOriginalZoom200.Tag = "2";
             this.cmOriginalZoom200.Text = "200%";
             // 
             // cmOriginalZoomSeparator
             // 
             this.cmOriginalZoomSeparator.Name = "cmOriginalZoomSeparator";
-            this.cmOriginalZoomSeparator.Size = new System.Drawing.Size(143, 6);
+            this.cmOriginalZoomSeparator.Size = new System.Drawing.Size(217, 6);
             // 
             // cmOriginalZoomSync
             // 
             this.cmOriginalZoomSync.Name = "cmOriginalZoomSync";
-            this.cmOriginalZoomSync.Size = new System.Drawing.Size(146, 22);
+            this.cmOriginalZoomSync.Size = new System.Drawing.Size(220, 34);
             this.cmOriginalZoomSync.Text = "Sync all views";
             // 
             // picBestMatch
             // 
             this.picBestMatch.ContextMenuStrip = this.cmBestMatch;
-            this.picBestMatch.Location = new System.Drawing.Point(105, 5);
-            this.picBestMatch.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.picBestMatch.Location = new System.Drawing.Point(135, 7);
+            this.picBestMatch.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.picBestMatch.Name = "picBestMatch";
             this.picBestMatch.ShowLastChange = false;
-            this.picBestMatch.Size = new System.Drawing.Size(93, 35);
+            this.picBestMatch.Size = new System.Drawing.Size(120, 47);
             this.picBestMatch.State = null;
             this.picBestMatch.TabIndex = 0;
             this.picBestMatch.Wireframe = false;
@@ -286,12 +288,13 @@
             // 
             // cmBestMatch
             // 
+            this.cmBestMatch.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.cmBestMatch.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cmBestMatchZoom,
             this.cmBestMatchWireframe,
             this.cmBestMatchShowLastChange});
             this.cmBestMatch.Name = "cmBestMatch";
-            this.cmBestMatch.Size = new System.Drawing.Size(172, 70);
+            this.cmBestMatch.Size = new System.Drawing.Size(230, 100);
             // 
             // cmBestMatchZoom
             // 
@@ -305,21 +308,21 @@
             this.cmBestMatchZoomSeparator,
             this.cmBestMatchZoomSync});
             this.cmBestMatchZoom.Name = "cmBestMatchZoom";
-            this.cmBestMatchZoom.Size = new System.Drawing.Size(171, 22);
+            this.cmBestMatchZoom.Size = new System.Drawing.Size(229, 32);
             this.cmBestMatchZoom.Text = "Zoom";
             this.cmBestMatchZoom.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.cmBestMatchZoom_DropDownItemClicked);
             // 
             // cmBestMatchZoom50
             // 
             this.cmBestMatchZoom50.Name = "cmBestMatchZoom50";
-            this.cmBestMatchZoom50.Size = new System.Drawing.Size(146, 22);
+            this.cmBestMatchZoom50.Size = new System.Drawing.Size(220, 34);
             this.cmBestMatchZoom50.Tag = ".5";
             this.cmBestMatchZoom50.Text = "50%";
             // 
             // cmBestMatchZoom75
             // 
             this.cmBestMatchZoom75.Name = "cmBestMatchZoom75";
-            this.cmBestMatchZoom75.Size = new System.Drawing.Size(146, 22);
+            this.cmBestMatchZoom75.Size = new System.Drawing.Size(220, 34);
             this.cmBestMatchZoom75.Tag = ".75";
             this.cmBestMatchZoom75.Text = "75%";
             // 
@@ -328,47 +331,47 @@
             this.cmBestMatchZoom100.Checked = true;
             this.cmBestMatchZoom100.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cmBestMatchZoom100.Name = "cmBestMatchZoom100";
-            this.cmBestMatchZoom100.Size = new System.Drawing.Size(146, 22);
+            this.cmBestMatchZoom100.Size = new System.Drawing.Size(220, 34);
             this.cmBestMatchZoom100.Tag = "1";
             this.cmBestMatchZoom100.Text = "100%";
             // 
             // cmBestMatchZoom125
             // 
             this.cmBestMatchZoom125.Name = "cmBestMatchZoom125";
-            this.cmBestMatchZoom125.Size = new System.Drawing.Size(146, 22);
+            this.cmBestMatchZoom125.Size = new System.Drawing.Size(220, 34);
             this.cmBestMatchZoom125.Tag = "1.25";
             this.cmBestMatchZoom125.Text = "125%";
             // 
             // cmBestMatchZoom150
             // 
             this.cmBestMatchZoom150.Name = "cmBestMatchZoom150";
-            this.cmBestMatchZoom150.Size = new System.Drawing.Size(146, 22);
+            this.cmBestMatchZoom150.Size = new System.Drawing.Size(220, 34);
             this.cmBestMatchZoom150.Tag = "1.5";
             this.cmBestMatchZoom150.Text = "150%";
             // 
             // cmBestMatchZoom200
             // 
             this.cmBestMatchZoom200.Name = "cmBestMatchZoom200";
-            this.cmBestMatchZoom200.Size = new System.Drawing.Size(146, 22);
+            this.cmBestMatchZoom200.Size = new System.Drawing.Size(220, 34);
             this.cmBestMatchZoom200.Tag = "2";
             this.cmBestMatchZoom200.Text = "200%";
             // 
             // cmBestMatchZoomSeparator
             // 
             this.cmBestMatchZoomSeparator.Name = "cmBestMatchZoomSeparator";
-            this.cmBestMatchZoomSeparator.Size = new System.Drawing.Size(143, 6);
+            this.cmBestMatchZoomSeparator.Size = new System.Drawing.Size(217, 6);
             // 
             // cmBestMatchZoomSync
             // 
             this.cmBestMatchZoomSync.Name = "cmBestMatchZoomSync";
-            this.cmBestMatchZoomSync.Size = new System.Drawing.Size(146, 22);
+            this.cmBestMatchZoomSync.Size = new System.Drawing.Size(220, 34);
             this.cmBestMatchZoomSync.Text = "Sync all views";
             // 
             // cmBestMatchWireframe
             // 
             this.cmBestMatchWireframe.CheckOnClick = true;
             this.cmBestMatchWireframe.Name = "cmBestMatchWireframe";
-            this.cmBestMatchWireframe.Size = new System.Drawing.Size(171, 22);
+            this.cmBestMatchWireframe.Size = new System.Drawing.Size(229, 32);
             this.cmBestMatchWireframe.Text = "Show Wireframe";
             this.cmBestMatchWireframe.CheckedChanged += new System.EventHandler(this.showWireframeToolStripMenuItem_CheckedChanged);
             // 
@@ -376,7 +379,7 @@
             // 
             this.cmBestMatchShowLastChange.CheckOnClick = true;
             this.cmBestMatchShowLastChange.Name = "cmBestMatchShowLastChange";
-            this.cmBestMatchShowLastChange.Size = new System.Drawing.Size(171, 22);
+            this.cmBestMatchShowLastChange.Size = new System.Drawing.Size(229, 32);
             this.cmBestMatchShowLastChange.Text = "Show Last Change";
             this.cmBestMatchShowLastChange.CheckedChanged += new System.EventHandler(this.showLastChangeToolStripMenuItem_CheckedChanged);
             // 
@@ -385,17 +388,18 @@
             this.picDiff.ContextMenuStrip = this.cmDiff;
             this.picDiff.Exaggerate = true;
             this.picDiff.Invert = false;
-            this.picDiff.Location = new System.Drawing.Point(206, 5);
-            this.picDiff.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.picDiff.Location = new System.Drawing.Point(265, 7);
+            this.picDiff.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.picDiff.Name = "picDiff";
             this.picDiff.ShowColor = true;
             this.picDiff.ShowLastChange = false;
-            this.picDiff.Size = new System.Drawing.Size(93, 35);
+            this.picDiff.Size = new System.Drawing.Size(120, 47);
             this.picDiff.TabIndex = 8;
             this.picDiff.Zoom = 1F;
             // 
             // cmDiff
             // 
+            this.cmDiff.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.cmDiff.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cmDiffZoom,
             this.cmDiffInvert,
@@ -403,7 +407,7 @@
             this.cmDiffExaggerate,
             this.cmDiffShowLastChange});
             this.cmDiff.Name = "cmBestMatch";
-            this.cmDiff.Size = new System.Drawing.Size(172, 114);
+            this.cmDiff.Size = new System.Drawing.Size(230, 164);
             // 
             // cmDiffZoom
             // 
@@ -417,21 +421,21 @@
             this.cmDiffZoomSeparator,
             this.cmDiffZoomSync});
             this.cmDiffZoom.Name = "cmDiffZoom";
-            this.cmDiffZoom.Size = new System.Drawing.Size(171, 22);
+            this.cmDiffZoom.Size = new System.Drawing.Size(229, 32);
             this.cmDiffZoom.Text = "Zoom";
             this.cmDiffZoom.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.cmDiffZoom_DropDownItemClicked);
             // 
             // cmDiffZoom50
             // 
             this.cmDiffZoom50.Name = "cmDiffZoom50";
-            this.cmDiffZoom50.Size = new System.Drawing.Size(146, 22);
+            this.cmDiffZoom50.Size = new System.Drawing.Size(220, 34);
             this.cmDiffZoom50.Tag = ".5";
             this.cmDiffZoom50.Text = "50%";
             // 
             // cmDiffZoom75
             // 
             this.cmDiffZoom75.Name = "cmDiffZoom75";
-            this.cmDiffZoom75.Size = new System.Drawing.Size(146, 22);
+            this.cmDiffZoom75.Size = new System.Drawing.Size(220, 34);
             this.cmDiffZoom75.Tag = ".75";
             this.cmDiffZoom75.Text = "75%";
             // 
@@ -440,47 +444,47 @@
             this.cmDiffZoom100.Checked = true;
             this.cmDiffZoom100.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cmDiffZoom100.Name = "cmDiffZoom100";
-            this.cmDiffZoom100.Size = new System.Drawing.Size(146, 22);
+            this.cmDiffZoom100.Size = new System.Drawing.Size(220, 34);
             this.cmDiffZoom100.Tag = "1";
             this.cmDiffZoom100.Text = "100%";
             // 
             // cmDiffZoom125
             // 
             this.cmDiffZoom125.Name = "cmDiffZoom125";
-            this.cmDiffZoom125.Size = new System.Drawing.Size(146, 22);
+            this.cmDiffZoom125.Size = new System.Drawing.Size(220, 34);
             this.cmDiffZoom125.Tag = "1.25";
             this.cmDiffZoom125.Text = "125%";
             // 
             // cmDiffZoom150
             // 
             this.cmDiffZoom150.Name = "cmDiffZoom150";
-            this.cmDiffZoom150.Size = new System.Drawing.Size(146, 22);
+            this.cmDiffZoom150.Size = new System.Drawing.Size(220, 34);
             this.cmDiffZoom150.Tag = "1.5";
             this.cmDiffZoom150.Text = "150%";
             // 
             // cmDiffZoom200
             // 
             this.cmDiffZoom200.Name = "cmDiffZoom200";
-            this.cmDiffZoom200.Size = new System.Drawing.Size(146, 22);
+            this.cmDiffZoom200.Size = new System.Drawing.Size(220, 34);
             this.cmDiffZoom200.Tag = "2";
             this.cmDiffZoom200.Text = "200%";
             // 
             // cmDiffZoomSeparator
             // 
             this.cmDiffZoomSeparator.Name = "cmDiffZoomSeparator";
-            this.cmDiffZoomSeparator.Size = new System.Drawing.Size(143, 6);
+            this.cmDiffZoomSeparator.Size = new System.Drawing.Size(217, 6);
             // 
             // cmDiffZoomSync
             // 
             this.cmDiffZoomSync.Name = "cmDiffZoomSync";
-            this.cmDiffZoomSync.Size = new System.Drawing.Size(146, 22);
+            this.cmDiffZoomSync.Size = new System.Drawing.Size(220, 34);
             this.cmDiffZoomSync.Text = "Sync all views";
             // 
             // cmDiffInvert
             // 
             this.cmDiffInvert.CheckOnClick = true;
             this.cmDiffInvert.Name = "cmDiffInvert";
-            this.cmDiffInvert.Size = new System.Drawing.Size(171, 22);
+            this.cmDiffInvert.Size = new System.Drawing.Size(229, 32);
             this.cmDiffInvert.Text = "Invert";
             this.cmDiffInvert.CheckedChanged += new System.EventHandler(this.cmDiffInvert_CheckedChanged);
             // 
@@ -490,7 +494,7 @@
             this.cmDiffShowColor.CheckOnClick = true;
             this.cmDiffShowColor.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cmDiffShowColor.Name = "cmDiffShowColor";
-            this.cmDiffShowColor.Size = new System.Drawing.Size(171, 22);
+            this.cmDiffShowColor.Size = new System.Drawing.Size(229, 32);
             this.cmDiffShowColor.Text = "Show Color";
             this.cmDiffShowColor.CheckedChanged += new System.EventHandler(this.cmDiffShowColor_CheckedChanged);
             // 
@@ -500,7 +504,7 @@
             this.cmDiffExaggerate.CheckOnClick = true;
             this.cmDiffExaggerate.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cmDiffExaggerate.Name = "cmDiffExaggerate";
-            this.cmDiffExaggerate.Size = new System.Drawing.Size(171, 22);
+            this.cmDiffExaggerate.Size = new System.Drawing.Size(229, 32);
             this.cmDiffExaggerate.Text = "Exaggerate";
             this.cmDiffExaggerate.CheckedChanged += new System.EventHandler(this.cmDiffExaggerate_CheckedChanged);
             // 
@@ -508,7 +512,7 @@
             // 
             this.cmDiffShowLastChange.CheckOnClick = true;
             this.cmDiffShowLastChange.Name = "cmDiffShowLastChange";
-            this.cmDiffShowLastChange.Size = new System.Drawing.Size(171, 22);
+            this.cmDiffShowLastChange.Size = new System.Drawing.Size(229, 32);
             this.cmDiffShowLastChange.Text = "Show Last Change";
             this.cmDiffShowLastChange.Click += new System.EventHandler(this.cmDiffShowLastChange_Click);
             // 
@@ -531,20 +535,20 @@
             this.panel1.Controls.Add(this.nPolygons);
             this.panel1.Controls.Add(this.nVertices);
             this.panel1.ForeColor = System.Drawing.Color.White;
-            this.panel1.Location = new System.Drawing.Point(307, 5);
-            this.panel1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.panel1.Location = new System.Drawing.Point(395, 7);
+            this.panel1.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(237, 291);
+            this.panel1.Size = new System.Drawing.Size(305, 388);
             this.panel1.TabIndex = 6;
             // 
             // lScale
             // 
             this.lScale.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lScale.AutoSize = true;
-            this.lScale.Location = new System.Drawing.Point(8, 250);
-            this.lScale.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lScale.Location = new System.Drawing.Point(10, 333);
+            this.lScale.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.lScale.Name = "lScale";
-            this.lScale.Size = new System.Drawing.Size(55, 15);
+            this.lScale.Size = new System.Drawing.Size(79, 20);
             this.lScale.TabIndex = 18;
             this.lScale.Text = "EvalScale";
             // 
@@ -553,11 +557,11 @@
             this.tbEvalScale.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbEvalScale.LargeChange = 25;
-            this.tbEvalScale.Location = new System.Drawing.Point(71, 245);
-            this.tbEvalScale.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.tbEvalScale.Location = new System.Drawing.Point(91, 327);
+            this.tbEvalScale.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.tbEvalScale.Maximum = 100;
             this.tbEvalScale.Name = "tbEvalScale";
-            this.tbEvalScale.Size = new System.Drawing.Size(162, 45);
+            this.tbEvalScale.Size = new System.Drawing.Size(208, 69);
             this.tbEvalScale.SmallChange = 5;
             this.tbEvalScale.TabIndex = 17;
             this.tbEvalScale.TickFrequency = 10;
@@ -567,10 +571,10 @@
             // bEditEvaluatorSettings
             // 
             this.bEditEvaluatorSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bEditEvaluatorSettings.Location = new System.Drawing.Point(211, 216);
-            this.bEditEvaluatorSettings.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.bEditEvaluatorSettings.Location = new System.Drawing.Point(271, 288);
+            this.bEditEvaluatorSettings.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.bEditEvaluatorSettings.Name = "bEditEvaluatorSettings";
-            this.bEditEvaluatorSettings.Size = new System.Drawing.Size(22, 24);
+            this.bEditEvaluatorSettings.Size = new System.Drawing.Size(28, 32);
             this.bEditEvaluatorSettings.TabIndex = 16;
             this.bEditEvaluatorSettings.UseVisualStyleBackColor = true;
             this.bEditEvaluatorSettings.Click += new System.EventHandler(this.bEditEvaluatorSettings_Click);
@@ -578,10 +582,10 @@
             // bEditMutatorSettings
             // 
             this.bEditMutatorSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bEditMutatorSettings.Location = new System.Drawing.Point(211, 185);
-            this.bEditMutatorSettings.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.bEditMutatorSettings.Location = new System.Drawing.Point(271, 247);
+            this.bEditMutatorSettings.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.bEditMutatorSettings.Name = "bEditMutatorSettings";
-            this.bEditMutatorSettings.Size = new System.Drawing.Size(22, 24);
+            this.bEditMutatorSettings.Size = new System.Drawing.Size(28, 32);
             this.bEditMutatorSettings.TabIndex = 15;
             this.bEditMutatorSettings.UseVisualStyleBackColor = true;
             this.bEditMutatorSettings.Click += new System.EventHandler(this.bEditMutatorSettings_Click);
@@ -589,10 +593,10 @@
             // bEditInitializerSetting
             // 
             this.bEditInitializerSetting.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bEditInitializerSetting.Location = new System.Drawing.Point(211, 153);
-            this.bEditInitializerSetting.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.bEditInitializerSetting.Location = new System.Drawing.Point(271, 204);
+            this.bEditInitializerSetting.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.bEditInitializerSetting.Name = "bEditInitializerSetting";
-            this.bEditInitializerSetting.Size = new System.Drawing.Size(22, 24);
+            this.bEditInitializerSetting.Size = new System.Drawing.Size(28, 32);
             this.bEditInitializerSetting.TabIndex = 14;
             this.bEditInitializerSetting.UseVisualStyleBackColor = true;
             this.bEditInitializerSetting.Click += new System.EventHandler(this.bEditInitializerSetting_Click);
@@ -601,10 +605,10 @@
             // 
             this.lEvaluator.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lEvaluator.AutoSize = true;
-            this.lEvaluator.Location = new System.Drawing.Point(7, 222);
-            this.lEvaluator.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lEvaluator.Location = new System.Drawing.Point(9, 296);
+            this.lEvaluator.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.lEvaluator.Name = "lEvaluator";
-            this.lEvaluator.Size = new System.Drawing.Size(56, 15);
+            this.lEvaluator.Size = new System.Drawing.Size(76, 20);
             this.lEvaluator.TabIndex = 13;
             this.lEvaluator.Text = "Evaluator";
             // 
@@ -620,10 +624,10 @@
             "RGB+Luma (Fast)",
             "RGB+Luma (Smooth)",
             "RGB+Emphasis (Sloppy)"});
-            this.cEvaluator.Location = new System.Drawing.Point(71, 216);
-            this.cEvaluator.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.cEvaluator.Location = new System.Drawing.Point(91, 288);
+            this.cEvaluator.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.cEvaluator.Name = "cEvaluator";
-            this.cEvaluator.Size = new System.Drawing.Size(132, 23);
+            this.cEvaluator.Size = new System.Drawing.Size(169, 28);
             this.cEvaluator.TabIndex = 12;
             this.cEvaluator.SelectedIndexChanged += new System.EventHandler(this.cEvaluator_SelectedIndexChanged);
             // 
@@ -631,10 +635,10 @@
             // 
             this.lMutator.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lMutator.AutoSize = true;
-            this.lMutator.Location = new System.Drawing.Point(13, 190);
-            this.lMutator.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lMutator.Location = new System.Drawing.Point(17, 253);
+            this.lMutator.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.lMutator.Name = "lMutator";
-            this.lMutator.Size = new System.Drawing.Size(50, 15);
+            this.lMutator.Size = new System.Drawing.Size(64, 20);
             this.lMutator.TabIndex = 11;
             this.lMutator.Text = "Mutator";
             // 
@@ -642,10 +646,10 @@
             // 
             this.lInitializer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lInitializer.AutoSize = true;
-            this.lInitializer.Location = new System.Drawing.Point(9, 158);
-            this.lInitializer.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lInitializer.Location = new System.Drawing.Point(12, 211);
+            this.lInitializer.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.lInitializer.Name = "lInitializer";
-            this.lInitializer.Size = new System.Drawing.Size(54, 15);
+            this.lInitializer.Size = new System.Drawing.Size(71, 20);
             this.lInitializer.TabIndex = 10;
             this.lInitializer.Text = "Initializer";
             // 
@@ -670,10 +674,10 @@
             "Soft Translate/Rotate",
             "Soft Transform",
             "Hardish"});
-            this.cMutator.Location = new System.Drawing.Point(71, 185);
-            this.cMutator.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.cMutator.Location = new System.Drawing.Point(91, 247);
+            this.cMutator.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.cMutator.Name = "cMutator";
-            this.cMutator.Size = new System.Drawing.Size(132, 23);
+            this.cMutator.Size = new System.Drawing.Size(169, 28);
             this.cMutator.TabIndex = 9;
             this.cMutator.SelectedIndexChanged += new System.EventHandler(this.cMutator_SelectedIndexChanged);
             // 
@@ -687,10 +691,10 @@
             "FullRandom",
             "Segmented",
             "Radial"});
-            this.cInitializer.Location = new System.Drawing.Point(71, 153);
-            this.cInitializer.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.cInitializer.Location = new System.Drawing.Point(91, 204);
+            this.cInitializer.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.cInitializer.Name = "cInitializer";
-            this.cInitializer.Size = new System.Drawing.Size(132, 23);
+            this.cInitializer.Size = new System.Drawing.Size(169, 28);
             this.cInitializer.TabIndex = 8;
             this.cInitializer.SelectedIndexChanged += new System.EventHandler(this.cInitializer_SelectedIndexChanged);
             // 
@@ -700,20 +704,20 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.graphWindow1.BackColor = System.Drawing.Color.White;
-            this.graphWindow1.Location = new System.Drawing.Point(4, 3);
-            this.graphWindow1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.graphWindow1.Location = new System.Drawing.Point(5, 4);
+            this.graphWindow1.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.graphWindow1.Name = "graphWindow1";
-            this.graphWindow1.Size = new System.Drawing.Size(230, 113);
+            this.graphWindow1.Size = new System.Drawing.Size(296, 151);
             this.graphWindow1.TabIndex = 9;
             // 
             // lPoints
             // 
             this.lPoints.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lPoints.AutoSize = true;
-            this.lPoints.Location = new System.Drawing.Point(23, 126);
-            this.lPoints.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lPoints.Location = new System.Drawing.Point(30, 168);
+            this.lPoints.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.lPoints.Name = "lPoints";
-            this.lPoints.Size = new System.Drawing.Size(40, 15);
+            this.lPoints.Size = new System.Drawing.Size(53, 20);
             this.lPoints.TabIndex = 7;
             this.lPoints.Text = "Points";
             // 
@@ -721,18 +725,18 @@
             // 
             this.lShapes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.lShapes.AutoSize = true;
-            this.lShapes.Location = new System.Drawing.Point(130, 126);
-            this.lShapes.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lShapes.Location = new System.Drawing.Point(167, 168);
+            this.lShapes.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.lShapes.Name = "lShapes";
-            this.lShapes.Size = new System.Drawing.Size(44, 15);
+            this.lShapes.Size = new System.Drawing.Size(64, 20);
             this.lShapes.TabIndex = 6;
             this.lShapes.Text = "Shapes";
             // 
             // nPolygons
             // 
             this.nPolygons.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.nPolygons.Location = new System.Drawing.Point(182, 123);
-            this.nPolygons.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.nPolygons.Location = new System.Drawing.Point(234, 164);
+            this.nPolygons.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.nPolygons.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -744,7 +748,7 @@
             0,
             0});
             this.nPolygons.Name = "nPolygons";
-            this.nPolygons.Size = new System.Drawing.Size(51, 23);
+            this.nPolygons.Size = new System.Drawing.Size(66, 26);
             this.nPolygons.TabIndex = 4;
             this.nPolygons.Value = new decimal(new int[] {
             50,
@@ -754,8 +758,8 @@
             // 
             // nVertices
             // 
-            this.nVertices.Location = new System.Drawing.Point(71, 123);
-            this.nVertices.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.nVertices.Location = new System.Drawing.Point(91, 164);
+            this.nVertices.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.nVertices.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -767,7 +771,7 @@
             0,
             0});
             this.nVertices.Name = "nVertices";
-            this.nVertices.Size = new System.Drawing.Size(47, 23);
+            this.nVertices.Size = new System.Drawing.Size(60, 26);
             this.nVertices.TabIndex = 5;
             this.nVertices.Value = new decimal(new int[] {
             6,
@@ -778,10 +782,10 @@
             // pStatistics
             // 
             this.pStatistics.Controls.Add(this.tMutationStats);
-            this.pStatistics.Location = new System.Drawing.Point(552, 5);
-            this.pStatistics.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.pStatistics.Location = new System.Drawing.Point(710, 7);
+            this.pStatistics.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.pStatistics.Name = "pStatistics";
-            this.pStatistics.Size = new System.Drawing.Size(240, 290);
+            this.pStatistics.Size = new System.Drawing.Size(309, 387);
             this.pStatistics.TabIndex = 9;
             // 
             // tMutationStats
@@ -789,17 +793,18 @@
             this.tMutationStats.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tMutationStats.Font = new System.Drawing.Font("Consolas", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.tMutationStats.Location = new System.Drawing.Point(4, 3);
-            this.tMutationStats.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.tMutationStats.Font = new System.Drawing.Font("Consolas", 6.75F);
+            this.tMutationStats.Location = new System.Drawing.Point(5, 4);
+            this.tMutationStats.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.tMutationStats.Multiline = true;
             this.tMutationStats.Name = "tMutationStats";
             this.tMutationStats.ReadOnly = true;
-            this.tMutationStats.Size = new System.Drawing.Size(231, 284);
+            this.tMutationStats.Size = new System.Drawing.Size(296, 377);
             this.tMutationStats.TabIndex = 7;
             // 
             // toolStrip
             // 
+            this.toolStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.bNewProject,
             this.bOpenProject,
@@ -820,7 +825,8 @@
             this.menuHelp});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(1029, 25);
+            this.toolStrip.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
+            this.toolStrip.Size = new System.Drawing.Size(1323, 34);
             this.toolStrip.TabIndex = 5;
             // 
             // bNewProject
@@ -829,7 +835,7 @@
             this.bNewProject.Image = global::SuperImageEvolver.Properties.Resources.document;
             this.bNewProject.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.bNewProject.Name = "bNewProject";
-            this.bNewProject.Size = new System.Drawing.Size(23, 22);
+            this.bNewProject.Size = new System.Drawing.Size(34, 29);
             this.bNewProject.Text = "New Project...";
             this.bNewProject.Click += new System.EventHandler(this.bNewProject_Click);
             // 
@@ -839,7 +845,7 @@
             this.bOpenProject.Image = global::SuperImageEvolver.Properties.Resources.folder_horizontal_open;
             this.bOpenProject.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.bOpenProject.Name = "bOpenProject";
-            this.bOpenProject.Size = new System.Drawing.Size(23, 22);
+            this.bOpenProject.Size = new System.Drawing.Size(34, 29);
             this.bOpenProject.Text = "Open Project...";
             this.bOpenProject.Click += new System.EventHandler(this.bOpenProject_Click);
             // 
@@ -850,7 +856,7 @@
             this.bSaveProject.Image = global::SuperImageEvolver.Properties.Resources.disk_black;
             this.bSaveProject.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.bSaveProject.Name = "bSaveProject";
-            this.bSaveProject.Size = new System.Drawing.Size(23, 22);
+            this.bSaveProject.Size = new System.Drawing.Size(34, 29);
             this.bSaveProject.Text = "Save Project";
             this.bSaveProject.Click += new System.EventHandler(this.bSaveProject_Click);
             // 
@@ -861,7 +867,7 @@
             this.bSaveProjectAs.Image = global::SuperImageEvolver.Properties.Resources.disk__pencil;
             this.bSaveProjectAs.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.bSaveProjectAs.Name = "bSaveProjectAs";
-            this.bSaveProjectAs.Size = new System.Drawing.Size(23, 22);
+            this.bSaveProjectAs.Size = new System.Drawing.Size(34, 29);
             this.bSaveProjectAs.Text = "Save Project As...";
             this.bSaveProjectAs.Click += new System.EventHandler(this.bSaveProjectAs_Click);
             // 
@@ -872,7 +878,7 @@
             this.bRestart.Image = global::SuperImageEvolver.Properties.Resources.arrow_stop_180;
             this.bRestart.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.bRestart.Name = "bRestart";
-            this.bRestart.Size = new System.Drawing.Size(23, 22);
+            this.bRestart.Size = new System.Drawing.Size(34, 29);
             this.bRestart.Text = "Restart";
             this.bRestart.Click += new System.EventHandler(this.bRestart_Click);
             // 
@@ -883,7 +889,7 @@
             this.bStart.Image = global::SuperImageEvolver.Properties.Resources.control;
             this.bStart.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.bStart.Name = "bStart";
-            this.bStart.Size = new System.Drawing.Size(23, 22);
+            this.bStart.Size = new System.Drawing.Size(34, 29);
             this.bStart.Text = "Start / Resume";
             this.bStart.Click += new System.EventHandler(this.bStart_Click);
             // 
@@ -894,7 +900,7 @@
             this.bStop.Image = global::SuperImageEvolver.Properties.Resources.control_stop_square;
             this.bStop.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.bStop.Name = "bStop";
-            this.bStop.Size = new System.Drawing.Size(23, 22);
+            this.bStop.Size = new System.Drawing.Size(34, 29);
             this.bStop.Text = "Pause / Stop";
             this.bStop.Click += new System.EventHandler(this.bStop_Click);
             // 
@@ -908,7 +914,7 @@
             this.menuView.Image = global::SuperImageEvolver.Properties.Resources.images;
             this.menuView.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.menuView.Name = "menuView";
-            this.menuView.Size = new System.Drawing.Size(61, 22);
+            this.menuView.Size = new System.Drawing.Size(91, 29);
             this.menuView.Text = "View";
             // 
             // bViewOriginalImage
@@ -917,7 +923,7 @@
             this.bViewOriginalImage.CheckOnClick = true;
             this.bViewOriginalImage.CheckState = System.Windows.Forms.CheckState.Checked;
             this.bViewOriginalImage.Name = "bViewOriginalImage";
-            this.bViewOriginalImage.Size = new System.Drawing.Size(169, 22);
+            this.bViewOriginalImage.Size = new System.Drawing.Size(256, 34);
             this.bViewOriginalImage.Text = "Original Image";
             this.bViewOriginalImage.Click += new System.EventHandler(this.bViewOriginalImage_Click);
             // 
@@ -927,7 +933,7 @@
             this.bViewBestMatchImage.CheckOnClick = true;
             this.bViewBestMatchImage.CheckState = System.Windows.Forms.CheckState.Checked;
             this.bViewBestMatchImage.Name = "bViewBestMatchImage";
-            this.bViewBestMatchImage.Size = new System.Drawing.Size(169, 22);
+            this.bViewBestMatchImage.Size = new System.Drawing.Size(256, 34);
             this.bViewBestMatchImage.Text = "Best Match Image";
             this.bViewBestMatchImage.Click += new System.EventHandler(this.bViewBestMatchImage_Click);
             // 
@@ -937,7 +943,7 @@
             this.bViewDifferenceImage.CheckOnClick = true;
             this.bViewDifferenceImage.CheckState = System.Windows.Forms.CheckState.Checked;
             this.bViewDifferenceImage.Name = "bViewDifferenceImage";
-            this.bViewDifferenceImage.Size = new System.Drawing.Size(169, 22);
+            this.bViewDifferenceImage.Size = new System.Drawing.Size(256, 34);
             this.bViewDifferenceImage.Text = "Difference Image";
             this.bViewDifferenceImage.Click += new System.EventHandler(this.bViewDifferenceImage_Click);
             // 
@@ -947,7 +953,7 @@
             this.bViewStatistics.CheckOnClick = true;
             this.bViewStatistics.CheckState = System.Windows.Forms.CheckState.Checked;
             this.bViewStatistics.Name = "bViewStatistics";
-            this.bViewStatistics.Size = new System.Drawing.Size(169, 22);
+            this.bViewStatistics.Size = new System.Drawing.Size(256, 34);
             this.bViewStatistics.Text = "Statistics";
             this.bViewStatistics.Click += new System.EventHandler(this.bViewStatistics_Click);
             // 
@@ -959,13 +965,13 @@
             this.menuImport.Image = global::SuperImageEvolver.Properties.Resources.document_import;
             this.menuImport.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.menuImport.Name = "menuImport";
-            this.menuImport.Size = new System.Drawing.Size(72, 22);
+            this.menuImport.Size = new System.Drawing.Size(109, 29);
             this.menuImport.Text = "Import";
             // 
             // bImportDNA
             // 
             this.bImportDNA.Name = "bImportDNA";
-            this.bImportDNA.Size = new System.Drawing.Size(214, 22);
+            this.bImportDNA.Size = new System.Drawing.Size(325, 34);
             this.bImportDNA.Text = "DNA from ImageEvolution";
             this.bImportDNA.Click += new System.EventHandler(this.bImportDNA_Click);
             // 
@@ -974,7 +980,7 @@
             this.bImportSVG.Enabled = false;
             this.bImportSVG.Image = global::SuperImageEvolver.Properties.Resources.layer_shape_polygon;
             this.bImportSVG.Name = "bImportSVG";
-            this.bImportSVG.Size = new System.Drawing.Size(214, 22);
+            this.bImportSVG.Size = new System.Drawing.Size(325, 34);
             this.bImportSVG.Text = "Best Match from SVG";
             // 
             // menuExport
@@ -987,13 +993,13 @@
             this.menuExport.Image = global::SuperImageEvolver.Properties.Resources.document_export;
             this.menuExport.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.menuExport.Name = "menuExport";
-            this.menuExport.Size = new System.Drawing.Size(70, 22);
+            this.menuExport.Size = new System.Drawing.Size(105, 29);
             this.menuExport.Text = "Export";
             // 
             // bExportDNA
             // 
             this.bExportDNA.Name = "bExportDNA";
-            this.bExportDNA.Size = new System.Drawing.Size(174, 22);
+            this.bExportDNA.Size = new System.Drawing.Size(264, 34);
             this.bExportDNA.Text = "DNA";
             this.bExportDNA.Click += new System.EventHandler(this.bExportDNA_Click);
             // 
@@ -1001,7 +1007,7 @@
             // 
             this.bExportImage.Image = global::SuperImageEvolver.Properties.Resources.image_export;
             this.bExportImage.Name = "bExportImage";
-            this.bExportImage.Size = new System.Drawing.Size(174, 22);
+            this.bExportImage.Size = new System.Drawing.Size(264, 34);
             this.bExportImage.Text = "Best Match Image";
             this.bExportImage.Click += new System.EventHandler(this.bExportImage_Click);
             // 
@@ -1009,7 +1015,7 @@
             // 
             this.bExportVectors.Image = global::SuperImageEvolver.Properties.Resources.layer_shape_polygon;
             this.bExportVectors.Name = "bExportVectors";
-            this.bExportVectors.Size = new System.Drawing.Size(174, 22);
+            this.bExportVectors.Size = new System.Drawing.Size(264, 34);
             this.bExportVectors.Text = "Best Match Vectors";
             this.bExportVectors.Click += new System.EventHandler(this.bExportVectors_Click);
             // 
@@ -1023,21 +1029,21 @@
             this.menuOptions.Image = global::SuperImageEvolver.Properties.Resources.gear;
             this.menuOptions.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.menuOptions.Name = "menuOptions";
-            this.menuOptions.Size = new System.Drawing.Size(29, 22);
+            this.menuOptions.Size = new System.Drawing.Size(42, 29);
             this.menuOptions.Text = "toolStripDropDownButton1";
             this.menuOptions.ToolTipText = "Tools";
             // 
             // bProjectOptions
             // 
             this.bProjectOptions.Name = "bProjectOptions";
-            this.bProjectOptions.Size = new System.Drawing.Size(216, 22);
+            this.bProjectOptions.Size = new System.Drawing.Size(330, 34);
             this.bProjectOptions.Text = "Project Options";
             this.bProjectOptions.Click += new System.EventHandler(this.bProjectOptions_Click);
             // 
             // bMatteToAverageColor
             // 
             this.bMatteToAverageColor.Name = "bMatteToAverageColor";
-            this.bMatteToAverageColor.Size = new System.Drawing.Size(216, 22);
+            this.bMatteToAverageColor.Size = new System.Drawing.Size(330, 34);
             this.bMatteToAverageColor.Text = "Set Matte to Average Color";
             this.bMatteToAverageColor.Click += new System.EventHandler(this.bMatteToAverageColor_Click);
             // 
@@ -1046,29 +1052,30 @@
             this.polygonValueEvaluationToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.evaluateToolStripMenuItem,
             this.redistributeLeastValuableShapesToolStripMenuItem,
+            this.reinitLeastValuableShapesToolStripMenuItem,
             this.clearOutlinesToolStripMenuItem});
             this.polygonValueEvaluationToolStripMenuItem.Name = "polygonValueEvaluationToolStripMenuItem";
-            this.polygonValueEvaluationToolStripMenuItem.Size = new System.Drawing.Size(216, 22);
+            this.polygonValueEvaluationToolStripMenuItem.Size = new System.Drawing.Size(330, 34);
             this.polygonValueEvaluationToolStripMenuItem.Text = "Polygon Value";
             // 
             // evaluateToolStripMenuItem
             // 
             this.evaluateToolStripMenuItem.Name = "evaluateToolStripMenuItem";
-            this.evaluateToolStripMenuItem.Size = new System.Drawing.Size(250, 22);
+            this.evaluateToolStripMenuItem.Size = new System.Drawing.Size(379, 34);
             this.evaluateToolStripMenuItem.Text = "Evaluate";
             this.evaluateToolStripMenuItem.Click += new System.EventHandler(this.evaluatePolygonValueToolStripMenuItem_Click);
             // 
             // redistributeLeastValuableShapesToolStripMenuItem
             // 
             this.redistributeLeastValuableShapesToolStripMenuItem.Name = "redistributeLeastValuableShapesToolStripMenuItem";
-            this.redistributeLeastValuableShapesToolStripMenuItem.Size = new System.Drawing.Size(250, 22);
+            this.redistributeLeastValuableShapesToolStripMenuItem.Size = new System.Drawing.Size(379, 34);
             this.redistributeLeastValuableShapesToolStripMenuItem.Text = "Redistribute least valuable shapes";
             this.redistributeLeastValuableShapesToolStripMenuItem.Click += new System.EventHandler(this.eliminateLVPToolStripMenuItem_Click);
             // 
             // clearOutlinesToolStripMenuItem
             // 
             this.clearOutlinesToolStripMenuItem.Name = "clearOutlinesToolStripMenuItem";
-            this.clearOutlinesToolStripMenuItem.Size = new System.Drawing.Size(250, 22);
+            this.clearOutlinesToolStripMenuItem.Size = new System.Drawing.Size(379, 34);
             this.clearOutlinesToolStripMenuItem.Text = "Clear outlines";
             this.clearOutlinesToolStripMenuItem.Click += new System.EventHandler(this.clearOutlinesToolStripMenuItem_Click);
             // 
@@ -1080,25 +1087,32 @@
             this.menuHelp.Image = global::SuperImageEvolver.Properties.Resources.information;
             this.menuHelp.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.menuHelp.Name = "menuHelp";
-            this.menuHelp.Size = new System.Drawing.Size(29, 22);
+            this.menuHelp.Size = new System.Drawing.Size(42, 29);
             this.menuHelp.ToolTipText = "Help";
             // 
             // bHelpListModules
             // 
             this.bHelpListModules.Name = "bHelpListModules";
-            this.bHelpListModules.Size = new System.Drawing.Size(141, 22);
+            this.bHelpListModules.Size = new System.Drawing.Size(214, 34);
             this.bHelpListModules.Text = "List Modules";
             this.bHelpListModules.Click += new System.EventHandler(this.bHelpListModules_Click);
             // 
+            // reinitLeastValuableShapesToolStripMenuItem
+            // 
+            this.reinitLeastValuableShapesToolStripMenuItem.Name = "reinitLeastValuableShapesToolStripMenuItem";
+            this.reinitLeastValuableShapesToolStripMenuItem.Size = new System.Drawing.Size(379, 34);
+            this.reinitLeastValuableShapesToolStripMenuItem.Text = "Re-init least valuable shapes";
+            this.reinitLeastValuableShapesToolStripMenuItem.Click += new System.EventHandler(this.reinitLeastValuableShapesToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.ClientSize = new System.Drawing.Size(1029, 560);
+            this.ClientSize = new System.Drawing.Size(1323, 747);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.flowLayoutPanel1);
-            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.Name = "MainForm";
             this.Text = "Super Image Evolver";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
@@ -1212,6 +1226,7 @@
         private System.Windows.Forms.TrackBar tbEvalScale;
         private System.Windows.Forms.Label lScale;
         private System.Windows.Forms.ToolTip ttEvalScale;
+        private System.Windows.Forms.ToolStripMenuItem reinitLeastValuableShapesToolStripMenuItem;
     }
 }
 
