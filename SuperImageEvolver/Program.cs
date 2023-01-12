@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -17,9 +16,9 @@ namespace SuperImageEvolver
             }
             else
             {
-                Task.Run(WorkServer.Start);
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
+                Task.Run(WorkServer.Start);
                 Application.Run(new MainForm(args));
             }
         }
