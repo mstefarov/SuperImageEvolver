@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -446,7 +446,7 @@ namespace SuperImageEvolver {
                     State.SetEvaluator(new PerceptualEvaluator(true));
                     break;
                 case 4:
-                    State.SetEvaluator(new WeightedSloppyRGBEvaluator());
+                    State.SetEvaluator(new WeightedRGBEvaluator());
                     break;
             }
             RefreshBestMatchDisplay();

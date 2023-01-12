@@ -80,7 +80,7 @@
     <Compile Include="DNAImportWindow.Designer.cs">
       <DependentUpon>DNAImportWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="Evaluators\WeightedSloppyRGBEvaluator.cs" />
+    <Compile Include="Evaluators\WeightedRGBEvaluator.cs" />
     <Compile Include="Evaluators\IEvaluator.cs" />
     <Compile Include="Evaluators\PerceptualEvaluator.cs" />
     <Compile Include="Evaluators\RGBEvaluator.cs" />

@@ -103,9 +103,9 @@ namespace SuperImageEvolver {
                     }
                 }
 
-                if (state.Evaluator is WeightedSloppyRGBEvaluator we) {
-                    g.DrawEllipse(Pens.Red, we.GetDebugCenterBoundary());
-                    g.DrawEllipse(Pens.Red, we.GetDebugOuterBoundary());
+                if (state.Evaluator is WeightedRGBEvaluator we) {
+                    g.DrawEllipse(Pens.Red, we.GetDebugCenterBoundary(state));
+                    g.DrawEllipse(Pens.Red, we.GetDebugOuterBoundary(state));
                 }
             } else {
                 g.Clear( Color.White );
