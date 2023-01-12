@@ -154,7 +154,10 @@ namespace SuperImageEvolver {
         }
 
         object ICloneable.Clone() {
-            return new PerceptualEvaluator( Smooth );
+            return new PerceptualEvaluator(Smooth) {
+                ColorImportance = ColorImportance,
+                ColorSpace = ColorSpace,
+            };
         }
 
 
@@ -178,10 +181,14 @@ namespace SuperImageEvolver {
             ZN = 108.884;
 
         // these constant are used in CIEXYZ -> CIELAB conversion
-        public const double
+        const double
             LinearThreshold = (6/29d)*(6/29d)*(6/29d),
             LinearMultiplier = 1 / (3 * (6 / 29d) * (6 / 29d)),
             LinearConstant = (4/29d);
+
+        // these constants are used in CIEXYZ -> CIELUV conversion
+        const double RefU = (4 * XN) / (XN + (15 * YN) + (3 * ZN));
+        const double RefV = (9 * YN) / (XN + (15 * YN) + (3 * ZN));
 
         // Conversion from RGB to CIELAB, using illuminant D65.
         static LabColor ToLab(byte b, byte g, byte r) {
@@ -239,12 +246,9 @@ namespace SuperImageEvolver {
             if (y > 0.008856) y = Math.Pow(y, 1 / 3d);
             else y = (7.787 * y) + (16 / 116d);
 
-            var refU = (4 * XN) / (XN + (15 * YN) + (3 * ZN));
-            var refV = (9 * YN) / (XN + (15 * YN) + (3 * ZN));
-
             var cieL = (116 * y) - 16;
-            var cieU = 13 * cieL * (u - refU);
-            var cieV = 13 * cieL * (v - refV);
+            var cieU = 13 * cieL * (u - RefU);
+            var cieV = 13 * cieL * (v - RefV);
             return new LabColor(cieL, cieU, cieV);
         }
 
