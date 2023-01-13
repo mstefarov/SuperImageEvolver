@@ -169,7 +169,7 @@ namespace SuperImageEvolver {
                     int b = Math.Abs(*originalPointer - *testPointer);
                     int g = Math.Abs(originalPointer[1] - testPointer[1]);
                     int r = Math.Abs(originalPointer[2] - testPointer[2]);
-                    float divergence = (float)((r + g + b) * GetWeight(i, j, emphasisPixelX, emphasisPixelY, maxRadius));
+                    float divergence = (float)((r + g + b) * GetWeight(j, i, emphasisPixelX, emphasisPixelY, maxRadius));
                     maxObservedDivergence = Math.Max(maxObservedDivergence, divergence);
                     *(float*)testPointer = divergence;
                     originalPointer += 4;
@@ -202,7 +202,6 @@ namespace SuperImageEvolver {
         }
         
         public Rectangle GetDebugCenterBoundary(TaskState state) {
-            // Everything is "times 2" because internally the sloppy evaluator uses half resolution
             int cx = (int)Math.Round(EmphasisCenterX * state.ImageWidth);
             int cy = (int)Math.Round(EmphasisCenterY * state.ImageHeight);
             int cr = (int)Math.Ceiling(GetMaxRadius(state.ImageWidth, state.ImageHeight) * EmphasisRange * CenterRange);
