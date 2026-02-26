@@ -30,54 +30,42 @@ namespace SuperImageEvolver {
                 Debug.Assert(mutation.Shapes.Single(s => s.PreviousState != null) != null, "PreviousState not set");
 
                 bool takeRisk = (rand.NextDouble() < state.ProjectOptions.RiskRate * state.CurrentMatch.Divergence);
-                double riskMargin = -(state.CurrentMatch.Divergence * state.CurrentMatch.Divergence) *
-                                    state.ProjectOptions.RiskMargin;
-                if (!takeRisk)
-                    riskMargin = 0;
+                double riskMargin = 0;
+                if (takeRisk)
+                    riskMargin = (state.CurrentMatch.Divergence * state.CurrentMatch.Divergence) * state.ProjectOptions.RiskMargin;
 
                 mutation.Divergence = state.Evaluator.CalculateDivergence(testCanvas,
                                                                           mutation,
                                                                           state,
-                                                                          state.CurrentMatch.Divergence - riskMargin);
+                                                                          state.CurrentMatch.Divergence + riskMargin);
 
                 if (Math.Abs(mutation.Divergence - 1) < float.Epsilon)
                     continue;
 
                 double improvement = state.CurrentMatch.Divergence - mutation.Divergence;
 
-                if (improvement > 0 || takeRisk && (improvement > riskMargin)) {
-                    lock (state.ImprovementLock) {
-                        riskMargin = -(state.CurrentMatch.Divergence * state.CurrentMatch.Divergence) *
-                                     state.ProjectOptions.RiskMargin;
-                        if (!takeRisk)
-                            riskMargin = 0;
 
-                        // Double-check inside lock, in case CurrentMatch has changed
-                        mutation.Divergence = state.Evaluator.CalculateDivergence(testCanvas,
-                                                                                  mutation,
-                                                                                  state,
-                                                                                  state.CurrentMatch.Divergence - riskMargin);
-                        improvement = state.CurrentMatch.Divergence - mutation.Divergence;
-
-                        if (improvement > 0 || takeRisk && (improvement > riskMargin)) {
-                            if (improvement <= 0) {
-                                if (state.BestMatch.Divergence < state.CurrentMatch.Divergence) {
-                                    state.Stats.FailedRiskCounter++;
-                                    mutation = state.BestMatch;
-                                } else {
-                                    state.Stats.RiskyMoveCounter++;
-                                }
-                            } else {
-                                state.Stats.MutationCounts[mutation.LastMutation]++;
-                                state.Stats.MutationImprovements[mutation.LastMutation] += improvement;
-                            }
-
-                            state.CurrentMatch = mutation;
-                            if (mutation.Divergence < state.BestMatch.Divergence) {
-                                Debug.WriteLine("New best match found!");
-                                state.SetBestMatch(mutation);
-                            }
+                if (improvement > riskMargin) {
+                    bool wasRisky = state.BestMatch.Divergence < state.CurrentMatch.Divergence;
+                    if (improvement <= 0) { // risky move
+                        if (wasRisky) {
+                            // previous move was already risky and it did not pay off
+                            state.Stats.FailedRiskCounter++;
+                            mutation = state.BestMatch;
+                        } // else let's try it
+                    } else {
+                        if (wasRisky) {
+                            // it paid off!
+                            state.Stats.RiskyMoveCounter++;
                         }
+                        state.Stats.MutationCounts[mutation.LastMutation]++;
+                        state.Stats.MutationImprovements[mutation.LastMutation] += improvement;
+                    }
+
+                    state.CurrentMatch = mutation;
+                    if (mutation.Divergence < state.BestMatch.Divergence) {
+                        Debug.WriteLine("New best match found!");
+                        state.SetBestMatch(mutation);
                     }
                 }
             }

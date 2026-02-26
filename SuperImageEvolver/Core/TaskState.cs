@@ -237,16 +237,20 @@ namespace SuperImageEvolver
             _workingDataProvider = (Bitmap)WorkingImageCopy.Clone();
             WorkingImageData =
                 _workingDataProvider.LockBits(new Rectangle(Point.Empty, WorkingImageCopy.Size),
-                                             ImageLockMode.ReadOnly,
-                                             WorkingImageCopy.PixelFormat);
+                                              ImageLockMode.ReadOnly,
+                                              WorkingImageCopy.PixelFormat);
         }
 
         private void UpgradeFromV1(NBTag tag) {
             // Upgrade stat counters to long
             tag["ImprovementCounter"].Set((long)tag.GetInt("ImprovementCounter", 0), NBTType.Long);
             tag["MutationCounter"].Set((long)tag.GetInt("MutationCounter", 0), NBTType.Long);
-            tag["RiskyMoveCounter"].Set((long)tag.GetInt("RiskyMoveCounter", 0), NBTType.Long);
-            tag["FailedRiskCounter"].Set((long)tag.GetInt("FailedRiskCounter", 0), NBTType.Long);
+            
+            // Change how risky move stats are counted
+            var oldRisky = tag.GetInt("RiskyMoveCounter", 0);
+            var oldFailedRisky = tag.GetInt("FailedRiskCounter", 0);
+            tag["RiskyMoveCounter"].Set((long)(oldRisky - oldFailedRisky), NBTType.Long);
+            tag["FailedRiskCounter"].Set((long)oldFailedRisky, NBTType.Long);
 
             // Replace "sloppyRGB" with "RGB" at 0.5 scale.
             var evaluator = tag["Evaluator"];
